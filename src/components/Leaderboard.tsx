@@ -12,26 +12,26 @@ interface LeaderboardProps {
 const COSMETICS = {
   frames: [
     { id: 'default', name: 'Default', price: 0, gradient: 'from-slate-500/20 to-slate-600/20', border: 'border-slate-500/30' },
-    { id: 'gold', name: 'Golden Aura', price: 100, gradient: 'from-yellow-400/30 to-amber-500/30', border: 'border-yellow-400/50' },
-    { id: 'diamond', name: 'Diamond Elite', price: 500, gradient: 'from-cyan-400/30 to-blue-500/30', border: 'border-cyan-400/50' },
-    { id: 'fire', name: 'Blazing Fire', price: 250, gradient: 'from-red-500/30 to-orange-500/30', border: 'border-red-400/50' },
-    { id: 'cosmic', name: 'Cosmic Energy', price: 750, gradient: 'from-purple-500/30 to-pink-500/30', border: 'border-purple-400/50' },
+    { id: 'gold', name: 'Golden Aura', price: 1, gradient: 'from-yellow-400/30 to-amber-500/30', border: 'border-yellow-400/50' },
+    { id: 'diamond', name: 'Diamond Elite', price: 3, gradient: 'from-cyan-400/30 to-blue-500/30', border: 'border-cyan-400/50' },
+    { id: 'fire', name: 'Blazing Fire', price: 2, gradient: 'from-red-500/30 to-orange-500/30', border: 'border-red-400/50' },
+    { id: 'cosmic', name: 'Cosmic Energy', price: 7, gradient: 'from-purple-500/30 to-pink-500/30', border: 'border-purple-400/50' },
   ],
   badges: [
-    { id: 'none', name: 'None', price: 0, icon: null },
-    { id: 'star', name: 'Rising Star', price: 50, icon: Star, color: 'text-yellow-400' },
-    { id: 'lightning', name: 'Speed Demon', price: 150, icon: Zap, color: 'text-blue-400' },
-    { id: 'flame', name: 'On Fire', price: 200, icon: Flame, color: 'text-red-400' },
-    { id: 'diamond', name: 'Diamond Pro', price: 400, icon: Diamond, color: 'text-cyan-400' },
-    { id: 'shield', name: 'Elite Guard', price: 300, icon: Shield, color: 'text-purple-400' },
+    { id: 'none', name: 'None', price: "???", icon: null },
+    { id: 'star', name: 'Rising Star', price: "???", icon: Star, color: 'text-yellow-400' },
+    { id: 'lightning', name: 'Speed Demon', price: "???", icon: Zap, color: 'text-blue-400' },
+    { id: 'flame', name: 'On Fire', price: "???", icon: Flame, color: 'text-red-400' },
+    { id: 'diamond', name: 'Diamond Pro', price: "???", icon: Diamond, color: 'text-cyan-400' },
+    { id: 'shield', name: 'Elite Guard', price: "???", icon: Shield, color: 'text-purple-400' },
   ],
   titles: [
-    { id: 'none', name: 'None', price: 0, text: '' },
-    { id: 'rookie', name: 'The Rookie', price: 25, text: 'The Rookie' },
-    { id: 'grinder', name: 'The Grinder', price: 100, text: 'The Grinder' },
-    { id: 'legend', name: 'Living Legend', price: 300, text: 'Living Legend' },
-    { id: 'master', name: 'Poop Master', price: 500, text: 'Poop Master' },
-    { id: 'emperor', name: 'Toilet Emperor', price: 1000, text: 'Toilet Emperor' },
+    { id: 'none', name: 'None', price: "???", text: '' },
+    { id: 'rookie', name: 'The Rookie', price: "???", text: 'The Rookie' },
+    { id: 'grinder', name: 'The Grinder', price: "???", text: 'The Grinder' },
+    { id: 'legend', name: 'Living Legend', price: "???", text: 'Living Legend' },
+    { id: 'master', name: 'Poop Master', price: "???", text: 'Poop Master' },
+    { id: 'emperor', name: 'Toilet Emperor', price: "???", text: 'Toilet Emperor' },
   ]
 };
 
@@ -111,11 +111,11 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ entries, currentUserId
           <p className="text-slate-300 text-lg">
             Anonymous rankings across all users
           </p>
-          <div className="flex items-center justify-center mt-4 space-x-2">
+          {/* <div className="flex items-center justify-center mt-4 space-x-2">
             <Sparkles className="w-4 h-4 text-purple-400 animate-pulse" />
             <span className="text-purple-300 text-sm font-medium">Featuring Premium Cosmetics</span>
             <Sparkles className="w-4 h-4 text-purple-400 animate-pulse" />
-          </div>
+          </div> */}
         </div>
       </div>
 

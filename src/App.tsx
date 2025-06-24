@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { User as UserIcon } from 'lucide-react';
 import { User, Session, Achievement, LeaderboardEntry } from './types';
 import { StorageUtils } from './utils/storage';
 import { CalculationUtils } from './utils/calculations';
@@ -211,7 +212,20 @@ function App() {
         {/* Enhanced Header */}
         <div className="text-center py-8 px-4 relative">
           <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 via-purple-500/5 to-blue-500/5 rounded-3xl blur-2xl" />
+          
           <div className="relative">
+            {/* Profile Button - Top Left within content */}
+            <button
+              onClick={() => setActiveTab(activeTab === 'profile' ? 'tracker' : 'profile')}
+              className={`absolute top-0 left-0 p-3 backdrop-blur-lg rounded-xl border transition-all duration-300 shadow-lg ${
+                activeTab === 'profile'
+                  ? 'bg-indigo-500/20 border-indigo-400/40 text-indigo-300 hover:bg-indigo-500/30'
+                  : 'bg-black/30 border-slate-600/30 text-slate-300 hover:bg-slate-800/50'
+              }`}
+            >
+              <UserIcon className="w-5 h-5" />
+            </button>
+            
             <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-blue-400 bg-clip-text text-transparent mb-3 drop-shadow-lg">
               Paid to Poop
             </h1>
