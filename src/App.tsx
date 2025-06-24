@@ -142,13 +142,13 @@ function App() {
     window.location.reload();
   };
 
-  // Calculate current session stats
+  // Calculate current session stats - ensure non-negative values
   const currentDuration = activeSession 
-    ? Math.floor((currentTime - activeSession.startTime.getTime()) / 1000)
+    ? Math.max(0, Math.floor((currentTime - activeSession.startTime.getTime()) / 1000))
     : 0;
   
   const currentEarnings = activeSession && user
-    ? CalculationUtils.calculateEarnings(user.hourlyWage, currentDuration)
+    ? Math.max(0, CalculationUtils.calculateEarnings(user.hourlyWage, currentDuration))
     : 0;
 
   // Mock leaderboard data (in a real app, this would come from your backend)
@@ -208,14 +208,22 @@ function App() {
   return (
     <div className="min-h-screen bg-black">
       <div className="container mx-auto pb-20 md:pb-6">
-        {/* Header */}
-        <div className="text-center py-8 px-4">
-          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-emerald-400 to-emerald-300 bg-clip-text text-transparent mb-2">
-            Paid to Poop
-          </h1>
-          <p className="text-gray-400 text-sm">
-            Premium anonymous break time tracking
-          </p>
+        {/* Enhanced Header */}
+        <div className="text-center py-8 px-4 relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 via-purple-500/5 to-blue-500/5 rounded-3xl blur-2xl" />
+          <div className="relative">
+            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-blue-400 bg-clip-text text-transparent mb-3 drop-shadow-lg">
+              Paid to Poop
+            </h1>
+            <p className="text-slate-300 text-lg font-medium mb-2">
+              Premium anonymous break time tracking
+            </p>
+            <div className="flex items-center justify-center space-x-2">
+              <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" />
+              <span className="text-purple-300 text-sm">Elite Edition</span>
+              <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" />
+            </div>
+          </div>
         </div>
 
         {/* Navigation */}
@@ -223,9 +231,11 @@ function App() {
           <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
         </div>
 
-        {/* Main content */}
-        <div className="max-w-md mx-auto">
-          {renderActiveTab()}
+        {/* Main content with consistent width */}
+        <div className="w-full max-w-md mx-auto px-4">
+          <div className="w-full">
+            {renderActiveTab()}
+          </div>
         </div>
       </div>
     </div>

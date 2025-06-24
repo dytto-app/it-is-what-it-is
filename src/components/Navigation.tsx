@@ -20,24 +20,51 @@ export const Navigation: React.FC<NavigationProps> = ({ activeTab, onTabChange }
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 md:relative md:bottom-auto">
-      <div className="bg-black/80 backdrop-blur-xl border-t border-gray-800/50 md:border md:rounded-2xl md:bg-black/40">
-        <div className="flex justify-around md:justify-center md:gap-2 p-2">
+      {/* Mobile Navigation */}
+      <div className="md:hidden bg-black/95 backdrop-blur-xl border-t border-slate-700/50 h-20">
+        <div className="h-full flex items-center justify-around px-2">
           {tabs.map(({ id, icon: Icon, label }) => (
             <button
               key={id}
               onClick={() => onTabChange(id)}
-              className={`flex flex-col md:flex-row items-center justify-center md:justify-start px-3 py-3 md:px-4 md:py-3 rounded-xl transition-all duration-200 min-w-0 ${
+              className={`flex flex-col items-center justify-center w-16 h-16 transition-colors duration-200 ${
                 activeTab === id
-                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 shadow-lg shadow-emerald-500/10'
-                  : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
+                  ? 'text-indigo-400'
+                  : 'text-slate-500 hover:text-slate-300'
               }`}
             >
-              <Icon className="w-5 h-5 flex-shrink-0" />
-              <span className="text-xs md:text-sm md:ml-2 mt-1 md:mt-0 truncate">
+              <Icon className="w-5 h-5 mb-1" />
+              <span className="text-xs font-medium">
                 {label}
               </span>
+              {activeTab === id && (
+                <div className="absolute bottom-0 w-8 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full" />
+              )}
             </button>
           ))}
+        </div>
+      </div>
+
+      {/* Desktop Navigation */}
+      <div className="hidden md:block">
+        <div className="bg-gradient-to-r from-black/80 to-black/70 backdrop-blur-xl rounded-2xl border border-slate-700/50 shadow-2xl">
+          <div className="flex items-center justify-center p-2">
+            {tabs.map(({ id, icon: Icon, label }) => (
+              <div key={id} className="flex-1 max-w-[120px]">
+                <button
+                  onClick={() => onTabChange(id)}
+                  className={`w-full flex items-center justify-center px-3 py-3 rounded-xl transition-all duration-300 font-medium text-sm ${
+                    activeTab === id
+                      ? 'bg-gradient-to-r from-indigo-500/30 to-purple-500/30 text-indigo-300 shadow-lg border border-indigo-400/30'
+                      : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                  }`}
+                >
+                  <Icon className="w-4 h-4 mr-2" />
+                  <span className="truncate">{label}</span>
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </nav>

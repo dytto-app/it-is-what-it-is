@@ -2,7 +2,10 @@ import { Session, Analytics } from '../types';
 
 export const CalculationUtils = {
   calculateEarnings(hourlyWage: number, durationInSeconds: number): number {
-    return (hourlyWage * durationInSeconds) / 3600;
+    // Ensure non-negative values
+    const safeDuration = Math.max(0, durationInSeconds);
+    const safeWage = Math.max(0, hourlyWage);
+    return (safeWage * safeDuration) / 3600;
   },
 
   formatCurrency(amount: number): string {
@@ -14,9 +17,11 @@ export const CalculationUtils = {
   },
 
   formatDuration(seconds: number): string {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
+    // Ensure non-negative values
+    const safeSeconds = Math.max(0, Math.floor(seconds));
+    const hours = Math.floor(safeSeconds / 3600);
+    const minutes = Math.floor((safeSeconds % 3600) / 60);
+    const secs = safeSeconds % 60;
 
     if (hours > 0) {
       return `${hours}h ${minutes}m ${secs}s`;

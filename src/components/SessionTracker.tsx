@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Square, DollarSign, Clock } from 'lucide-react';
+import { Play, Square, DollarSign, Clock, Sparkles } from 'lucide-react';
 import { Session, User } from '../types';
 import { CalculationUtils } from '../utils/calculations';
 
@@ -21,86 +21,150 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
   currentDuration
 }) => {
   const [animate, setAnimate] = useState(false);
+  const [ripples, setRipples] = useState<Array<{ id: number; x: number; y: number }>>([]);
 
   useEffect(() => {
     if (activeSession) {
       setAnimate(true);
-      const interval = setInterval(() => setAnimate(a => !a), 2000);
+      const interval = setInterval(() => setAnimate(a => !a), 3000);
       return () => clearInterval(interval);
     }
   }, [activeSession]);
 
+  const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    const newRipple = { id: Date.now(), x, y };
+    setRipples(prev => [...prev, newRipple]);
+    
+    setTimeout(() => {
+      setRipples(prev => prev.filter(r => r.id !== newRipple.id));
+    }, 1000);
+
+    if (activeSession) {
+      onSessionEnd();
+    } else {
+      onSessionStart();
+    }
+  };
+
   return (
-    <div className="relative min-h-[70vh] flex flex-col items-center justify-center px-4 py-8">
-      {/* Animated background elements */}
+    <div className="relative min-h-[70vh] flex flex-col items-center justify-center py-8">
+      {/* Enhanced animated background */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className={`absolute top-1/4 left-1/4 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl transition-all duration-3000 ${animate ? 'scale-150 opacity-20' : 'scale-100 opacity-10'}`} />
-        <div className={`absolute bottom-1/4 right-1/4 w-24 h-24 bg-emerald-400/5 rounded-full blur-2xl transition-all duration-2000 ${animate ? 'scale-125 opacity-15' : 'scale-100 opacity-5'}`} />
+        <div className={`absolute top-1/4 left-1/4 w-40 h-40 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-full blur-3xl transition-all duration-4000 ${animate ? 'scale-150 opacity-30' : 'scale-100 opacity-15'}`} />
+        <div className={`absolute bottom-1/3 right-1/3 w-32 h-32 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 rounded-full blur-2xl transition-all duration-3000 ${animate ? 'scale-125 opacity-25' : 'scale-100 opacity-10'}`} />
+        <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-indigo-500/5 to-purple-500/5 rounded-full blur-3xl transition-all duration-5000 ${animate ? 'scale-110 opacity-20' : 'scale-100 opacity-5'}`} />
       </div>
 
       <div className="relative z-10 w-full max-w-sm mx-auto text-center">
-        {/* Status indicator */}
+        {/* Enhanced status indicator */}
         <div className="mb-8">
-          <div className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm border transition-all duration-300 ${
+          <div className={`inline-flex items-center px-6 py-3 rounded-full text-sm font-semibold backdrop-blur-lg border-2 transition-all duration-500 shadow-lg ${
             activeSession 
-              ? 'bg-emerald-500/10 border-emerald-400/20 text-emerald-300' 
-              : 'bg-gray-500/10 border-gray-400/20 text-gray-300'
+              ? 'bg-gradient-to-r from-emerald-500/20 to-green-500/20 border-emerald-400/40 text-emerald-300 shadow-emerald-500/20' 
+              : 'bg-gradient-to-r from-slate-500/20 to-gray-500/20 border-slate-400/40 text-slate-300 shadow-slate-500/20'
           }`}>
-            <div className={`w-2 h-2 rounded-full mr-2 transition-all duration-300 ${
-              activeSession ? 'bg-emerald-400 animate-pulse' : 'bg-gray-400'
+            <div className={`w-3 h-3 rounded-full mr-3 transition-all duration-500 ${
+              activeSession ? 'bg-emerald-400 animate-pulse shadow-lg shadow-emerald-400/50' : 'bg-slate-400'
             }`} />
             {activeSession ? 'Session Active' : 'Ready to Start'}
+            {activeSession && <Sparkles className="w-4 h-4 ml-2 animate-pulse" />}
           </div>
         </div>
 
-        {/* Main action button */}
-        <div className="mb-8">
+        {/* Incredible main action button */}
+        <div className="mb-8 relative">
           <button
-            onClick={activeSession ? onSessionEnd : onSessionStart}
-            className={`group relative w-40 h-40 rounded-full backdrop-blur-md border-2 transition-all duration-300 transform hover:scale-105 active:scale-95 ${
+            onClick={handleButtonClick}
+            className={`group relative w-48 h-48 rounded-full backdrop-blur-xl border-4 transition-all duration-500 transform hover:scale-110 active:scale-95 overflow-hidden ${
               activeSession
-                ? 'bg-red-500/10 border-red-400/30 text-red-300 hover:bg-red-500/20 shadow-lg shadow-red-500/10'
-                : 'bg-emerald-500/10 border-emerald-400/30 text-emerald-300 hover:bg-emerald-500/20 shadow-lg shadow-emerald-500/10'
+                ? 'bg-gradient-to-br from-red-500/20 via-pink-500/20 to-red-600/20 border-red-400/50 text-red-300 hover:from-red-500/30 hover:via-pink-500/30 hover:to-red-600/30 shadow-2xl shadow-red-500/25'
+                : 'bg-gradient-to-br from-indigo-500/20 via-purple-500/20 to-blue-600/20 border-indigo-400/50 text-indigo-300 hover:from-indigo-500/30 hover:via-purple-500/30 hover:to-blue-600/30 shadow-2xl shadow-indigo-500/25'
             }`}
           >
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/5 to-transparent" />
-            {activeSession ? (
-              <Square className="w-16 h-16 mx-auto" />
-            ) : (
-              <Play className="w-16 h-16 mx-auto ml-2" />
-            )}
-            <div className="absolute inset-0 rounded-full border border-white/5 animate-pulse" />
+            {/* Animated gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            
+            {/* Ripple effects */}
+            {ripples.map(ripple => (
+              <div
+                key={ripple.id}
+                className="absolute rounded-full bg-white/30 animate-ping"
+                style={{
+                  left: ripple.x - 10,
+                  top: ripple.y - 10,
+                  width: 20,
+                  height: 20,
+                }}
+              />
+            ))}
+
+            {/* Icon with enhanced animations */}
+            <div className="relative z-10 flex items-center justify-center h-full">
+              {activeSession ? (
+                <Square className="w-20 h-20 transition-all duration-300 group-hover:scale-110 drop-shadow-lg" />
+              ) : (
+                <Play className="w-20 h-20 ml-2 transition-all duration-300 group-hover:scale-110 drop-shadow-lg" />
+              )}
+            </div>
+
+            {/* Rotating border effect */}
+            <div className={`absolute inset-0 rounded-full border-2 border-transparent bg-gradient-to-r ${
+              activeSession 
+                ? 'from-red-400/50 via-pink-400/50 to-red-400/50' 
+                : 'from-indigo-400/50 via-purple-400/50 to-indigo-400/50'
+            } bg-clip-border animate-spin`} style={{ animationDuration: '3s' }} />
+            
+            {/* Inner glow */}
+            <div className="absolute inset-2 rounded-full bg-gradient-to-br from-white/5 to-transparent" />
           </button>
+
+          {/* Floating particles around button */}
+          {activeSession && (
+            <>
+              <div className="absolute -top-4 -left-4 w-2 h-2 bg-emerald-400 rounded-full animate-bounce opacity-60" style={{ animationDelay: '0s' }} />
+              <div className="absolute -top-2 -right-6 w-1.5 h-1.5 bg-green-400 rounded-full animate-bounce opacity-40" style={{ animationDelay: '0.5s' }} />
+              <div className="absolute -bottom-4 -right-4 w-2 h-2 bg-emerald-300 rounded-full animate-bounce opacity-50" style={{ animationDelay: '1s' }} />
+              <div className="absolute -bottom-2 -left-6 w-1.5 h-1.5 bg-green-300 rounded-full animate-bounce opacity-30" style={{ animationDelay: '1.5s' }} />
+            </>
+          )}
         </div>
 
-        {/* Live stats */}
+        {/* Enhanced live stats */}
         {activeSession && (
           <div className="grid grid-cols-1 gap-4 mb-6">
-            <div className="bg-black/40 backdrop-blur-md rounded-2xl p-6 border border-gray-800/50">
-              <div className="flex items-center justify-center mb-3">
-                <DollarSign className="w-6 h-6 text-emerald-400 mr-2" />
-                <span className="text-gray-300 font-medium">Current Earnings</span>
+            <div className="bg-gradient-to-br from-black/60 via-black/50 to-black/60 backdrop-blur-xl rounded-3xl p-6 border border-emerald-500/20 shadow-xl shadow-emerald-500/10">
+              <div className="flex items-center justify-center mb-4">
+                <div className="p-2 bg-emerald-500/20 rounded-xl mr-3">
+                  <DollarSign className="w-6 h-6 text-emerald-400" />
+                </div>
+                <span className="text-slate-300 font-semibold">Current Earnings</span>
               </div>
-              <div className="text-3xl font-bold text-white">
+              <div className="text-4xl font-bold bg-gradient-to-r from-emerald-400 to-green-300 bg-clip-text text-transparent">
                 {CalculationUtils.formatCurrency(currentEarnings)}
               </div>
             </div>
-            <div className="bg-black/40 backdrop-blur-md rounded-2xl p-6 border border-gray-800/50">
-              <div className="flex items-center justify-center mb-3">
-                <Clock className="w-6 h-6 text-emerald-400 mr-2" />
-                <span className="text-gray-300 font-medium">Session Time</span>
+            <div className="bg-gradient-to-br from-black/60 via-black/50 to-black/60 backdrop-blur-xl rounded-3xl p-6 border border-indigo-500/20 shadow-xl shadow-indigo-500/10">
+              <div className="flex items-center justify-center mb-4">
+                <div className="p-2 bg-indigo-500/20 rounded-xl mr-3">
+                  <Clock className="w-6 h-6 text-indigo-400" />
+                </div>
+                <span className="text-slate-300 font-semibold">Session Time</span>
               </div>
-              <div className="text-3xl font-bold text-white">
-                {CalculationUtils.formatDuration(currentDuration)}
+              <div className="text-4xl font-bold bg-gradient-to-r from-indigo-400 to-purple-300 bg-clip-text text-transparent">
+                {CalculationUtils.formatDuration(Math.max(0, currentDuration))}
               </div>
             </div>
           </div>
         )}
 
-        {/* Hourly rate display */}
-        <div className="bg-black/20 backdrop-blur-md rounded-xl p-4 border border-gray-800/30">
-          <div className="text-sm text-gray-400 mb-1">Your Hourly Rate</div>
-          <div className="text-xl font-semibold text-white">
+        {/* Enhanced hourly rate display */}
+        <div className="bg-gradient-to-br from-black/40 via-black/30 to-black/40 backdrop-blur-xl rounded-2xl p-6 border border-slate-500/20 shadow-lg">
+          <div className="text-sm text-slate-400 mb-2 font-medium">Your Hourly Rate</div>
+          <div className="text-2xl font-bold bg-gradient-to-r from-slate-200 to-slate-100 bg-clip-text text-transparent">
             {CalculationUtils.formatCurrency(user.hourlyWage)}/hour
           </div>
         </div>
