@@ -227,16 +227,16 @@ function App() {
             </button>
             
             <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-blue-400 bg-clip-text text-transparent mb-3 drop-shadow-lg">
-              Paid to Poop
+              backlog
             </h1>
-            <p className="text-slate-300 text-lg font-medium mb-2">
+            {/* <p className="text-slate-300 text-lg font-medium mb-2">
               Premium anonymous break time tracking
-            </p>
-            <div className="flex items-center justify-center space-x-2">
+            </p> */}
+            {/* <div className="flex items-center justify-center space-x-2">
               <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" />
               <span className="text-purple-300 text-sm">Elite Edition</span>
               <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" />
-            </div>
+            </div> */}
           </div>
         </div>
 
