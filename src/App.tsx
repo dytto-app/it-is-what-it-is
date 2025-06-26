@@ -41,7 +41,31 @@ function App() {
     
     setUser(existingUser);
     setSessions(StorageUtils.getSessions());
-    setActiveSession(StorageUtils.getActiveSession());
+    
+    // Check for active session and validate it hasn't exceeded max duration
+    const storedActiveSession = StorageUtils.getActiveSession();
+    if (storedActiveSession) {
+      const elapsed = Math.floor((Date.now() - storedActiveSession.startTime.getTime()) / 1000);
+      if (elapsed >= MAX_SESSION_DURATION) {
+        // Auto-complete the session that exceeded max duration
+        const endTime = new Date(storedActiveSession.startTime.getTime() + (MAX_SESSION_DURATION * 1000));
+        const completedSession: Session = {
+          ...storedActiveSession,
+          endTime,
+          duration: MAX_SESSION_DURATION,
+          earnings: CalculationUtils.calculateEarnings(existingUser.hourlyWage, MAX_SESSION_DURATION),
+          isActive: false
+        };
+        
+        const updatedSessions = [...StorageUtils.getSessions(), completedSession];
+        setSessions(updatedSessions);
+        StorageUtils.saveSessions(updatedSessions);
+        StorageUtils.saveActiveSession(null);
+        setActiveSession(null);
+      } else {
+        setActiveSession(storedActiveSession);
+      }
+    }
     
     const existingAchievements = StorageUtils.getAchievements();
     if (existingAchievements.length === 0) {
@@ -53,23 +77,46 @@ function App() {
     }
   }, []);
 
-  // Timer for active session
+  // Enhanced timer for active session with better browser inactive handling
   useEffect(() => {
-    if (!activeSession) return;
+    if (!activeSession || !user) return;
 
-    const interval = setInterval(() => {
-      setCurrentTime(Date.now());
+    const checkSessionStatus = () => {
+      const now = Date.now();
+      setCurrentTime(now);
       
-      const duration = Math.floor((Date.now() - activeSession.startTime.getTime()) / 1000);
+      const elapsed = Math.floor((now - activeSession.startTime.getTime()) / 1000);
       
-      // Auto-stop session after max duration
-      if (duration >= MAX_SESSION_DURATION) {
-        handleSessionEnd();
+      // Force stop if exceeded max duration
+      if (elapsed >= MAX_SESSION_DURATION) {
+        handleSessionEnd(true); // Pass true to indicate auto-stop
       }
-    }, 1000);
+    };
 
-    return () => clearInterval(interval);
-  }, [activeSession]);
+    // Check immediately
+    checkSessionStatus();
+
+    // Use multiple intervals for redundancy
+    const interval1 = setInterval(checkSessionStatus, 1000); // Every second
+    const interval2 = setInterval(checkSessionStatus, 5000); // Every 5 seconds as backup
+    const interval3 = setInterval(checkSessionStatus, 30000); // Every 30 seconds as final backup
+
+    // Also check when page becomes visible again
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        checkSessionStatus();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval1);
+      clearInterval(interval2);
+      clearInterval(interval3);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [activeSession, user]);
 
   // Check achievements when sessions change
   useEffect(() => {
@@ -97,11 +144,18 @@ function App() {
     StorageUtils.saveActiveSession(newSession);
   };
 
-  const handleSessionEnd = () => {
+  const handleSessionEnd = (isAutoStop = false) => {
     if (!activeSession || !user) return;
 
     const endTime = new Date();
-    const duration = Math.floor((endTime.getTime() - activeSession.startTime.getTime()) / 1000);
+    let duration = Math.floor((endTime.getTime() - activeSession.startTime.getTime()) / 1000);
+    
+    // Cap duration at max if it's an auto-stop
+    if (isAutoStop && duration > MAX_SESSION_DURATION) {
+      duration = MAX_SESSION_DURATION;
+      endTime.setTime(activeSession.startTime.getTime() + (MAX_SESSION_DURATION * 1000));
+    }
+
     const earnings = CalculationUtils.calculateEarnings(user.hourlyWage, duration);
 
     const completedSession: Session = {
@@ -143,9 +197,9 @@ function App() {
     window.location.reload();
   };
 
-  // Calculate current session stats - ensure non-negative values
+  // Calculate current session stats with proper bounds checking
   const currentDuration = activeSession 
-    ? Math.max(0, Math.floor((currentTime - activeSession.startTime.getTime()) / 1000))
+    ? Math.min(MAX_SESSION_DURATION, Math.max(0, Math.floor((currentTime - activeSession.startTime.getTime()) / 1000)))
     : 0;
   
   const currentEarnings = activeSession && user
@@ -179,9 +233,10 @@ function App() {
             user={user}
             activeSession={activeSession}
             onSessionStart={handleSessionStart}
-            onSessionEnd={handleSessionEnd}
+            onSessionEnd={() => handleSessionEnd(false)}
             currentEarnings={currentEarnings}
             currentDuration={currentDuration}
+            maxDuration={MAX_SESSION_DURATION}
           />
         );
       case 'analytics':
@@ -229,14 +284,6 @@ function App() {
             <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-blue-400 bg-clip-text text-transparent mb-3 drop-shadow-lg">
               backlog
             </h1>
-            {/* <p className="text-slate-300 text-lg font-medium mb-2">
-              Premium anonymous break time tracking
-            </p> */}
-            {/* <div className="flex items-center justify-center space-x-2">
-              <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" />
-              <span className="text-purple-300 text-sm">Elite Edition</span>
-              <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" />
-            </div> */}
           </div>
         </div>
 

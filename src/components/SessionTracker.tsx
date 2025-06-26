@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Square, DollarSign, Clock, Sparkles } from 'lucide-react';
+import { Play, Square, DollarSign, Clock, Sparkles, AlertTriangle } from 'lucide-react';
 import { Session, User } from '../types';
 import { CalculationUtils } from '../utils/calculations';
 
@@ -10,6 +10,7 @@ interface SessionTrackerProps {
   onSessionEnd: () => void;
   currentEarnings: number;
   currentDuration: number;
+  maxDuration: number;
 }
 
 export const SessionTracker: React.FC<SessionTrackerProps> = ({
@@ -18,7 +19,8 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
   onSessionStart,
   onSessionEnd,
   currentEarnings,
-  currentDuration
+  currentDuration,
+  maxDuration
 }) => {
   const [animate, setAnimate] = useState(false);
   const [ripples, setRipples] = useState<Array<{ id: number; x: number; y: number }>>([]);
@@ -50,6 +52,12 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
     }
   };
 
+  // Calculate progress and warning states
+  const progressPercentage = activeSession ? (currentDuration / maxDuration) * 100 : 0;
+  const isNearingLimit = progressPercentage > 80;
+  const isAtLimit = progressPercentage >= 100;
+  const timeRemaining = maxDuration - currentDuration;
+
   return (
     <div className="relative min-h-[70vh] flex flex-col items-center justify-center py-8">
       {/* Enhanced animated background */}
@@ -60,33 +68,77 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
       </div>
 
       <div className="relative z-10 w-full max-w-sm mx-auto text-center">
-        {/* Enhanced status indicator */}
+        {/* Enhanced status indicator with time limit warning */}
         <div className="mb-8">
           <div className={`inline-flex items-center px-6 py-3 rounded-full text-sm font-semibold backdrop-blur-lg border-2 transition-all duration-500 shadow-lg ${
-            activeSession 
+            isAtLimit
+              ? 'bg-gradient-to-r from-red-500/20 to-orange-500/20 border-red-400/40 text-red-300 shadow-red-500/20'
+              : isNearingLimit
+              ? 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-yellow-400/40 text-yellow-300 shadow-yellow-500/20'
+              : activeSession 
               ? 'bg-gradient-to-r from-emerald-500/20 to-green-500/20 border-emerald-400/40 text-emerald-300 shadow-emerald-500/20' 
               : 'bg-gradient-to-r from-slate-500/20 to-gray-500/20 border-slate-400/40 text-slate-300 shadow-slate-500/20'
           }`}>
             <div className={`w-3 h-3 rounded-full mr-3 transition-all duration-500 ${
-              activeSession ? 'bg-emerald-400 animate-pulse shadow-lg shadow-emerald-400/50' : 'bg-slate-400'
+              isAtLimit
+                ? 'bg-red-400 animate-pulse shadow-lg shadow-red-400/50'
+                : isNearingLimit
+                ? 'bg-yellow-400 animate-pulse shadow-lg shadow-yellow-400/50'
+                : activeSession 
+                ? 'bg-emerald-400 animate-pulse shadow-lg shadow-emerald-400/50' 
+                : 'bg-slate-400'
             }`} />
-            {activeSession ? 'Session Active' : 'Ready to Start'}
-            {activeSession && <Sparkles className="w-4 h-4 ml-2 animate-pulse" />}
+            {isAtLimit 
+              ? 'Auto-Stopped' 
+              : isNearingLimit 
+              ? `${Math.ceil(timeRemaining / 60)}min left`
+              : activeSession 
+              ? 'Session Active' 
+              : 'Ready to Start'
+            }
+            {activeSession && !isAtLimit && <Sparkles className="w-4 h-4 ml-2 animate-pulse" />}
+            {isNearingLimit && <AlertTriangle className="w-4 h-4 ml-2 animate-pulse" />}
           </div>
         </div>
+
+        {/* Progress bar for active sessions */}
+        {activeSession && (
+          <div className="mb-6">
+            <div className="w-full bg-black/30 backdrop-blur-lg rounded-full h-2 border border-slate-600/30 shadow-lg overflow-hidden">
+              <div 
+                className={`h-full transition-all duration-1000 ${
+                  isAtLimit
+                    ? 'bg-gradient-to-r from-red-500 to-orange-500 shadow-lg shadow-red-500/30'
+                    : isNearingLimit
+                    ? 'bg-gradient-to-r from-yellow-500 to-orange-500 shadow-lg shadow-yellow-500/30'
+                    : 'bg-gradient-to-r from-emerald-500 to-green-500 shadow-lg shadow-emerald-500/30'
+                }`}
+                style={{ width: `${Math.min(100, progressPercentage)}%` }}
+              />
+            </div>
+            <div className="text-xs text-slate-400 mt-2 text-center">
+              {CalculationUtils.formatDuration(Math.max(0, timeRemaining))} remaining (30min max)
+            </div>
+          </div>
+        )}
 
         {/* Incredible main action button */}
         <div className="mb-8 relative">
           <button
             onClick={handleButtonClick}
+            disabled={isAtLimit}
             className={`group relative w-48 h-48 rounded-full backdrop-blur-xl border-4 transition-all duration-500 transform hover:scale-110 active:scale-95 overflow-hidden ${
-              activeSession
+              isAtLimit
+                ? 'bg-gradient-to-br from-gray-500/20 via-slate-500/20 to-gray-600/20 border-gray-400/50 text-gray-400 cursor-not-allowed opacity-60'
+                : activeSession
                 ? 'bg-gradient-to-br from-red-500/20 via-pink-500/20 to-red-600/20 border-red-400/50 text-red-300 hover:from-red-500/30 hover:via-pink-500/30 hover:to-red-600/30 shadow-2xl shadow-red-500/25'
                 : 'bg-gradient-to-br from-indigo-500/20 via-purple-500/20 to-blue-600/20 border-indigo-400/50 text-indigo-300 hover:from-indigo-500/30 hover:via-purple-500/30 hover:to-blue-600/30 shadow-2xl shadow-indigo-500/25'
             }`}
           >
             {/* Animated gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            {!isAtLimit && (
+              <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            )}
             
             {/* Ripple effects */}
             {ripples.map(ripple => (
@@ -104,7 +156,7 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
 
             {/* Icon with enhanced animations */}
             <div className="relative z-10 flex items-center justify-center h-full">
-              {activeSession ? (
+              {activeSession && !isAtLimit ? (
                 <Square className="w-20 h-20 transition-all duration-300 group-hover:scale-110 drop-shadow-lg" />
               ) : (
                 <Play className="w-20 h-20 ml-2 transition-all duration-300 group-hover:scale-110 drop-shadow-lg" />
@@ -112,18 +164,22 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
             </div>
 
             {/* Rotating border effect */}
-            <div className={`absolute inset-0 rounded-full border-2 border-transparent bg-gradient-to-r ${
-              activeSession 
-                ? 'from-red-400/50 via-pink-400/50 to-red-400/50' 
-                : 'from-indigo-400/50 via-purple-400/50 to-indigo-400/50'
-            } bg-clip-border animate-spin`} style={{ animationDuration: '3s' }} />
+            {!isAtLimit && (
+              <div className={`absolute inset-0 rounded-full border-2 border-transparent bg-gradient-to-r ${
+                activeSession 
+                  ? 'from-red-400/50 via-pink-400/50 to-red-400/50' 
+                  : 'from-indigo-400/50 via-purple-400/50 to-indigo-400/50'
+              } bg-clip-border animate-spin`} style={{ animationDuration: '3s' }} />
+            )}
             
             {/* Inner glow */}
-            <div className="absolute inset-2 rounded-full bg-gradient-to-br from-white/5 to-transparent" />
+            {!isAtLimit && (
+              <div className="absolute inset-2 rounded-full bg-gradient-to-br from-white/5 to-transparent" />
+            )}
           </button>
 
           {/* Floating particles around button */}
-          {activeSession && (
+          {activeSession && !isAtLimit && (
             <>
               <div className="absolute -top-4 -left-4 w-2 h-2 bg-emerald-400 rounded-full animate-bounce opacity-60" style={{ animationDelay: '0s' }} />
               <div className="absolute -top-2 -right-6 w-1.5 h-1.5 bg-green-400 rounded-full animate-bounce opacity-40" style={{ animationDelay: '0.5s' }} />
@@ -136,25 +192,49 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
         {/* Enhanced live stats */}
         {activeSession && (
           <div className="grid grid-cols-1 gap-4 mb-6">
-            <div className="bg-gradient-to-br from-black/60 via-black/50 to-black/60 backdrop-blur-xl rounded-3xl p-6 border border-emerald-500/20 shadow-xl shadow-emerald-500/10">
+            <div className={`bg-gradient-to-br from-black/60 via-black/50 to-black/60 backdrop-blur-xl rounded-3xl p-6 border shadow-xl ${
+              isNearingLimit 
+                ? 'border-yellow-500/20 shadow-yellow-500/10' 
+                : 'border-emerald-500/20 shadow-emerald-500/10'
+            }`}>
               <div className="flex items-center justify-center mb-4">
-                <div className="p-2 bg-emerald-500/20 rounded-xl mr-3">
-                  <DollarSign className="w-6 h-6 text-emerald-400" />
+                <div className={`p-2 rounded-xl mr-3 ${
+                  isNearingLimit ? 'bg-yellow-500/20' : 'bg-emerald-500/20'
+                }`}>
+                  <DollarSign className={`w-6 h-6 ${
+                    isNearingLimit ? 'text-yellow-400' : 'text-emerald-400'
+                  }`} />
                 </div>
                 <span className="text-slate-300 font-semibold">Current Earnings</span>
               </div>
-              <div className="text-4xl font-bold bg-gradient-to-r from-emerald-400 to-green-300 bg-clip-text text-transparent">
+              <div className={`text-4xl font-bold bg-gradient-to-r bg-clip-text text-transparent ${
+                isNearingLimit 
+                  ? 'from-yellow-400 to-orange-300' 
+                  : 'from-emerald-400 to-green-300'
+              }`}>
                 {CalculationUtils.formatCurrency(currentEarnings)}
               </div>
             </div>
-            <div className="bg-gradient-to-br from-black/60 via-black/50 to-black/60 backdrop-blur-xl rounded-3xl p-6 border border-indigo-500/20 shadow-xl shadow-indigo-500/10">
+            <div className={`bg-gradient-to-br from-black/60 via-black/50 to-black/60 backdrop-blur-xl rounded-3xl p-6 border shadow-xl ${
+              isNearingLimit 
+                ? 'border-orange-500/20 shadow-orange-500/10' 
+                : 'border-indigo-500/20 shadow-indigo-500/10'
+            }`}>
               <div className="flex items-center justify-center mb-4">
-                <div className="p-2 bg-indigo-500/20 rounded-xl mr-3">
-                  <Clock className="w-6 h-6 text-indigo-400" />
+                <div className={`p-2 rounded-xl mr-3 ${
+                  isNearingLimit ? 'bg-orange-500/20' : 'bg-indigo-500/20'
+                }`}>
+                  <Clock className={`w-6 h-6 ${
+                    isNearingLimit ? 'text-orange-400' : 'text-indigo-400'
+                  }`} />
                 </div>
                 <span className="text-slate-300 font-semibold">Session Time</span>
               </div>
-              <div className="text-4xl font-bold bg-gradient-to-r from-indigo-400 to-purple-300 bg-clip-text text-transparent">
+              <div className={`text-4xl font-bold bg-gradient-to-r bg-clip-text text-transparent ${
+                isNearingLimit 
+                  ? 'from-orange-400 to-red-300' 
+                  : 'from-indigo-400 to-purple-300'
+              }`}>
                 {CalculationUtils.formatDuration(Math.max(0, currentDuration))}
               </div>
             </div>
