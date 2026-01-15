@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { User as UserIcon } from 'lucide-react';
 import { User, Session, Achievement, LeaderboardEntry } from './types';
-import { StorageUtils } from './utils/storage';
+import { DatabaseUtils } from './utils/database';
 import { CalculationUtils } from './utils/calculations';
 import { AchievementUtils } from './utils/achievements';
 import { SessionTracker } from './components/SessionTracker';
@@ -12,6 +12,8 @@ import { Achievements } from './components/Achievements';
 import { Leaderboard } from './components/Leaderboard';
 import { Profile } from './components/Profile';
 import { Navigation } from './components/Navigation';
+import { Auth } from './components/Auth';
+import { supabase } from './utils/supabase';
 
 type TabType = 'tracker' | 'analytics' | 'history' | 'achievements' | 'leaderboard' | 'profile';
 
@@ -24,34 +26,69 @@ function App() {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [activeTab, setActiveTab] = useState<TabType>('tracker');
   const [currentTime, setCurrentTime] = useState(Date.now());
+  const [authUserId, setAuthUserId] = useState<string | null>(null);
 
-  // Initialize user and load data
+  // Check if user is logged in
   useEffect(() => {
-    let existingUser = StorageUtils.getUser();
-    
-    if (!existingUser) {
-      existingUser = {
-        id: uuidv4(),
-        hourlyWage: 20, // Default wage
-        createdAt: new Date(),
-        showOnLeaderboard: false
-      };
-      StorageUtils.saveUser(existingUser);
-    }
-    
-    setUser(existingUser);
-    setSessions(StorageUtils.getSessions());
-    setActiveSession(StorageUtils.getActiveSession());
-    
-    const existingAchievements = StorageUtils.getAchievements();
-    if (existingAchievements.length === 0) {
-      const initialAchievements = AchievementUtils.initializeAchievements();
-      StorageUtils.saveAchievements(initialAchievements);
-      setAchievements(initialAchievements);
-    } else {
-      setAchievements(existingAchievements);
-    }
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session?.user) {
+        setAuthUserId(data.session.user.id);
+      }
+    };
+
+    checkAuth();
+
+    // Subscribe to auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        setAuthUserId(session.user.id);
+      } else {
+        setAuthUserId(null);
+      }
+    });
+
+    return () => subscription?.unsubscribe();
   }, []);
+
+  // Initialize user and load data from Supabase
+  useEffect(() => {
+    if (!authUserId) return;
+
+    const initializeApp = async () => {
+      try {
+        // Get user profile from Supabase (already exists from auth signup)
+        const userProfile = await DatabaseUtils.getUserProfile(authUserId);
+        setUser(userProfile);
+
+        // Load sessions and achievements in parallel
+        const [userSessions, unlockedAchievementIds, allAchievements] = await Promise.all([
+          DatabaseUtils.getSessions(authUserId),
+          DatabaseUtils.getUserAchievements(authUserId),
+          DatabaseUtils.getAchievements()
+        ]);
+
+        setSessions(userSessions);
+
+        // Map achievements with unlock status
+        const achievementsWithStatus = allAchievements.map(achievement => ({
+          ...achievement,
+          unlockedAt: unlockedAchievementIds.includes(achievement.id) ? new Date() : undefined
+        }));
+        setAchievements(achievementsWithStatus);
+
+        // Restore active session if any
+        const activeSession = userSessions.find(s => s.isActive);
+        if (activeSession) {
+          setActiveSession(activeSession);
+        }
+      } catch (error) {
+        console.error('Failed to initialize app:', error);
+      }
+    };
+
+    initializeApp();
+  }, [authUserId]);
 
   // Timer for active session
   useEffect(() => {
@@ -73,14 +110,23 @@ function App() {
 
   // Check achievements when sessions change
   useEffect(() => {
-    if (sessions.length > 0) {
+    if (sessions.length > 0 && user) {
       const updatedAchievements = AchievementUtils.checkAchievements(sessions, achievements);
-      setAchievements(updatedAchievements);
-      StorageUtils.saveAchievements(updatedAchievements);
-    }
-  }, [sessions.length]);
 
-  const handleSessionStart = () => {
+      // Save newly unlocked achievements to Supabase
+      updatedAchievements.forEach(achievement => {
+        if (achievement.unlockedAt && !achievements.find(a => a.id === achievement.id && a.unlockedAt)) {
+          DatabaseUtils.unlockAchievement(user.id, achievement.id).catch(err =>
+            console.error('Failed to unlock achievement:', err)
+          );
+        }
+      });
+
+      setAchievements(updatedAchievements);
+    }
+  }, [sessions.length, user]);
+
+  const handleSessionStart = async () => {
     if (!user || activeSession) return;
 
     const newSession: Session = {
@@ -93,41 +139,56 @@ function App() {
       isActive: true
     };
 
-    setActiveSession(newSession);
-    StorageUtils.saveActiveSession(newSession);
+    try {
+      await DatabaseUtils.createSession(newSession);
+      setActiveSession(newSession);
+    } catch (error) {
+      console.error('Failed to start session:', error);
+    }
   };
 
-  const handleSessionEnd = () => {
+  const handleSessionEnd = async () => {
     if (!activeSession || !user) return;
 
     const endTime = new Date();
     const duration = Math.floor((endTime.getTime() - activeSession.startTime.getTime()) / 1000);
     const earnings = CalculationUtils.calculateEarnings(user.hourlyWage, duration);
 
-    const completedSession: Session = {
-      ...activeSession,
-      endTime,
-      duration,
-      earnings,
-      isActive: false
-    };
+    try {
+      await DatabaseUtils.endSession(activeSession.id, endTime, duration, earnings);
 
-    const updatedSessions = [...sessions, completedSession];
-    setSessions(updatedSessions);
-    setActiveSession(null);
-    
-    StorageUtils.saveSessions(updatedSessions);
-    StorageUtils.saveActiveSession(null);
+      const completedSession: Session = {
+        ...activeSession,
+        endTime,
+        duration,
+        earnings,
+        isActive: false
+      };
+
+      const updatedSessions = [...sessions, completedSession];
+      setSessions(updatedSessions);
+      setActiveSession(null);
+    } catch (error) {
+      console.error('Failed to end session:', error);
+    }
   };
 
-  const handleUpdateUser = (updatedUser: User) => {
-    setUser(updatedUser);
-    StorageUtils.saveUser(updatedUser);
+  const handleUpdateUser = async (updatedUser: User) => {
+    try {
+      await DatabaseUtils.updateUser(updatedUser);
+      setUser(updatedUser);
+    } catch (error) {
+      console.error('Failed to update user:', error);
+    }
   };
 
   const handleExportData = () => {
-    const data = StorageUtils.exportData();
-    const blob = new Blob([data], { type: 'application/json' });
+    const exportData = {
+      user,
+      sessions,
+      exportedAt: new Date().toISOString()
+    };
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -138,9 +199,12 @@ function App() {
     URL.revokeObjectURL(url);
   };
 
-  const handleClearData = () => {
-    StorageUtils.clearAllData();
-    window.location.reload();
+  const handleClearData = async () => {
+    await supabase.auth.signOut();
+    setAuthUserId(null);
+    setUser(null);
+    setSessions([]);
+    setActiveSession(null);
   };
 
   // Calculate current session stats - ensure non-negative values
@@ -152,16 +216,29 @@ function App() {
     ? Math.max(0, CalculationUtils.calculateEarnings(user.hourlyWage, currentDuration))
     : 0;
 
-  // Mock leaderboard data (in a real app, this would come from your backend)
-  const leaderboardEntries: LeaderboardEntry[] = [
-    {
-      userId: user?.id || '',
-      nickname: user?.nickname || '',
-      totalEarnings: sessions.reduce((sum, s) => sum + s.earnings, 0),
-      totalTime: sessions.reduce((sum, s) => sum + s.duration, 0),
-      sessionCount: sessions.length
+  // Leaderboard data from Supabase
+  const [leaderboardEntries, setLeaderboardEntries] = useState<LeaderboardEntry[]>([]);
+
+  useEffect(() => {
+    const loadLeaderboard = async () => {
+      try {
+        const entries = await DatabaseUtils.getLeaderboard();
+        setLeaderboardEntries(entries);
+      } catch (error) {
+        console.error('Failed to load leaderboard:', error);
+      }
+    };
+
+    // Load on mount and whenever sessions change
+    if (user) {
+      loadLeaderboard();
     }
-  ];
+  }, [sessions.length, user]);
+
+  // Show auth if not logged in
+  if (!authUserId) {
+    return <Auth onAuthSuccess={(userId) => setAuthUserId(userId)} />;
+  }
 
   if (!user) {
     return (

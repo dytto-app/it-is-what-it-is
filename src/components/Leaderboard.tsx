@@ -1,37 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Trophy, Crown, Medal, Award, Star, Zap, Flame, Diamond, Sparkles, Shield } from 'lucide-react';
 import { LeaderboardEntry } from '../types';
 import { CalculationUtils } from '../utils/calculations';
+import { DatabaseUtils } from '../utils/database';
+import { supabase } from '../utils/supabase';
 
 interface LeaderboardProps {
   entries: LeaderboardEntry[];
   currentUserId: string;
+  onPurchaseCosmetic?: (cosmeticId: string) => Promise<void>;
+  userOwnedCosmetics?: string[];
 }
 
 // Cosmetic items that can be purchased/unlocked
 const COSMETICS = {
   frames: [
     { id: 'default', name: 'Default', price: 0, gradient: 'from-slate-500/20 to-slate-600/20', border: 'border-slate-500/30' },
-    { id: 'gold', name: 'Golden Aura', price: 1, gradient: 'from-yellow-400/30 to-amber-500/30', border: 'border-yellow-400/50' },
-    { id: 'diamond', name: 'Diamond Elite', price: 3, gradient: 'from-cyan-400/30 to-blue-500/30', border: 'border-cyan-400/50' },
-    { id: 'fire', name: 'Blazing Fire', price: 2, gradient: 'from-red-500/30 to-orange-500/30', border: 'border-red-400/50' },
-    { id: 'cosmic', name: 'Cosmic Energy', price: 7, gradient: 'from-purple-500/30 to-pink-500/30', border: 'border-purple-400/50' },
+    { id: 'gold', name: 'Golden Aura', price: 99, gradient: 'from-yellow-400/30 to-amber-500/30', border: 'border-yellow-400/50' },
+    { id: 'diamond', name: 'Diamond Elite', price: 299, gradient: 'from-cyan-400/30 to-blue-500/30', border: 'border-cyan-400/50' },
+    { id: 'fire', name: 'Blazing Fire', price: 199, gradient: 'from-red-500/30 to-orange-500/30', border: 'border-red-400/50' },
+    { id: 'cosmic', name: 'Cosmic Energy', price: 699, gradient: 'from-purple-500/30 to-pink-500/30', border: 'border-purple-400/50' },
   ],
   badges: [
-    { id: 'none', name: 'None', price: "???", icon: null },
-    { id: 'star', name: 'Rising Star', price: "???", icon: Star, color: 'text-yellow-400' },
-    { id: 'lightning', name: 'Speed Demon', price: "???", icon: Zap, color: 'text-blue-400' },
-    { id: 'flame', name: 'On Fire', price: "???", icon: Flame, color: 'text-red-400' },
-    { id: 'diamond', name: 'Diamond Pro', price: "???", icon: Diamond, color: 'text-cyan-400' },
-    { id: 'shield', name: 'Elite Guard', price: "???", icon: Shield, color: 'text-purple-400' },
+    { id: 'none', name: 'None', price: 0, icon: null },
+    { id: 'star', name: 'Rising Star', price: 99, icon: Star, color: 'text-yellow-400' },
+    { id: 'lightning', name: 'Speed Demon', price: 149, icon: Zap, color: 'text-blue-400' },
+    { id: 'flame', name: 'On Fire', price: 199, icon: Flame, color: 'text-red-400' },
+    { id: 'diamond', name: 'Diamond Pro', price: 299, icon: Diamond, color: 'text-cyan-400' },
+    { id: 'shield', name: 'Elite Guard', price: 349, icon: Shield, color: 'text-purple-400' },
   ],
   titles: [
-    { id: 'none', name: 'None', price: "???", text: '' },
-    { id: 'rookie', name: 'The Rookie', price: "???", text: 'The Rookie' },
-    { id: 'grinder', name: 'The Grinder', price: "???", text: 'The Grinder' },
-    { id: 'legend', name: 'Living Legend', price: "???", text: 'Living Legend' },
-    { id: 'master', name: 'Poop Master', price: "???", text: 'Poop Master' },
-    { id: 'emperor', name: 'Toilet Emperor', price: "???", text: 'Toilet Emperor' },
+    { id: 'none', name: 'None', price: 0, text: '' },
+    { id: 'rookie', name: 'The Rookie', price: 49, text: 'The Rookie' },
+    { id: 'grinder', name: 'The Grinder', price: 99, text: 'The Grinder' },
+    { id: 'legend', name: 'Living Legend', price: 199, text: 'Living Legend' },
+    { id: 'master', name: 'Poop Master', price: 299, text: 'Poop Master' },
+    { id: 'emperor', name: 'Toilet Emperor', price: 499, text: 'Toilet Emperor' },
   ]
 };
 
@@ -39,13 +43,126 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ entries, currentUserId
   const [sortBy, setSortBy] = useState<'earnings' | 'time' | 'sessions'>('earnings');
   const [timeFrame, setTimeFrame] = useState<'daily' | 'weekly' | 'alltime'>('weekly');
   const [showCosmetics, setShowCosmetics] = useState(false);
+  const [purchasingId, setPurchasingId] = useState<string | null>(null);
+  const [userOwnedCosmetics, setUserOwnedCosmetics] = useState<string[]>([]);
+  const [equippedCosmetics, setEquippedCosmetics] = useState<{ frame: string; badge: string; title: string }>({ frame: 'default', badge: 'none', title: 'none' });
 
-  // Mock user cosmetics (in real app, this would come from user data)
-  const userCosmetics = {
-    [currentUserId]: {
-      frame: 'gold',
-      badge: 'star',
-      title: 'grinder'
+  // Load user cosmetics on mount and handle payment success
+  useEffect(() => {
+    const loadUserCosmetics = async () => {
+      try {
+        const owned = await DatabaseUtils.getUserCosmetics(currentUserId);
+        setUserOwnedCosmetics(owned);
+      } catch (error) {
+        console.error('Error loading owned cosmetics:', error);
+      }
+
+      try {
+        // Load equipped cosmetics (may not exist for new users)
+        const { data: equipped, error: equippedError } = await supabase
+          .from('user_equipped_cosmetics')
+          .select('frame_id, badge_id, title_id')
+          .eq('user_id', currentUserId)
+          .limit(1);
+
+        if (equippedError) {
+          console.error('Error loading equipped cosmetics:', equippedError);
+          // Continue without equipped cosmetics - user will have default
+          return;
+        }
+
+        if (equipped && equipped.length > 0) {
+          const eq = equipped[0];
+          setEquippedCosmetics({
+            frame: eq.frame_id || 'default',
+            badge: eq.badge_id || 'none',
+            title: eq.title_id || 'none'
+          });
+        }
+      } catch (error) {
+        console.error('Error loading equipped cosmetics:', error);
+      }
+    };
+
+    // Handle payment success redirect
+    const handlePaymentSuccess = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const paymentStatus = params.get('payment');
+      const cosmeticId = params.get('cosmetic');
+      const cosmeticType = params.get('type');
+
+      if (paymentStatus === 'success' && cosmeticId) {
+        try {
+          // Mark cosmetic as purchased
+          await DatabaseUtils.purchaseCosmetic(currentUserId, cosmeticId);
+
+          // Reload cosmetics
+          const owned = await DatabaseUtils.getUserCosmetics(currentUserId);
+          setUserOwnedCosmetics(owned);
+
+          // Show success message
+          alert('Purchase successful! Your cosmetic is now available.');
+
+          // Clean up URL
+          window.history.replaceState({}, document.title, window.location.pathname);
+        } catch (error) {
+          console.error('Error processing payment:', error);
+          alert('Failed to save your purchase. Please contact support.');
+        }
+      } else if (paymentStatus === 'cancelled') {
+        alert('Payment cancelled.');
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    };
+
+    loadUserCosmetics();
+    handlePaymentSuccess();
+  }, [currentUserId]);
+
+  const handlePurchaseCosmetic = async (
+    cosmeticId: string,
+    cosmeticType: 'frame' | 'badge' | 'title',
+    price: number,
+    name: string
+  ) => {
+    try {
+      setPurchasingId(cosmeticId);
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({
+            cosmeticId,
+            cosmeticType,
+            price,
+            name,
+            userId: currentUserId,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        const errorMsg = data.error || 'Failed to create checkout session';
+        console.error('Checkout error response:', data);
+        throw new Error(errorMsg);
+      }
+
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('No checkout URL returned');
+      }
+    } catch (error) {
+      console.error('Purchase error:', error);
+      alert(`Failed to process purchase: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      setPurchasingId(null);
     }
   };
 
@@ -76,7 +193,11 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ entries, currentUserId
   };
 
   const getUserCosmetics = (userId: string) => {
-    return userCosmetics[userId] || { frame: 'default', badge: 'none', title: 'none' };
+    // Only show equipped cosmetics for current user
+    if (userId === currentUserId) {
+      return equippedCosmetics;
+    }
+    return { frame: 'default', badge: 'none', title: 'none' };
   };
 
   const getFrameStyle = (frameId: string) => {
@@ -197,12 +318,22 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ entries, currentUserId
                 Profile Frames
               </h4>
               <div className="grid grid-cols-2 gap-3">
-                {COSMETICS.frames.slice(1).map(frame => (
-                  <div key={frame.id} className={`bg-gradient-to-br ${frame.gradient} backdrop-blur-lg rounded-xl p-4 border ${frame.border} shadow-lg`}>
-                    <div className="text-white font-semibold text-sm">{frame.name}</div>
-                    <div className="text-yellow-400 text-xs">${frame.price}</div>
-                  </div>
-                ))}
+                {COSMETICS.frames.slice(1).map(frame => {
+                  const isOwned = userOwnedCosmetics.includes(frame.id);
+                  return (
+                    <div key={frame.id} className={`bg-gradient-to-br ${frame.gradient} backdrop-blur-lg rounded-xl p-4 border ${frame.border} shadow-lg hover:shadow-xl transition-shadow cursor-pointer`}>
+                      <div className="text-white font-semibold text-sm">{frame.name}</div>
+                      <div className="text-yellow-400 text-xs mt-2">${(frame.price / 100).toFixed(2)}</div>
+                      <button
+                        onClick={() => !isOwned && handlePurchaseCosmetic(frame.id, 'frame', frame.price, frame.name)}
+                        disabled={purchasingId === frame.id || isOwned}
+                        className="mt-2 w-full bg-yellow-500/30 hover:bg-yellow-500/50 disabled:opacity-50 text-yellow-300 text-xs py-1 rounded transition-colors"
+                      >
+                        {purchasingId === frame.id ? 'Processing...' : isOwned ? 'Owned' : 'Buy'}
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
@@ -215,13 +346,21 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ entries, currentUserId
               <div className="grid grid-cols-2 gap-3">
                 {COSMETICS.badges.slice(1).map(badge => {
                   const IconComponent = badge.icon!;
+                  const isOwned = userOwnedCosmetics.includes(badge.id);
                   return (
-                    <div key={badge.id} className="bg-gradient-to-br from-slate-700/50 to-slate-800/50 backdrop-blur-lg rounded-xl p-4 border border-slate-600/30 shadow-lg">
+                    <div key={badge.id} className="bg-gradient-to-br from-slate-700/50 to-slate-800/50 backdrop-blur-lg rounded-xl p-4 border border-slate-600/30 shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
                       <div className="flex items-center mb-2">
                         <IconComponent className={`w-4 h-4 mr-2 ${badge.color}`} />
                         <div className="text-white font-semibold text-sm">{badge.name}</div>
                       </div>
-                      <div className="text-yellow-400 text-xs">${badge.price}</div>
+                      <div className="text-yellow-400 text-xs">${(badge.price / 100).toFixed(2)}</div>
+                      <button
+                        onClick={() => !isOwned && handlePurchaseCosmetic(badge.id, 'badge', badge.price, badge.name)}
+                        disabled={purchasingId === badge.id || isOwned}
+                        className="mt-2 w-full bg-blue-500/30 hover:bg-blue-500/50 disabled:opacity-50 text-blue-300 text-xs py-1 rounded transition-colors"
+                      >
+                        {purchasingId === badge.id ? 'Processing...' : isOwned ? 'Owned' : 'Buy'}
+                      </button>
                     </div>
                   );
                 })}
@@ -235,14 +374,24 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ entries, currentUserId
                 Profile Titles
               </h4>
               <div className="grid grid-cols-1 gap-3">
-                {COSMETICS.titles.slice(1).map(title => (
-                  <div key={title.id} className="bg-gradient-to-r from-purple-700/30 to-pink-700/30 backdrop-blur-lg rounded-xl p-4 border border-purple-600/30 shadow-lg">
-                    <div className="flex justify-between items-center">
-                      <div className="text-purple-300 font-semibold">"{title.text}"</div>
-                      <div className="text-yellow-400 text-sm">${title.price}</div>
+                {COSMETICS.titles.slice(1).map(title => {
+                  const isOwned = userOwnedCosmetics.includes(title.id);
+                  return (
+                    <div key={title.id} className="bg-gradient-to-r from-purple-700/30 to-pink-700/30 backdrop-blur-lg rounded-xl p-4 border border-purple-600/30 shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
+                      <div className="flex justify-between items-center">
+                        <div className="text-purple-300 font-semibold">"{title.text}"</div>
+                        <div className="text-yellow-400 text-sm">${(title.price / 100).toFixed(2)}</div>
+                      </div>
+                      <button
+                        onClick={() => !isOwned && handlePurchaseCosmetic(title.id, 'title', title.price, title.name)}
+                        disabled={purchasingId === title.id || isOwned}
+                        className="mt-2 w-full bg-purple-500/30 hover:bg-purple-500/50 disabled:opacity-50 text-purple-300 text-xs py-1 rounded transition-colors"
+                      >
+                        {purchasingId === title.id ? 'Processing...' : isOwned ? 'Owned' : 'Buy'}
+                      </button>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
