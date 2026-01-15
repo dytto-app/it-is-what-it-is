@@ -80,7 +80,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
           {/* Base Salary */}
           <div>
             <label className="block text-slate-300 text-sm font-medium mb-3">
-              Base Salary
+              Amount
             </label>
             <div className="relative">
               <span className="absolute left-4 top-3.5 text-slate-400 font-medium">$</span>
@@ -96,13 +96,13 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
               />
             </div>
             <p className="text-slate-400 text-xs mt-2">
-              Enter your salary for the selected period
+              Enter your amount
             </p>
 
             {salary && (
               <div className="mt-4 p-3 bg-purple-900/20 border border-purple-500/30 rounded-lg">
                 <p className="text-purple-300 text-sm font-medium">
-                  Hourly Rate: ${(calculateHourlyRate(parseFloat(salary), frequency) || 0).toFixed(2)}/hr
+                  Hourly : ${(calculateHourlyRate(parseFloat(salary), frequency) || 0).toFixed(2)}/hr
                 </p>
                 <p className="text-purple-200/70 text-xs mt-1">
                   Your break earnings will be calculated at this rate

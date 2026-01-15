@@ -143,7 +143,7 @@ export const Profile: React.FC<ProfileProps> = ({
           {/* Base Salary */}
           <div>
             <label className="block text-sm font-semibold text-slate-300 mb-3">
-              Base Salary
+              Amount
             </label>
             {isEditing ? (
               <div className="relative">
@@ -162,7 +162,7 @@ export const Profile: React.FC<ProfileProps> = ({
                 <span className="text-2xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
                   ${user.salary.toFixed(2)}
                 </span>
-                <span className="text-slate-400 ml-2">({user.salaryPeriod})</span>
+                <span className="text-slate-400 ml-2"></span>
               </div>
             )}
           </div>
@@ -170,7 +170,7 @@ export const Profile: React.FC<ProfileProps> = ({
           {/* Salary Period */}
           <div>
             <label className="block text-sm font-semibold text-slate-300 mb-3">
-              Salary Period
+              Time
             </label>
             {isEditing ? (
               <div className="grid grid-cols-2 gap-2">

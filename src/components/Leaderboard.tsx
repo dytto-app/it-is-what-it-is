@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trophy, Crown, Medal, Award, Star, Zap, Flame, Diamond, Sparkles, Shield } from 'lucide-react';
+import { Trophy, Crown, Medal, Award, Star, Zap, Flame, Diamond, Sparkles, Shield, DollarSign, Clock, BarChart3, Calendar } from 'lucide-react';
 import { LeaderboardEntry } from '../types';
 import { CalculationUtils } from '../utils/calculations';
 import { DatabaseUtils } from '../utils/database';
@@ -246,10 +246,10 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ entries, currentUserId
         <div className="bg-gradient-to-r from-black/60 to-black/40 backdrop-blur-xl rounded-2xl p-2 border border-slate-500/20 shadow-lg">
           <div className="flex">
             {[
-              { key: 'earnings', label: 'Earnings', icon: '💰' },
-              { key: 'time', label: 'Time', icon: '⏱️' },
-              { key: 'sessions', label: 'Sessions', icon: '📊' }
-            ].map(({ key, label, icon }) => (
+              { key: 'earnings', label: 'Earnings', Icon: DollarSign },
+              { key: 'time', label: 'Time', Icon: Clock },
+              { key: 'sessions', label: 'Sessions', Icon: BarChart3 }
+            ].map(({ key, label, Icon }) => (
               <button
                 key={key}
                 onClick={() => setSortBy(key as any)}
@@ -259,7 +259,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ entries, currentUserId
                     : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
                 }`}
               >
-                <span className="mr-2">{icon}</span>
+                <Icon className="w-4 h-4 mr-2" />
                 {label}
               </button>
             ))}
@@ -270,10 +270,10 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ entries, currentUserId
         <div className="bg-gradient-to-r from-black/60 to-black/40 backdrop-blur-xl rounded-2xl p-2 border border-slate-500/20 shadow-lg">
           <div className="flex">
             {[
-              { key: 'daily', label: 'Daily', icon: '📅' },
-              { key: 'weekly', label: 'Weekly', icon: '📆' },
-              { key: 'alltime', label: 'All Time', icon: '🏆' }
-            ].map(({ key, label, icon }) => (
+              { key: 'daily', label: 'Daily', Icon: Calendar },
+              { key: 'weekly', label: 'Weekly', Icon: Calendar },
+              { key: 'alltime', label: 'All Time', Icon: Trophy }
+            ].map(({ key, label, Icon }) => (
               <button
                 key={key}
                 onClick={() => setTimeFrame(key as any)}
@@ -283,7 +283,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ entries, currentUserId
                     : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
                 }`}
               >
-                <span className="mr-2">{icon}</span>
+                <Icon className="w-4 h-4 mr-2" />
                 {label}
               </button>
             ))}
