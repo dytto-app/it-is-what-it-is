@@ -17,20 +17,40 @@ export const Profile: React.FC<ProfileProps> = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [nickname, setNickname] = useState(user.nickname || '');
-  const [hourlyWage, setHourlyWage] = useState(user.hourlyWage.toString());
+  const [salary, setSalary] = useState(user.salary.toString());
+  const [salaryPeriod, setSalaryPeriod] = useState(user.salaryPeriod);
   const [showOnLeaderboard, setShowOnLeaderboard] = useState(user.showOnLeaderboard);
 
+  const calculateHourlyRate = (salaryAmount: number, freq: string): number => {
+    switch (freq) {
+      case 'hourly':
+        return salaryAmount;
+      case 'weekly':
+        return salaryAmount / 40;
+      case 'monthly':
+        return salaryAmount / (40 * 4.33);
+      case 'annually':
+        return salaryAmount / (40 * 52);
+      default:
+        return 0;
+    }
+  };
+
   const handleSave = () => {
-    const wage = parseFloat(hourlyWage);
-    if (isNaN(wage) || wage <= 0) {
-      alert('Please enter a valid hourly wage');
+    const salaryAmount = parseFloat(salary);
+    if (isNaN(salaryAmount) || salaryAmount <= 0) {
+      alert('Please enter a valid salary amount');
       return;
     }
+
+    const calculatedHourlyWage = calculateHourlyRate(salaryAmount, salaryPeriod);
 
     onUpdateUser({
       ...user,
       nickname: nickname.trim() || undefined,
-      hourlyWage: wage,
+      salary: salaryAmount,
+      salaryPeriod: salaryPeriod as 'hourly' | 'weekly' | 'monthly' | 'annually',
+      hourlyWage: calculatedHourlyWage,
       showOnLeaderboard
     });
     setIsEditing(false);
@@ -120,32 +140,75 @@ export const Profile: React.FC<ProfileProps> = ({
             )}
           </div>
 
-          {/* Hourly wage */}
+          {/* Base Salary */}
           <div>
             <label className="block text-sm font-semibold text-slate-300 mb-3">
-              Hourly Wage
+              Base Salary
             </label>
             {isEditing ? (
               <div className="relative">
                 <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 font-semibold">$</span>
                 <input
                   type="number"
-                  value={hourlyWage}
-                  onChange={(e) => setHourlyWage(e.target.value)}
+                  value={salary}
+                  onChange={(e) => setSalary(e.target.value)}
                   step="0.01"
-                  min="0"
+                  min="0.01"
                   className="w-full pl-8 pr-4 py-4 bg-black/50 backdrop-blur-lg rounded-2xl border border-slate-600/50 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-400/50 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300 shadow-lg"
                 />
               </div>
             ) : (
               <div className="px-4 py-4 bg-black/30 backdrop-blur-lg rounded-2xl border border-slate-600/30 text-white shadow-lg">
                 <span className="text-2xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
-                  ${user.hourlyWage.toFixed(2)}
+                  ${user.salary.toFixed(2)}
                 </span>
-                <span className="text-slate-400 ml-2">per hour</span>
+                <span className="text-slate-400 ml-2">({user.salaryPeriod})</span>
               </div>
             )}
           </div>
+
+          {/* Salary Period */}
+          <div>
+            <label className="block text-sm font-semibold text-slate-300 mb-3">
+              Salary Period
+            </label>
+            {isEditing ? (
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { value: 'hourly', label: 'Hourly' },
+                  { value: 'weekly', label: 'Weekly' },
+                  { value: 'monthly', label: 'Monthly' },
+                  { value: 'annually', label: 'Annual' }
+                ].map(({ value, label }) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setSalaryPeriod(value as any)}
+                    className={`py-2 px-3 rounded-lg border-2 transition-all duration-300 font-semibold ${
+                      salaryPeriod === value
+                        ? 'bg-purple-500/30 border-purple-500 text-purple-300'
+                        : 'bg-slate-800/50 border-slate-700 text-slate-300 hover:border-purple-500/50'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="px-4 py-4 bg-black/30 backdrop-blur-lg rounded-2xl border border-slate-600/30 text-slate-300 capitalize">
+                {user.salaryPeriod}
+              </div>
+            )}
+          </div>
+
+          {/* Calculated Hourly Rate */}
+          {isEditing && salary && (
+            <div className="p-4 bg-purple-900/20 border border-purple-500/30 rounded-lg">
+              <p className="text-purple-300 text-sm font-medium">
+                Calculated Hourly Rate: ${(calculateHourlyRate(parseFloat(salary), salaryPeriod) || 0).toFixed(2)}/hr
+              </p>
+            </div>
+          )}
 
           {/* Leaderboard visibility */}
           <div className="bg-black/30 backdrop-blur-lg rounded-2xl p-4 border border-slate-600/30 shadow-lg">

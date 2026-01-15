@@ -4,6 +4,9 @@ export interface User {
   hourlyWage: number;
   createdAt: Date;
   showOnLeaderboard: boolean;
+  salary: number;
+  salaryPeriod: 'hourly' | 'weekly' | 'monthly' | 'annually';
+  onboarded: boolean;
 }
 
 export interface Session {

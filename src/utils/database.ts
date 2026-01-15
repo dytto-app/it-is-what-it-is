@@ -17,7 +17,10 @@ export const DatabaseUtils = {
       nickname: data.nickname,
       hourlyWage: data.hourly_wage,
       createdAt: new Date(data.created_at),
-      showOnLeaderboard: data.show_on_leaderboard
+      showOnLeaderboard: data.show_on_leaderboard,
+      salary: data.salary || 0,
+      salaryPeriod: data.salary_period || 'weekly',
+      onboarded: data.onboarded || false
     };
   },
 
@@ -28,6 +31,9 @@ export const DatabaseUtils = {
         nickname: user.nickname,
         hourly_wage: user.hourlyWage,
         show_on_leaderboard: user.showOnLeaderboard,
+        salary: user.salary,
+        salary_period: user.salaryPeriod,
+        onboarded: user.onboarded,
         updated_at: new Date().toISOString()
       })
       .eq('id', user.id);
@@ -116,23 +122,28 @@ export const DatabaseUtils = {
   },
 
   async unlockAchievement(userId: string, achievementId: string): Promise<void> {
-    // Check if already unlocked
-    const { data: existing } = await supabase
-      .from('user_achievements')
-      .select('id')
-      .eq('user_id', userId)
-      .eq('achievement_id', achievementId)
-      .single();
-
-    if (!existing) {
-      await supabase
+    try {
+      // Check if already unlocked
+      const { data: existing } = await supabase
         .from('user_achievements')
-        .insert([{
-          user_id: userId,
-          achievement_id: achievementId,
-          unlocked_at: new Date().toISOString()
-        }]);
+        .select('id')
+        .eq('user_id', userId)
+        .eq('achievement_id', achievementId)
+        .single();
+
+      if (existing) return; // Already unlocked
+    } catch (error) {
+      // Row doesn't exist, which is expected for first unlock
     }
+
+    // Insert the new achievement unlock
+    await supabase
+      .from('user_achievements')
+      .insert([{
+        user_id: userId,
+        achievement_id: achievementId,
+        unlocked_at: new Date().toISOString()
+      }]);
   },
 
   // ===== LEADERBOARD OPERATIONS =====

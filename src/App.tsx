@@ -13,6 +13,7 @@ import { Leaderboard } from './components/Leaderboard';
 import { Profile } from './components/Profile';
 import { Navigation } from './components/Navigation';
 import { Auth } from './components/Auth';
+import { Onboarding } from './components/Onboarding';
 import { supabase } from './utils/supabase';
 
 type TabType = 'tracker' | 'analytics' | 'history' | 'achievements' | 'leaderboard' | 'profile';
@@ -248,6 +249,24 @@ function App() {
     );
   }
 
+  // Show onboarding if user hasn't completed it
+  if (!user.onboarded) {
+    return (
+      <Onboarding
+        onComplete={async (salary, salaryPeriod, hourlyWage) => {
+          try {
+            const updatedUser = { ...user, salary, salaryPeriod, hourlyWage, onboarded: true };
+            await DatabaseUtils.updateUser(updatedUser);
+            setUser(updatedUser);
+          } catch (error) {
+            console.error('Failed to save onboarding:', error);
+            throw error;
+          }
+        }}
+      />
+    );
+  }
+
   const renderActiveTab = () => {
     switch (activeTab) {
       case 'tracker':
@@ -294,7 +313,7 @@ function App() {
             {/* Profile Button - Top Left within content */}
             <button
               onClick={() => setActiveTab(activeTab === 'profile' ? 'tracker' : 'profile')}
-              className={`absolute top-0 left-0 p-3 backdrop-blur-lg rounded-xl border transition-all duration-300 shadow-lg ${
+              className={`absolute top-0 left-0 z-50 p-3 backdrop-blur-lg rounded-xl border transition-all duration-300 shadow-lg ${
                 activeTab === 'profile'
                   ? 'bg-indigo-500/20 border-indigo-400/40 text-indigo-300 hover:bg-indigo-500/30'
                   : 'bg-black/30 border-slate-600/30 text-slate-300 hover:bg-slate-800/50'
