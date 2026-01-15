@@ -55,8 +55,8 @@ export const Auth: React.FC<AuthProps> = ({ onAuthSuccess }) => {
             nickname: username,
             hourly_wage: 20,
             show_on_leaderboard: false,
-            break_goal: 30,
-            break_frequency: 'weekly',
+            salary: 30,
+            salary_period: 'weekly',
             onboarded: false,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
