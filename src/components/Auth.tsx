@@ -49,7 +49,7 @@ export const Auth: React.FC<AuthProps> = ({ onAuthSuccess }) => {
 
         if (data.user) {
           // Create profile for new user
-          await supabase.from('profiles').insert([{
+          const { error: insertError } = await supabase.from('profiles').insert([{
             id: data.user.id,
             username: username,
             nickname: username,
@@ -61,6 +61,11 @@ export const Auth: React.FC<AuthProps> = ({ onAuthSuccess }) => {
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           }]);
+
+          if (insertError) {
+            setError(`Failed to create profile: ${insertError.message}`);
+            return;
+          }
 
           onAuthSuccess(data.user.id);
         }
