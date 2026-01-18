@@ -99,11 +99,11 @@ export const SessionHistory: React.FC<SessionHistoryProps> = ({ sessions, onExpo
             <History className="w-10 h-10 text-emerald-400 drop-shadow-lg" />
           </div>
           <h2 className="text-3xl font-bold bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent mb-3">
-            Session History
+            History
           </h2>
-          <p className="text-slate-300 text-lg">
-            Complete record of your productivity sessions
-          </p>
+          {/* <p className="text-slate-300 text-lg">
+            Spotless record of your productivity
+          </p> */}
           <div className="flex items-center justify-center mt-4 space-x-2">
             <Sparkles className="w-4 h-4 text-emerald-400 animate-pulse" />
             <span className="text-emerald-300 text-sm font-medium">Live Analytics</span>
@@ -119,7 +119,7 @@ export const SessionHistory: React.FC<SessionHistoryProps> = ({ sessions, onExpo
             <div className="p-2 bg-emerald-500/20 rounded-xl mr-3">
               <DollarSign className="w-6 h-6 text-emerald-400" />
             </div>
-            <span className="text-slate-300 font-semibold">Total Earned</span>
+            <span className="text-slate-300 font-semibold">Total</span>
           </div>
           <div className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-green-300 bg-clip-text text-transparent">
             {CalculationUtils.formatCurrency(stats.totalEarnings)}
@@ -131,7 +131,7 @@ export const SessionHistory: React.FC<SessionHistoryProps> = ({ sessions, onExpo
             <div className="p-2 bg-blue-500/20 rounded-xl mr-3">
               <Clock className="w-6 h-6 text-blue-400" />
             </div>
-            <span className="text-slate-300 font-semibold">Total Time</span>
+            <span className="text-slate-300 font-semibold">Time</span>
           </div>
           <div className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-indigo-300 bg-clip-text text-transparent">
             {CalculationUtils.formatDuration(stats.totalTime)}
@@ -143,7 +143,7 @@ export const SessionHistory: React.FC<SessionHistoryProps> = ({ sessions, onExpo
             <div className="p-2 bg-purple-500/20 rounded-xl mr-3">
               <TrendingUp className="w-6 h-6 text-purple-400" />
             </div>
-            <span className="text-slate-300 font-semibold">Avg Session</span>
+            <span className="text-slate-300 font-semibold">Endurance</span>
           </div>
           <div className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-300 bg-clip-text text-transparent">
             {CalculationUtils.formatDuration(Math.round(stats.avgDuration))}
@@ -155,10 +155,51 @@ export const SessionHistory: React.FC<SessionHistoryProps> = ({ sessions, onExpo
             <div className="p-2 bg-orange-500/20 rounded-xl mr-3">
               <Target className="w-6 h-6 text-orange-400" />
             </div>
-            <span className="text-slate-300 font-semibold">Total Sessions</span>
+            <span className="text-slate-300 font-semibold">Runs</span>
           </div>
           <div className="text-2xl font-bold bg-gradient-to-r from-orange-400 to-red-300 bg-clip-text text-transparent">
             {stats.count}
+          </div>
+        </div>
+      </div>
+
+      {/* Insights section */}
+      <div className="bg-gradient-to-br from-black/60 to-black/40 backdrop-blur-xl rounded-3xl p-8 border border-slate-500/20 shadow-2xl">
+        <h3 className="text-2xl font-bold bg-gradient-to-r from-slate-200 to-slate-100 bg-clip-text text-transparent mb-6">
+          Insights
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-black/30 backdrop-blur-lg rounded-2xl p-4 border border-slate-600/30">
+            <div className="flex items-center justify-between">
+              <span className="text-slate-300">Longest</span>
+              <span className="text-blue-400 font-semibold">
+                {CalculationUtils.formatDuration(stats.longestSession)}
+              </span>
+            </div>
+          </div>
+          <div className="bg-black/30 backdrop-blur-lg rounded-2xl p-4 border border-slate-600/30">
+            <div className="flex items-center justify-between">
+              <span className="text-slate-300">Biggest</span>
+              <span className="text-emerald-400 font-semibold">
+                {CalculationUtils.formatCurrency(stats.highestEarning)}
+              </span>
+            </div>
+          </div>
+          <div className="bg-black/30 backdrop-blur-lg rounded-2xl p-4 border border-slate-600/30">
+            <div className="flex items-center justify-between">
+              <span className="text-slate-300">Wage</span>
+              <span className="text-purple-400 font-semibold">
+                {CalculationUtils.formatCurrency(stats.avgEarnings)}
+              </span>
+            </div>
+          </div>
+          <div className="bg-black/30 backdrop-blur-lg rounded-2xl p-4 border border-slate-600/30">
+            <div className="flex items-center justify-between">
+              <span className="text-slate-300">Rate</span>
+              <span className="text-yellow-400 font-semibold">
+                {stats.totalTime > 0 ? `$${(stats.totalEarnings / (stats.totalTime / 3600)).toFixed(1)}/hr` : 'N/A'}
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -267,31 +308,31 @@ export const SessionHistory: React.FC<SessionHistoryProps> = ({ sessions, onExpo
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="space-y-4">
             {recentSessions.map((session, index) => {
               const efficiency = session.duration > 0 ? session.earnings / (session.duration / 3600) : 0;
               const isTopPerformer = index < 3;
-              
+
               return (
                 <div
                   key={session.id}
-                  className={`bg-gradient-to-br backdrop-blur-xl rounded-2xl p-6 border transition-all duration-500 transform hover:scale-[1.02] ${
-                    isTopPerformer 
+                  className={`bg-gradient-to-br backdrop-blur-xl rounded-2xl p-4 md:p-6 border transition-all duration-500 ${
+                    isTopPerformer
                       ? 'from-emerald-500/20 to-teal-500/20 border-emerald-400/30 shadow-lg shadow-emerald-500/10'
                       : 'from-black/40 to-black/30 border-slate-600/30'
                   }`}
                 >
                   {/* Header */}
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center">
-                      <div className={`p-2 rounded-xl mr-3 ${
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className={`p-2 rounded-xl ${
                         isTopPerformer ? 'bg-emerald-500/20' : 'bg-slate-500/20'
                       }`}>
-                        <Calendar className={`w-5 h-5 ${
+                        <Calendar className={`w-4 h-4 ${
                           isTopPerformer ? 'text-emerald-400' : 'text-slate-400'
                         }`} />
                       </div>
-                      <span className="text-slate-300 font-semibold text-sm">
+                      <span className="text-slate-300 font-semibold text-xs md:text-sm">
                         {session.startTime.toLocaleDateString('en-US', {
                           month: 'short',
                           day: 'numeric'
@@ -306,8 +347,8 @@ export const SessionHistory: React.FC<SessionHistoryProps> = ({ sessions, onExpo
                   </div>
 
                   {/* Main earnings */}
-                  <div className={`text-xl font-bold mb-4 ${
-                    isTopPerformer 
+                  <div className={`text-lg md:text-xl font-bold mb-3 ${
+                    isTopPerformer
                       ? 'bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent'
                       : 'text-slate-200'
                   }`}>
@@ -316,14 +357,14 @@ export const SessionHistory: React.FC<SessionHistoryProps> = ({ sessions, onExpo
 
                   {/* Details */}
                   <div className="space-y-2">
-                    <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center justify-between text-xs md:text-sm">
                       <span className="text-slate-400">Duration</span>
                       <span className="text-blue-400 font-semibold">
                         {CalculationUtils.formatDuration(session.duration)}
                       </span>
                     </div>
-                    
-                    <div className="flex items-center justify-between text-sm">
+
+                    <div className="flex items-center justify-between text-xs md:text-sm">
                       <span className="text-slate-400">Time</span>
                       <span className="text-slate-300">
                         {session.startTime.toLocaleTimeString('en-US', {
@@ -333,7 +374,7 @@ export const SessionHistory: React.FC<SessionHistoryProps> = ({ sessions, onExpo
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center justify-between text-xs md:text-sm">
                       <span className="text-slate-400">Rate</span>
                       <span className="text-yellow-400 font-semibold">
                         ${efficiency.toFixed(1)}/hr
@@ -345,47 +386,6 @@ export const SessionHistory: React.FC<SessionHistoryProps> = ({ sessions, onExpo
             })}
           </div>
         )}
-      </div>
-
-      {/* Insights section */}
-      <div className="bg-gradient-to-br from-black/60 to-black/40 backdrop-blur-xl rounded-3xl p-8 border border-slate-500/20 shadow-2xl">
-        <h3 className="text-2xl font-bold bg-gradient-to-r from-slate-200 to-slate-100 bg-clip-text text-transparent mb-6">
-          Session Insights
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-black/30 backdrop-blur-lg rounded-2xl p-4 border border-slate-600/30">
-            <div className="flex items-center justify-between">
-              <span className="text-slate-300">Longest session</span>
-              <span className="text-blue-400 font-semibold">
-                {CalculationUtils.formatDuration(stats.longestSession)}
-              </span>
-            </div>
-          </div>
-          <div className="bg-black/30 backdrop-blur-lg rounded-2xl p-4 border border-slate-600/30">
-            <div className="flex items-center justify-between">
-              <span className="text-slate-300">Highest earning</span>
-              <span className="text-emerald-400 font-semibold">
-                {CalculationUtils.formatCurrency(stats.highestEarning)}
-              </span>
-            </div>
-          </div>
-          <div className="bg-black/30 backdrop-blur-lg rounded-2xl p-4 border border-slate-600/30">
-            <div className="flex items-center justify-between">
-              <span className="text-slate-300">Average earnings</span>
-              <span className="text-purple-400 font-semibold">
-                {CalculationUtils.formatCurrency(stats.avgEarnings)}
-              </span>
-            </div>
-          </div>
-          <div className="bg-black/30 backdrop-blur-lg rounded-2xl p-4 border border-slate-600/30">
-            <div className="flex items-center justify-between">
-              <span className="text-slate-300">Efficiency rate</span>
-              <span className="text-yellow-400 font-semibold">
-                {stats.totalTime > 0 ? `$${(stats.totalEarnings / (stats.totalTime / 3600)).toFixed(1)}/hr` : 'N/A'}
-              </span>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

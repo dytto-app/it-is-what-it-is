@@ -39,13 +39,14 @@ const COSMETICS = {
   ]
 };
 
-export const Leaderboard: React.FC<LeaderboardProps> = ({ entries, currentUserId }) => {
+export const Leaderboard: React.FC<LeaderboardProps> = ({ entries: initialEntries, currentUserId }) => {
   const [sortBy, setSortBy] = useState<'earnings' | 'time' | 'sessions'>('earnings');
   const [timeFrame, setTimeFrame] = useState<'daily' | 'weekly' | 'alltime'>('weekly');
   const [showCosmetics, setShowCosmetics] = useState(false);
   const [purchasingId, setPurchasingId] = useState<string | null>(null);
   const [userOwnedCosmetics, setUserOwnedCosmetics] = useState<string[]>([]);
   const [equippedCosmetics, setEquippedCosmetics] = useState<{ frame: string; badge: string; title: string }>({ frame: 'default', badge: 'none', title: 'none' });
+  const [entries, setEntries] = useState<LeaderboardEntry[]>(initialEntries);
 
   // Load user cosmetics on mount and handle payment success
   useEffect(() => {
@@ -118,6 +119,20 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ entries, currentUserId
     loadUserCosmetics();
     handlePaymentSuccess();
   }, [currentUserId]);
+
+  // Fetch leaderboard data when timeFrame changes
+  useEffect(() => {
+    const loadLeaderboard = async () => {
+      try {
+        const data = await DatabaseUtils.getLeaderboard(timeFrame);
+        setEntries(data);
+      } catch (error) {
+        console.error('Failed to load leaderboard:', error);
+      }
+    };
+
+    loadLeaderboard();
+  }, [timeFrame]);
 
   const handlePurchaseCosmetic = async (
     cosmeticId: string,
@@ -227,11 +242,11 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ entries, currentUserId
             <Trophy className="w-10 h-10 text-yellow-400 drop-shadow-lg" />
           </div>
           <h2 className="text-3xl font-bold bg-gradient-to-r from-yellow-400 via-amber-300 to-yellow-500 bg-clip-text text-transparent mb-3">
-            Global Leaderboard
+            The Podium
           </h2>
-          <p className="text-slate-300 text-lg">
-            Anonymous rankings across all users
-          </p>
+          {/* <p className="text-slate-300 text-lg">
+            The Ivory Throne
+          </p> */}
           {/* <div className="flex items-center justify-center mt-4 space-x-2">
             <Sparkles className="w-4 h-4 text-purple-400 animate-pulse" />
             <span className="text-purple-300 text-sm font-medium">Featuring Premium Cosmetics</span>

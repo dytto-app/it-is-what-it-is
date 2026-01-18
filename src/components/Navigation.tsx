@@ -10,11 +10,11 @@ interface NavigationProps {
 
 export const Navigation: React.FC<NavigationProps> = ({ activeTab, onTabChange }) => {
   const tabs = [
-    { id: 'analytics' as TabType, icon: BarChart3, label: 'Stats' },
+    { id: 'analytics' as TabType, icon: BarChart3, label: 'Statistics' },
     { id: 'history' as TabType, icon: History, label: 'History' },
     { id: 'tracker' as TabType, icon: Timer, label: 'Track' },
     { id: 'achievements' as TabType, icon: Trophy, label: 'Awards' },
-    { id: 'leaderboard' as TabType, icon: Users, label: 'Board' }
+    { id: 'leaderboard' as TabType, icon: Users, label: 'Podium' }
   ];
 
   return (

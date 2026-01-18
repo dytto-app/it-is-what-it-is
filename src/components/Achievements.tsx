@@ -45,47 +45,47 @@ export const Achievements: React.FC<AchievementsProps> = ({ achievements }) => {
   };
 
   const categoryData = [
-    { 
-      key: 'all', 
-      label: 'All', 
-      icon: Trophy, 
+    {
+      key: 'all',
+      label: 'All',
+      icon: Trophy,
       achievements: achievements,
-      color: 'from-yellow-400 to-amber-500'
-    },
-    { 
-      key: 'beginner', 
-      label: 'Beginner', 
-      icon: Star, 
-      achievements: categories.beginner,
       color: 'from-emerald-400 to-teal-500'
     },
-    { 
-      key: 'sessions', 
-      label: 'Sessions', 
-      icon: Target, 
+    {
+      key: 'beginner',
+      label: 'Beginner',
+      icon: Star,
+      achievements: categories.beginner,
+      color: 'from-yellow-400 to-amber-500'
+    },
+    {
+      key: 'sessions',
+      label: 'Sessions',
+      icon: Target,
       achievements: categories.sessions,
       color: 'from-blue-400 to-indigo-500'
     },
-    { 
-      key: 'earnings', 
-      label: 'Earnings', 
-      icon: DollarSign, 
+    {
+      key: 'earnings',
+      label: 'Earnings',
+      icon: DollarSign,
       achievements: categories.earnings,
-      color: 'from-emerald-400 to-green-500'
+      color: 'from-red-400 to-pink-500'
     },
-    { 
-      key: 'time', 
-      label: 'Time', 
-      icon: Clock, 
+    {
+      key: 'time',
+      label: 'Time',
+      icon: Clock,
       achievements: categories.time,
       color: 'from-purple-400 to-pink-500'
     },
-    { 
-      key: 'special', 
-      label: 'Special', 
-      icon: Crown, 
+    {
+      key: 'special',
+      label: 'Special',
+      icon: Crown,
       achievements: categories.special,
-      color: 'from-orange-400 to-red-500'
+      color: 'from-cyan-400 to-sky-500'
     }
   ];
 
@@ -101,9 +101,9 @@ export const Achievements: React.FC<AchievementsProps> = ({ achievements }) => {
           <h2 className="text-3xl font-bold bg-gradient-to-r from-yellow-400 via-amber-300 to-yellow-500 bg-clip-text text-transparent mb-3">
             Achievements
           </h2>
-          <p className="text-slate-300 text-lg mb-6">
+          {/* <p className="text-slate-300 text-lg mb-6">
             Unlock achievements and showcase your progress
-          </p>
+          </p> */}
           
           {/* Overall Progress */}
           <div className="max-w-md mx-auto">
@@ -112,8 +112,8 @@ export const Achievements: React.FC<AchievementsProps> = ({ achievements }) => {
               <span className="text-yellow-400 font-bold">{unlockedCount}/{totalCount}</span>
             </div>
             <div className="w-full bg-black/30 backdrop-blur-lg rounded-full h-3 border border-slate-600/30 shadow-lg">
-              <div 
-                className="bg-gradient-to-r from-yellow-500 via-amber-500 to-yellow-400 h-full rounded-full transition-all duration-1000 shadow-lg shadow-yellow-500/30"
+              <div
+                className="bg-yellow-500 h-full rounded-full transition-all duration-1000 shadow-lg shadow-yellow-500/30"
                 style={{ width: `${(unlockedCount / totalCount) * 100}%` }}
               />
             </div>
@@ -133,21 +133,35 @@ export const Achievements: React.FC<AchievementsProps> = ({ achievements }) => {
               <button
                 key={key}
                 onClick={() => setSelectedCategory(key as CategoryType)}
-                className={`flex flex-col items-center p-3 rounded-xl transition-all duration-300 ${
+                className={`flex flex-col items-center p-3 rounded-xl transition-all duration-300 relative overflow-hidden ${
                   selectedCategory === key
-                    ? `bg-gradient-to-br ${color}/20 border border-current/30 shadow-lg`
+                    ? 'bg-black/30 border shadow-2xl backdrop-blur-md border-current/60'
                     : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
                 }`}
-                style={{ 
+                style={{
                   color: selectedCategory === key ? (
-                    color.includes('yellow') ? '#fbbf24' : 
-                    color.includes('emerald') ? '#10b981' : 
-                    color.includes('blue') ? '#3b82f6' : 
-                    color.includes('purple') ? '#a855f7' : 
+                    color.includes('yellow') ? '#fbbf24' :
+                    color.includes('emerald') ? '#10b981' :
+                    color.includes('cyan') ? '#22d3ee' :
+                    color.includes('blue') ? '#3b82f6' :
+                    color.includes('red') ? '#f87171' :
+                    color.includes('purple') ? '#a855f7' :
                     color.includes('orange') ? '#f97316' : '#64748b'
-                  ) : undefined 
+                  ) : undefined,
+                  boxShadow: selectedCategory === key ? `0 0 20px ${
+                    color.includes('yellow') ? 'rgba(251, 191, 36, 0.3)' :
+                    color.includes('emerald') ? 'rgba(16, 185, 129, 0.3)' :
+                    color.includes('cyan') ? 'rgba(34, 211, 238, 0.3)' :
+                    color.includes('blue') ? 'rgba(59, 130, 246, 0.3)' :
+                    color.includes('red') ? 'rgba(248, 113, 113, 0.3)' :
+                    color.includes('purple') ? 'rgba(168, 85, 247, 0.3)' :
+                    'rgba(249, 115, 22, 0.3)'
+                  }` : undefined
                 }}
               >
+                {selectedCategory === key && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse" />
+                )}
                 <Icon className="w-5 h-5 mb-2" />
                 <span className="text-sm font-semibold">{label}</span>
                 <div className="text-xs mt-1 opacity-75">
@@ -176,29 +190,38 @@ export const Achievements: React.FC<AchievementsProps> = ({ achievements }) => {
             const IconComponent = (Icons as any)[achievement.icon] || Trophy;
             const isUnlocked = !!achievement.unlockedAt;
             const rarity = getAchievementRarity(achievement);
+            const currentCategoryColor = categoryData.find(c => c.key === selectedCategory)?.color || 'from-emerald-400 to-teal-500';
+
+            const getAccentColor = () => {
+              if (currentCategoryColor.includes('yellow')) return { accent: 'yellow', textAccent: 'text-yellow-400', bgAccent: 'bg-yellow-500/20', borderAccent: 'border-yellow-400/50', shadowColor: 'shadow-yellow-500/30' };
+              if (currentCategoryColor.includes('emerald')) return { accent: 'emerald', textAccent: 'text-emerald-400', bgAccent: 'bg-emerald-500/20', borderAccent: 'border-emerald-400/50', shadowColor: 'shadow-emerald-500/30' };
+              if (currentCategoryColor.includes('cyan')) return { accent: 'cyan', textAccent: 'text-cyan-400', bgAccent: 'bg-cyan-500/20', borderAccent: 'border-cyan-400/50', shadowColor: 'shadow-cyan-500/30' };
+              if (currentCategoryColor.includes('blue')) return { accent: 'blue', textAccent: 'text-blue-400', bgAccent: 'bg-blue-500/20', borderAccent: 'border-blue-400/50', shadowColor: 'shadow-blue-500/30' };
+              if (currentCategoryColor.includes('red')) return { accent: 'red', textAccent: 'text-red-400', bgAccent: 'bg-red-500/20', borderAccent: 'border-red-400/50', shadowColor: 'shadow-red-500/30' };
+              if (currentCategoryColor.includes('purple')) return { accent: 'purple', textAccent: 'text-purple-400', bgAccent: 'bg-purple-500/20', borderAccent: 'border-purple-400/50', shadowColor: 'shadow-purple-500/30' };
+              return { accent: 'yellow', textAccent: 'text-yellow-400', bgAccent: 'bg-yellow-500/20', borderAccent: 'border-yellow-400/50', shadowColor: 'shadow-yellow-500/30' };
+            };
+
+            const accent = getAccentColor();
 
             return (
               <div
                 key={achievement.id}
                 className={`relative overflow-hidden rounded-3xl p-6 border transition-all duration-500 transform hover:scale-[1.02] ${
                   isUnlocked
-                    ? 'bg-gradient-to-br from-yellow-500/20 via-amber-500/15 to-yellow-600/20 border-2 border-yellow-400/40 shadow-2xl shadow-yellow-500/20'
+                    ? `${accent.bgAccent} border-2 ${accent.borderAccent} shadow-2xl ${accent.shadowColor}`
                     : 'bg-gradient-to-br from-black/60 to-black/40 border border-slate-600/30 shadow-lg hover:shadow-xl'
                 }`}
               >
-                {/* Animated background for unlocked achievements */}
-                {isUnlocked && (
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-400/5 to-transparent animate-pulse" />
-                )}
 
                 <div className="relative flex items-start gap-6">
                   <div className={`w-16 h-16 rounded-2xl flex items-center justify-center border-2 transition-all duration-500 shadow-lg ${
                     isUnlocked
-                      ? 'bg-gradient-to-br from-yellow-500/30 to-amber-500/30 border-yellow-400/50 shadow-yellow-500/20'
+                      ? `${accent.bgAccent} ${accent.borderAccent} ${accent.shadowColor}`
                       : 'bg-black/30 backdrop-blur-lg border-slate-600/30'
                   }`}>
                     {isUnlocked ? (
-                      <IconComponent className="w-8 h-8 text-yellow-400 drop-shadow-lg" />
+                      <IconComponent className={`w-8 h-8 ${accent.textAccent} drop-shadow-lg`} />
                     ) : (
                       <Lock className="w-8 h-8 text-slate-500" />
                     )}
@@ -207,15 +230,15 @@ export const Achievements: React.FC<AchievementsProps> = ({ achievements }) => {
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <h3 className={`text-xl font-bold ${
-                        isUnlocked 
-                          ? 'bg-gradient-to-r from-yellow-400 to-amber-400 bg-clip-text text-transparent' 
+                        isUnlocked
+                          ? 'text-yellow-400'
                           : 'text-slate-400'
                       }`}>
                         {achievement.title}
                       </h3>
                       <span className={`px-2 py-1 rounded-full text-xs font-bold ${
-                        isUnlocked 
-                          ? `${rarity.color} bg-current/10 border border-current/20`
+                        isUnlocked
+                          ? 'text-yellow-400 bg-yellow-500/10 border border-yellow-400/30'
                           : 'text-slate-500 bg-slate-500/10 border border-slate-500/20'
                       }`}>
                         {rarity.rarity}
@@ -226,11 +249,11 @@ export const Achievements: React.FC<AchievementsProps> = ({ achievements }) => {
                     }`}>
                       {achievement.description}
                     </p>
-                    
+
                     {isUnlocked && achievement.unlockedAt && (
-                      <div className="mt-4 inline-flex items-center px-3 py-1 bg-yellow-500/20 rounded-full border border-yellow-400/30">
-                        <Sparkles className="w-3 h-3 mr-2 text-yellow-400" />
-                        <span className="text-xs text-yellow-400 font-medium">
+                      <div className={`mt-4 inline-flex items-center px-3 py-1 rounded-full border bg-yellow-500/20 border-yellow-400/50`}>
+                        <Sparkles className={`w-3 h-3 mr-2 text-yellow-400`} />
+                        <span className={`text-xs font-medium text-yellow-300`}>
                           Unlocked {achievement.unlockedAt.toLocaleDateString('en-US', {
                             month: 'short',
                             day: 'numeric',

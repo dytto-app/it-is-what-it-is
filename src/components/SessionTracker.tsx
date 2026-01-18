@@ -70,7 +70,7 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
             <div className={`w-3 h-3 rounded-full mr-3 transition-all duration-500 ${
               activeSession ? 'bg-emerald-400 animate-pulse shadow-lg shadow-emerald-400/50' : 'bg-slate-400'
             }`} />
-            {activeSession ? 'Session Active' : 'Ready to Start'}
+            {activeSession ? 'Session Strong' : 'Ready'}
             {activeSession && <Sparkles className="w-4 h-4 ml-2 animate-pulse" />}
           </div>
         </div>
@@ -141,7 +141,7 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
                 <div className="p-2 bg-emerald-500/20 rounded-xl mr-3">
                   <DollarSign className="w-6 h-6 text-emerald-400" />
                 </div>
-                <span className="text-slate-300 font-semibold">Current Earnings</span>
+                <span className="text-slate-300 font-semibold">Payload</span>
               </div>
               <div className="text-4xl font-bold bg-gradient-to-r from-emerald-400 to-green-300 bg-clip-text text-transparent">
                 {CalculationUtils.formatCurrency(currentEarnings)}
@@ -152,7 +152,7 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
                 <div className="p-2 bg-indigo-500/20 rounded-xl mr-3">
                   <Clock className="w-6 h-6 text-indigo-400" />
                 </div>
-                <span className="text-slate-300 font-semibold">Session Time</span>
+                <span className="text-slate-300 font-semibold">Time</span>
               </div>
               <div className="text-4xl font-bold bg-gradient-to-r from-indigo-400 to-purple-300 bg-clip-text text-transparent">
                 {CalculationUtils.formatDuration(Math.max(0, currentDuration))}
@@ -163,7 +163,7 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
 
         {/* Enhanced hourly rate display */}
         <div className="bg-gradient-to-br from-black/40 via-black/30 to-black/40 backdrop-blur-xl rounded-2xl p-6 border border-slate-500/20 shadow-lg">
-          <div className="text-sm text-slate-400 mb-2 font-medium">Your Hourly Rate</div>
+          <div className="text-sm text-slate-400 mb-2 font-medium">Rate</div>
           <div className="text-2xl font-bold bg-gradient-to-r from-slate-200 to-slate-100 bg-clip-text text-transparent">
             {CalculationUtils.formatCurrency(user.hourlyWage)}/hour
           </div>

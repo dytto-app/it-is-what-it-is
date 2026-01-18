@@ -348,6 +348,20 @@ function App() {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <div className="fixed bottom-0 left-0 right-0 border-t border-slate-700/30 bg-black/80 backdrop-blur-lg">
+        <div className="container mx-auto px-4 py-4 text-center">
+          <a
+            href="https://ayaanpupala.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-slate-400 hover:text-slate-200 transition-colors text-sm"
+          >
+            built by dytto
+          </a>
+        </div>
+      </div>
     </div>
   );
 }

@@ -42,14 +42,14 @@ export const Analytics: React.FC<AnalyticsProps> = ({ sessions }) => {
             <BarChart3 className="w-10 h-10 text-blue-400 drop-shadow-lg" />
           </div>
           <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent mb-3">
-            Analytics Dashboard
+            Analytics
           </h2>
-          <p className="text-slate-300 text-lg">
-            Detailed insights into your productivity
-          </p>
+          {/* <p className="text-slate-300 text-lg">
+            What is it all for
+          </p> */}
           <div className="flex items-center justify-center mt-4 space-x-2">
             <Sparkles className="w-4 h-4 text-blue-400 animate-pulse" />
-            <span className="text-blue-300 text-sm font-medium">Real-time Data</span>
+            <span className="text-blue-300 text-sm font-medium">Data</span>
             <Sparkles className="w-4 h-4 text-blue-400 animate-pulse" />
           </div>
         </div>
@@ -74,7 +74,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({ sessions }) => {
             <div className="p-2 bg-blue-500/20 rounded-xl mr-3">
               <TrendingUp className="w-6 h-6 text-blue-400" />
             </div>
-            <span className="text-slate-300 font-semibold">This Week</span>
+            <span className="text-slate-300 font-semibold">Week</span>
           </div>
           <div className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-indigo-300 bg-clip-text text-transparent">
             {CalculationUtils.formatCurrency(analytics.weeklyTotal)}
@@ -86,7 +86,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({ sessions }) => {
             <div className="p-2 bg-purple-500/20 rounded-xl mr-3">
               <Clock className="w-6 h-6 text-purple-400" />
             </div>
-            <span className="text-slate-300 font-semibold">Avg Session</span>
+            <span className="text-slate-300 font-semibold">Endurance</span>
           </div>
           <div className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-300 bg-clip-text text-transparent">
             {CalculationUtils.formatDuration(Math.round(analytics.averageSession))}
@@ -98,7 +98,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({ sessions }) => {
             <div className="p-2 bg-orange-500/20 rounded-xl mr-3">
               <Target className="w-6 h-6 text-orange-400" />
             </div>
-            <span className="text-slate-300 font-semibold">Total Sessions</span>
+            <span className="text-slate-300 font-semibold">Runs</span>
           </div>
           <div className="text-2xl font-bold bg-gradient-to-r from-orange-400 to-red-300 bg-clip-text text-transparent">
             {analytics.totalSessions}

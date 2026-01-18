@@ -147,7 +147,20 @@ export const DatabaseUtils = {
   },
 
   // ===== LEADERBOARD OPERATIONS =====
-  async getLeaderboard() {
+  async getLeaderboard(timeFrame: 'daily' | 'weekly' | 'alltime' = 'alltime') {
+    // Calculate date range based on timeFrame
+    const now = new Date();
+    let startDate = new Date(0); // Beginning of time for 'alltime'
+
+    if (timeFrame === 'daily') {
+      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    } else if (timeFrame === 'weekly') {
+      const dayOfWeek = now.getDay();
+      startDate = new Date(now);
+      startDate.setDate(now.getDate() - dayOfWeek);
+      startDate.setHours(0, 0, 0, 0);
+    }
+
     const { data } = await supabase
       .from('profiles')
       .select(`
@@ -156,14 +169,19 @@ export const DatabaseUtils = {
         show_on_leaderboard,
         sessions (
           earnings,
-          duration
+          duration,
+          start_time
         )
       `)
       .eq('show_on_leaderboard', true)
       .order('id');
 
     return (data || []).map(profile => {
-      const sessions = profile.sessions || [];
+      const sessions = (profile.sessions || []).filter((s: any) => {
+        const sessionDate = new Date(s.start_time);
+        return sessionDate >= startDate;
+      });
+
       const totalEarnings = sessions.reduce((sum: number, s: any) => sum + parseFloat(s.earnings), 0);
       const totalTime = sessions.reduce((sum: number, s: any) => sum + s.duration, 0);
 
