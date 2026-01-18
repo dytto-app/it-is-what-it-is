@@ -163,7 +163,7 @@ export const Achievements: React.FC<AchievementsProps> = ({ achievements }) => {
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse" />
                 )}
                 <Icon className="w-5 h-5 mb-2" />
-                <span className="text-sm font-semibold">{label}</span>
+                {/* <span className="text-sm font-semibold">{label}</span> */}
                 <div className="text-xs mt-1 opacity-75">
                   {stats.unlocked}/{stats.total}
                 </div>
