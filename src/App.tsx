@@ -14,6 +14,7 @@ import { Profile } from './components/Profile';
 import { Navigation } from './components/Navigation';
 import { Auth } from './components/Auth';
 import { Onboarding } from './components/Onboarding';
+import { LandingPage } from './components/LandingPage';
 import { supabase } from './utils/supabase';
 
 type TabType = 'tracker' | 'analytics' | 'history' | 'achievements' | 'leaderboard' | 'profile';
@@ -28,6 +29,7 @@ function App() {
   const [activeTab, setActiveTab] = useState<TabType>('tracker');
   const [currentTime, setCurrentTime] = useState(Date.now());
   const [authUserId, setAuthUserId] = useState<string | null>(null);
+  const [showAuth, setShowAuth] = useState(false);
   const handleSessionEndRef = useRef<(() => void) | null>(null);
 
   // Check if user is logged in
@@ -251,9 +253,12 @@ function App() {
 
   // Leaderboard loading is handled entirely by the Leaderboard component
 
-  // Show auth if not logged in
+  // Show landing page or auth if not logged in
   if (!authUserId) {
-    return <Auth onAuthSuccess={(userId) => setAuthUserId(userId)} />;
+    if (showAuth) {
+      return <Auth onAuthSuccess={(userId) => setAuthUserId(userId)} />;
+    }
+    return <LandingPage onGetStarted={() => setShowAuth(true)} />;
   }
 
   if (!user) {
