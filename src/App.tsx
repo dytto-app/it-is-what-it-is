@@ -28,6 +28,7 @@ function App() {
   const [activeTab, setActiveTab] = useState<TabType>('tracker');
   const [currentTime, setCurrentTime] = useState(Date.now());
   const [authUserId, setAuthUserId] = useState<string | null>(null);
+  const handleSessionEndRef = useRef<(() => void) | null>(null);
 
   // Check if user is logged in
   useEffect(() => {
