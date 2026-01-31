@@ -181,40 +181,76 @@ export const DatabaseUtils = {
   async getLeaderboard(timeFrame: 'daily' | 'weekly' | 'alltime' = 'alltime') {
     // Calculate date range based on timeFrame
     const now = new Date();
-    let startDate = new Date(0); // Beginning of time for 'alltime'
+    let startDate: string | null = null;
 
     if (timeFrame === 'daily') {
-      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
     } else if (timeFrame === 'weekly') {
       const dayOfWeek = now.getDay();
-      startDate = new Date(now);
-      startDate.setDate(now.getDate() - dayOfWeek);
-      startDate.setHours(0, 0, 0, 0);
+      const weekStart = new Date(now);
+      weekStart.setDate(now.getDate() - dayOfWeek);
+      weekStart.setHours(0, 0, 0, 0);
+      startDate = weekStart.toISOString();
     }
 
-    const { data, error } = await supabase
+    // Filter sessions server-side using date range to reduce data transfer
+    let query = supabase
       .from('profiles')
       .select(`
         id,
         nickname,
         show_on_leaderboard,
-        sessions (
+        sessions!inner (
           earnings,
           duration,
           start_time
         )
       `)
-      .eq('show_on_leaderboard', true)
-      .order('id');
+      .eq('show_on_leaderboard', true);
 
-    if (error) throw new Error(`Failed to load leaderboard: ${error.message}`);
+    if (startDate) {
+      query = query.gte('sessions.start_time', startDate);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      // Fallback: if inner join fails (no sessions), also fetch profiles without sessions
+      const { data: fallbackData, error: fallbackError } = await supabase
+        .from('profiles')
+        .select(`
+          id,
+          nickname,
+          show_on_leaderboard,
+          sessions (
+            earnings,
+            duration,
+            start_time
+          )
+        `)
+        .eq('show_on_leaderboard', true);
+
+      if (fallbackError) throw new Error(`Failed to load leaderboard: ${fallbackError.message}`);
+
+      const startDateObj = startDate ? new Date(startDate) : new Date(0);
+      return (fallbackData || []).map(profile => {
+        const sessions = (profile.sessions || []).filter((s: any) => {
+          return new Date(s.start_time) >= startDateObj;
+        });
+        const totalEarnings = sessions.reduce((sum: number, s: any) => sum + parseFloat(s.earnings), 0);
+        const totalTime = sessions.reduce((sum: number, s: any) => sum + s.duration, 0);
+        return {
+          userId: profile.id,
+          nickname: profile.nickname || 'Anonymous',
+          totalEarnings,
+          totalTime,
+          sessionCount: sessions.length
+        };
+      }).filter(e => e.sessionCount > 0).sort((a, b) => b.totalEarnings - a.totalEarnings);
+    }
 
     return (data || []).map(profile => {
-      const sessions = (profile.sessions || []).filter((s: any) => {
-        const sessionDate = new Date(s.start_time);
-        return sessionDate >= startDate;
-      });
-
+      const sessions = profile.sessions || [];
       const totalEarnings = sessions.reduce((sum: number, s: any) => sum + parseFloat(s.earnings), 0);
       const totalTime = sessions.reduce((sum: number, s: any) => sum + s.duration, 0);
 
