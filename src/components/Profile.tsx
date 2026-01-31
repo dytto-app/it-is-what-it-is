@@ -36,6 +36,11 @@ export const Profile: React.FC<ProfileProps> = ({
     }
   };
 
+  const sanitizeNickname = (input: string): string => {
+    // Trim whitespace, limit to 30 chars, strip HTML/script tags
+    return input.trim().replace(/<[^>]*>/g, '').slice(0, 30);
+  };
+
   const handleSave = () => {
     const salaryAmount = parseFloat(salary);
     if (isNaN(salaryAmount) || salaryAmount <= 0) {
@@ -43,11 +48,17 @@ export const Profile: React.FC<ProfileProps> = ({
       return;
     }
 
+    const sanitizedNickname = sanitizeNickname(nickname);
+    if (sanitizedNickname.length > 0 && sanitizedNickname.length < 2) {
+      alert('Nickname must be at least 2 characters');
+      return;
+    }
+
     const calculatedHourlyWage = calculateHourlyRate(salaryAmount, salaryPeriod);
 
     onUpdateUser({
       ...user,
-      nickname: nickname.trim() || undefined,
+      nickname: sanitizedNickname || undefined,
       salary: salaryAmount,
       salaryPeriod: salaryPeriod as 'hourly' | 'weekly' | 'monthly' | 'annually',
       hourlyWage: calculatedHourlyWage,
@@ -119,6 +130,7 @@ export const Profile: React.FC<ProfileProps> = ({
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
                 placeholder="Enter a nickname"
+                maxLength={30}
                 className="w-full px-4 py-4 bg-black/50 backdrop-blur-lg rounded-2xl border border-slate-600/50 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-400/50 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300 shadow-lg"
               />
             ) : (
