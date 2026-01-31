@@ -222,21 +222,10 @@ export const DatabaseUtils = {
     return (data || []).map(c => c.cosmetic_id);
   },
 
-  async purchaseCosmetic(userId: string, cosmeticId: string): Promise<void> {
-    // Use upsert to safely handle duplicates
-    const { error } = await supabase
-      .from('user_cosmetics')
-      .upsert(
-        {
-          user_id: userId,
-          cosmetic_id: cosmeticId,
-          purchased_at: new Date().toISOString()
-        },
-        { onConflict: 'user_id,cosmetic_id' }
-      );
+  // NOTE: Direct cosmetic purchase removed for security.
+  // Cosmetics are granted server-side only via the Stripe webhook handler.
+  // See: supabase/functions/stripe-webhook/index.ts
 
-    if (error) throw new Error(`Failed to purchase cosmetic: ${error.message}`);
-  },
 
   async equipCosmetics(userId: string, frameId: string | null, badgeId: string | null, titleId: string | null): Promise<void> {
     const { error } = await supabase
