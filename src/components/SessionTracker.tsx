@@ -3,6 +3,8 @@ import { Play, Square, DollarSign, Clock, Sparkles } from 'lucide-react';
 import { Session, User } from '../types';
 import { CalculationUtils } from '../utils/calculations';
 
+const MAX_SESSION_DURATION = 30 * 60; // 30 minutes in seconds
+
 interface SessionTrackerProps {
   user: User;
   activeSession: Session | null;
@@ -135,27 +137,52 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
 
         {/* Enhanced live stats */}
         {activeSession && (
-          <div className="grid grid-cols-1 gap-4 mb-6">
-            <div className="bg-gradient-to-br from-black/60 via-black/50 to-black/60 backdrop-blur-xl rounded-3xl p-6 border border-emerald-500/20 shadow-xl shadow-emerald-500/10">
-              <div className="flex items-center justify-center mb-4">
-                <div className="p-2 bg-emerald-500/20 rounded-xl mr-3">
-                  <DollarSign className="w-6 h-6 text-emerald-400" />
-                </div>
-                <span className="text-slate-300 font-semibold">Payload</span>
+          <div className="space-y-4 mb-6">
+            {/* Session time limit bar */}
+            <div className="bg-gradient-to-br from-black/60 via-black/50 to-black/60 backdrop-blur-xl rounded-2xl p-4 border border-slate-500/20">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-slate-400 text-xs font-medium">Session limit</span>
+                <span className={`text-xs font-semibold ${
+                  currentDuration >= MAX_SESSION_DURATION * 0.8 ? 'text-red-400' : 
+                  currentDuration >= MAX_SESSION_DURATION * 0.5 ? 'text-amber-400' : 'text-slate-400'
+                }`}>
+                  {CalculationUtils.formatDuration(Math.max(0, MAX_SESSION_DURATION - currentDuration))} left
+                </span>
               </div>
-              <div className="text-4xl font-bold bg-gradient-to-r from-emerald-400 to-green-300 bg-clip-text text-transparent">
-                {CalculationUtils.formatCurrency(currentEarnings)}
+              <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                <div 
+                  className={`h-full rounded-full transition-all duration-1000 ${
+                    currentDuration >= MAX_SESSION_DURATION * 0.8 ? 'bg-gradient-to-r from-red-500 to-pink-500' : 
+                    currentDuration >= MAX_SESSION_DURATION * 0.5 ? 'bg-gradient-to-r from-amber-500 to-yellow-500' : 
+                    'bg-gradient-to-r from-indigo-500 to-purple-500'
+                  }`}
+                  style={{ width: `${Math.min(100, (currentDuration / MAX_SESSION_DURATION) * 100)}%` }}
+                />
               </div>
             </div>
-            <div className="bg-gradient-to-br from-black/60 via-black/50 to-black/60 backdrop-blur-xl rounded-3xl p-6 border border-indigo-500/20 shadow-xl shadow-indigo-500/10">
-              <div className="flex items-center justify-center mb-4">
-                <div className="p-2 bg-indigo-500/20 rounded-xl mr-3">
-                  <Clock className="w-6 h-6 text-indigo-400" />
+
+            <div className="grid grid-cols-1 gap-4">
+              <div className="bg-gradient-to-br from-black/60 via-black/50 to-black/60 backdrop-blur-xl rounded-3xl p-6 border border-emerald-500/20 shadow-xl shadow-emerald-500/10">
+                <div className="flex items-center justify-center mb-4">
+                  <div className="p-2 bg-emerald-500/20 rounded-xl mr-3">
+                    <DollarSign className="w-6 h-6 text-emerald-400" />
+                  </div>
+                  <span className="text-slate-300 font-semibold">Payload</span>
                 </div>
-                <span className="text-slate-300 font-semibold">Time</span>
+                <div className="text-4xl font-bold bg-gradient-to-r from-emerald-400 to-green-300 bg-clip-text text-transparent">
+                  {CalculationUtils.formatCurrency(currentEarnings)}
+                </div>
               </div>
-              <div className="text-4xl font-bold bg-gradient-to-r from-indigo-400 to-purple-300 bg-clip-text text-transparent">
-                {CalculationUtils.formatDuration(Math.max(0, currentDuration))}
+              <div className="bg-gradient-to-br from-black/60 via-black/50 to-black/60 backdrop-blur-xl rounded-3xl p-6 border border-indigo-500/20 shadow-xl shadow-indigo-500/10">
+                <div className="flex items-center justify-center mb-4">
+                  <div className="p-2 bg-indigo-500/20 rounded-xl mr-3">
+                    <Clock className="w-6 h-6 text-indigo-400" />
+                  </div>
+                  <span className="text-slate-300 font-semibold">Time</span>
+                </div>
+                <div className="text-4xl font-bold bg-gradient-to-r from-indigo-400 to-purple-300 bg-clip-text text-transparent">
+                  {CalculationUtils.formatDuration(Math.max(0, currentDuration))}
+                </div>
               </div>
             </div>
           </div>
