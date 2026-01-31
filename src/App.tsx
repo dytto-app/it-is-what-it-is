@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { User as UserIcon } from 'lucide-react';
-import { User, Session, Achievement, LeaderboardEntry } from './types';
+import { User, Session, Achievement } from './types';
 import { DatabaseUtils } from './utils/database';
 import { CalculationUtils } from './utils/calculations';
 import { AchievementUtils } from './utils/achievements';
@@ -234,24 +234,7 @@ function App() {
     ? Math.max(0, CalculationUtils.calculateEarnings(user.hourlyWage, currentDuration))
     : 0;
 
-  // Leaderboard data from Supabase
-  const [leaderboardEntries, setLeaderboardEntries] = useState<LeaderboardEntry[]>([]);
-
-  useEffect(() => {
-    const loadLeaderboard = async () => {
-      try {
-        const entries = await DatabaseUtils.getLeaderboard();
-        setLeaderboardEntries(entries);
-      } catch (error) {
-        console.error('Failed to load leaderboard:', error);
-      }
-    };
-
-    // Load on mount and whenever sessions change
-    if (user) {
-      loadLeaderboard();
-    }
-  }, [sessions.length, user]);
+  // Leaderboard loading is handled entirely by the Leaderboard component
 
   // Show auth if not logged in
   if (!authUserId) {
@@ -304,7 +287,7 @@ function App() {
       case 'achievements':
         return <Achievements achievements={achievements} />;
       case 'leaderboard':
-        return <Leaderboard entries={leaderboardEntries} currentUserId={user.id} />;
+        return <Leaderboard entries={[]} currentUserId={user.id} />;
       case 'profile':
         return (
           <Profile
