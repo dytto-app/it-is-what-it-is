@@ -78,10 +78,17 @@ function App() {
         }));
         setAchievements(achievementsWithStatus);
 
-        // Restore active session if any
-        const activeSession = userSessions.find(s => s.isActive);
-        if (activeSession) {
-          setActiveSession(activeSession);
+        // Restore active session if any — close if stale (>30 min)
+        const foundActiveSession = userSessions.find(s => s.isActive);
+        if (foundActiveSession) {
+          const elapsed = Math.floor((Date.now() - foundActiveSession.startTime.getTime()) / 1000);
+          if (elapsed >= MAX_SESSION_DURATION) {
+            // Session exceeded max duration — close it
+            const closedSession = await DatabaseUtils.closeStaleSession(foundActiveSession, userProfile.hourlyWage);
+            setSessions(prev => prev.map(s => s.id === closedSession.id ? closedSession : s));
+          } else {
+            setActiveSession(foundActiveSession);
+          }
         }
       } catch (error) {
         console.error('Failed to initialize app:', error);
