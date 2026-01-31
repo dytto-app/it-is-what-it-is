@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { User as UserIcon } from 'lucide-react';
 import { User, Session, Achievement } from './types';
@@ -98,7 +98,7 @@ function App() {
     initializeApp();
   }, [authUserId]);
 
-  // Timer for active session
+  // Timer for active session — uses ref to avoid stale closure
   useEffect(() => {
     if (!activeSession) return;
 
@@ -109,7 +109,7 @@ function App() {
       
       // Auto-stop session after max duration
       if (duration >= MAX_SESSION_DURATION) {
-        handleSessionEnd();
+        handleSessionEndRef.current?.();
       }
     }, 1000);
 
@@ -171,7 +171,7 @@ function App() {
     }
   };
 
-  const handleSessionEnd = async () => {
+  const handleSessionEnd = useCallback(async () => {
     if (!activeSession || !user) return;
 
     const endTime = new Date();
@@ -198,7 +198,12 @@ function App() {
     } catch (error) {
       console.error('Failed to end session:', error);
     }
-  };
+  }, [activeSession, user, sessions, achievements]);
+
+  // Keep ref updated so timer always calls the latest version
+  useEffect(() => {
+    handleSessionEndRef.current = handleSessionEnd;
+  }, [handleSessionEnd]);
 
   const handleUpdateUser = async (updatedUser: User) => {
     try {
