@@ -364,8 +364,8 @@ function App() {
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="fixed bottom-0 left-0 right-0 border-t border-slate-700/30 bg-black/80 backdrop-blur-lg">
+      {/* Footer — hidden on mobile where bottom nav occupies the same space */}
+      <div className="hidden md:block fixed bottom-0 left-0 right-0 border-t border-slate-700/30 bg-black/80 backdrop-blur-lg">
         <div className="container mx-auto px-4 py-4 text-center">
           <a
             href="https://ayaanpupala.com"
