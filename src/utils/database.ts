@@ -106,6 +106,32 @@ export const DatabaseUtils = {
     if (error) throw new Error(`Failed to end session: ${error.message}`);
   },
 
+  async closeStaleSession(session: Session, hourlyWage: number): Promise<Session> {
+    const maxDuration = 30 * 60; // 30 minutes
+    const endTime = new Date(session.startTime.getTime() + maxDuration * 1000);
+    const earnings = (hourlyWage * maxDuration) / 3600;
+
+    const { error } = await supabase
+      .from('sessions')
+      .update({
+        end_time: endTime.toISOString(),
+        duration: maxDuration,
+        earnings: earnings.toString(),
+        is_active: false
+      })
+      .eq('id', session.id);
+
+    if (error) throw new Error(`Failed to close stale session: ${error.message}`);
+
+    return {
+      ...session,
+      endTime,
+      duration: maxDuration,
+      earnings,
+      isActive: false
+    };
+  },
+
   // ===== ACHIEVEMENT OPERATIONS =====
   async getAchievements(): Promise<Achievement[]> {
     const { data, error } = await supabase
