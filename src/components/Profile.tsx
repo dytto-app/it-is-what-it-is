@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Settings, Trash2, Download, Eye, EyeOff, Sparkles, Crown } from 'lucide-react';
+import { User, Settings, Trash2, Download, Eye, EyeOff } from 'lucide-react';
 import { User as UserType } from '../types';
 
 interface ProfileProps {
@@ -73,10 +73,6 @@ export const Profile: React.FC<ProfileProps> = ({
             <div className="w-24 h-24 bg-gradient-to-br from-indigo-500/30 via-purple-500/30 to-blue-500/30 rounded-3xl border-2 border-indigo-400/50 shadow-xl shadow-indigo-500/20 flex items-center justify-center backdrop-blur-lg">
               <User className="w-12 h-12 text-indigo-300 drop-shadow-lg" />
             </div>
-            {/* Premium indicator */}
-            <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-yellow-400/30 to-amber-500/30 rounded-full border-2 border-yellow-400/50 flex items-center justify-center shadow-lg shadow-yellow-500/20">
-              <Crown className="w-4 h-4 text-yellow-400" />
-            </div>
             {/* Animated ring */}
             <div className="absolute inset-0 rounded-3xl border-2 border-indigo-400/30 animate-pulse" />
           </div>
@@ -88,14 +84,6 @@ export const Profile: React.FC<ProfileProps> = ({
             <span className="text-slate-300 text-sm font-mono">
               ID: {user.id.slice(0, 8)}...
             </span>
-          </div>
-          
-          {/* Premium badge */}
-          <div className="flex items-center justify-center mt-4">
-            <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full border border-purple-400/30 shadow-lg">
-              <Sparkles className="w-4 h-4 text-purple-400 mr-2 animate-pulse" />
-              <span className="text-purple-300 text-sm font-semibold">Premium Member</span>
-            </div>
           </div>
         </div>
       </div>
