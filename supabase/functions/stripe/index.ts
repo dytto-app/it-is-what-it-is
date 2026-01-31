@@ -36,13 +36,25 @@ const cosmetics = {
   ],
 }
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+const ALLOWED_ORIGINS = [
+  Deno.env.get("FRONTEND_URL") || "http://localhost:5173",
+  "https://back-log.com",
+  "https://www.back-log.com",
+]
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("origin") || ""
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0]
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  }
 }
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req)
+
   // Handle CORS
   if (req.method === "OPTIONS") {
     return new Response("ok", {
@@ -101,7 +113,7 @@ serve(async (req) => {
       mode: "payment",
       success_url: `${
         Deno.env.get("FRONTEND_URL") || "http://localhost:5173"
-      }/leaderboard?payment=success&cosmetic=${cosmeticId}&type=${cosmeticType}`,
+      }/leaderboard?payment=success`,
       cancel_url: `${
         Deno.env.get("FRONTEND_URL") || "http://localhost:5173"
       }/leaderboard?payment=cancelled`,

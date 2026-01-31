@@ -85,31 +85,25 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ entries: initialEntrie
       }
     };
 
-    // Handle payment success redirect
-    const handlePaymentSuccess = async () => {
+    // Handle payment redirect (purchase is granted server-side via Stripe webhook)
+    const handlePaymentRedirect = async () => {
       const params = new URLSearchParams(window.location.search);
       const paymentStatus = params.get('payment');
-      const cosmeticId = params.get('cosmetic');
-      const cosmeticType = params.get('type');
 
-      if (paymentStatus === 'success' && cosmeticId) {
-        try {
-          // Mark cosmetic as purchased
-          await DatabaseUtils.purchaseCosmetic(currentUserId, cosmeticId);
+      if (paymentStatus === 'success') {
+        // Cosmetic ownership is granted by the Stripe webhook (server-side).
+        // Give it a moment to process, then reload owned cosmetics.
+        setTimeout(async () => {
+          try {
+            const owned = await DatabaseUtils.getUserCosmetics(currentUserId);
+            setUserOwnedCosmetics(owned);
+          } catch (error) {
+            console.error('Error reloading cosmetics:', error);
+          }
+        }, 2000);
 
-          // Reload cosmetics
-          const owned = await DatabaseUtils.getUserCosmetics(currentUserId);
-          setUserOwnedCosmetics(owned);
-
-          // Show success message
-          alert('Purchase successful! Your cosmetic is now available.');
-
-          // Clean up URL
-          window.history.replaceState({}, document.title, window.location.pathname);
-        } catch (error) {
-          console.error('Error processing payment:', error);
-          alert('Failed to save your purchase. Please contact support.');
-        }
+        alert('Payment received! Your cosmetic will appear shortly.');
+        window.history.replaceState({}, document.title, window.location.pathname);
       } else if (paymentStatus === 'cancelled') {
         alert('Payment cancelled.');
         window.history.replaceState({}, document.title, window.location.pathname);
@@ -117,7 +111,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ entries: initialEntrie
     };
 
     loadUserCosmetics();
-    handlePaymentSuccess();
+    handlePaymentRedirect();
   }, [currentUserId]);
 
   // Fetch leaderboard data when timeFrame changes
