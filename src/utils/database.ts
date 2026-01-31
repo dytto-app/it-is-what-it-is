@@ -58,7 +58,7 @@ export const DatabaseUtils = {
       startTime: new Date(s.start_time),
       endTime: s.end_time ? new Date(s.end_time) : null,
       duration: s.duration,
-      earnings: parseFloat(s.earnings),
+      earnings: Number(s.earnings),
       isActive: s.is_active
     }));
   },
@@ -87,7 +87,7 @@ export const DatabaseUtils = {
       startTime: new Date(data.start_time),
       endTime: null,
       duration: data.duration,
-      earnings: parseFloat(data.earnings),
+      earnings: Number(data.earnings),
       isActive: data.is_active
     };
   },
@@ -98,7 +98,7 @@ export const DatabaseUtils = {
       .update({
         end_time: endTime.toISOString(),
         duration,
-        earnings: earnings.toString(),
+        earnings: earnings,
         is_active: false
       })
       .eq('id', sessionId);
@@ -116,7 +116,7 @@ export const DatabaseUtils = {
       .update({
         end_time: endTime.toISOString(),
         duration: maxDuration,
-        earnings: earnings.toString(),
+        earnings: earnings,
         is_active: false
       })
       .eq('id', session.id);
@@ -237,7 +237,7 @@ export const DatabaseUtils = {
         const sessions = (profile.sessions || []).filter((s: any) => {
           return new Date(s.start_time) >= startDateObj;
         });
-        const totalEarnings = sessions.reduce((sum: number, s: any) => sum + parseFloat(s.earnings), 0);
+        const totalEarnings = sessions.reduce((sum: number, s: any) => sum + Number(s.earnings), 0);
         const totalTime = sessions.reduce((sum: number, s: any) => sum + s.duration, 0);
         return {
           userId: profile.id,
@@ -251,7 +251,7 @@ export const DatabaseUtils = {
 
     return (data || []).map(profile => {
       const sessions = profile.sessions || [];
-      const totalEarnings = sessions.reduce((sum: number, s: any) => sum + parseFloat(s.earnings), 0);
+      const totalEarnings = sessions.reduce((sum: number, s: any) => sum + Number(s.earnings), 0);
       const totalTime = sessions.reduce((sum: number, s: any) => sum + s.duration, 0);
 
       return {
