@@ -116,23 +116,29 @@ function App() {
     return () => clearInterval(interval);
   }, [activeSession]);
 
-  // Check achievements when sessions change
-  useEffect(() => {
-    if (sessions.length > 0 && user) {
-      const updatedAchievements = AchievementUtils.checkAchievements(sessions, achievements);
+  // Check achievements only after a session is completed (not on every render)
+  const checkAndUpdateAchievements = async (updatedSessions: Session[]) => {
+    if (updatedSessions.length === 0 || !user) return;
 
-      // Save newly unlocked achievements to Supabase
-      updatedAchievements.forEach(achievement => {
-        if (achievement.unlockedAt && !achievements.find(a => a.id === achievement.id && a.unlockedAt)) {
-          DatabaseUtils.unlockAchievement(user.id, achievement.id).catch(err =>
-            console.error('Failed to unlock achievement:', err)
-          );
-        }
-      });
+    const updatedAchievements = AchievementUtils.checkAchievements(updatedSessions, achievements);
 
+    // Save newly unlocked achievements to Supabase
+    const newlyUnlocked = updatedAchievements.filter(
+      achievement => achievement.unlockedAt && !achievements.find(a => a.id === achievement.id && a.unlockedAt)
+    );
+
+    for (const achievement of newlyUnlocked) {
+      try {
+        await DatabaseUtils.unlockAchievement(user.id, achievement.id);
+      } catch (err) {
+        console.error('Failed to unlock achievement:', err);
+      }
+    }
+
+    if (newlyUnlocked.length > 0) {
       setAchievements(updatedAchievements);
     }
-  }, [sessions.length, user]);
+  };
 
   const handleSessionStart = async () => {
     if (!user || activeSession) return;
@@ -186,6 +192,9 @@ function App() {
       const updatedSessions = [...sessions, completedSession];
       setSessions(updatedSessions);
       setActiveSession(null);
+
+      // Check achievements after session completion
+      checkAndUpdateAchievements(updatedSessions);
     } catch (error) {
       console.error('Failed to end session:', error);
     }
