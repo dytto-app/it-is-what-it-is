@@ -4,12 +4,13 @@ import { User, Session, Achievement } from '../types';
 export const DatabaseUtils = {
   // ===== USER OPERATIONS =====
   async getUserProfile(userId: string): Promise<User> {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', userId)
       .single();
 
+    if (error) throw new Error(`Failed to load profile: ${error.message}`);
     if (!data) throw new Error('User profile not found');
 
     return {
@@ -25,7 +26,7 @@ export const DatabaseUtils = {
   },
 
   async updateUser(user: User): Promise<void> {
-    await supabase
+    const { error } = await supabase
       .from('profiles')
       .update({
         nickname: user.nickname,
@@ -37,15 +38,19 @@ export const DatabaseUtils = {
         updated_at: new Date().toISOString()
       })
       .eq('id', user.id);
+
+    if (error) throw new Error(`Failed to update profile: ${error.message}`);
   },
 
   // ===== SESSION OPERATIONS =====
   async getSessions(userId: string): Promise<Session[]> {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('sessions')
       .select('*')
       .eq('user_id', userId)
       .order('start_time', { ascending: false });
+
+    if (error) throw new Error(`Failed to load sessions: ${error.message}`);
 
     return (data || []).map(s => ({
       id: s.id,
@@ -59,7 +64,7 @@ export const DatabaseUtils = {
   },
 
   async createSession(session: Session): Promise<Session> {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('sessions')
       .insert([{
         id: session.id,
@@ -73,6 +78,9 @@ export const DatabaseUtils = {
       .select()
       .single();
 
+    if (error) throw new Error(`Failed to create session: ${error.message}`);
+    if (!data) throw new Error('Session creation returned no data');
+
     return {
       id: data.id,
       userId: data.user_id,
@@ -85,7 +93,7 @@ export const DatabaseUtils = {
   },
 
   async endSession(sessionId: string, endTime: Date, duration: number, earnings: number): Promise<void> {
-    await supabase
+    const { error } = await supabase
       .from('sessions')
       .update({
         end_time: endTime.toISOString(),
@@ -94,13 +102,17 @@ export const DatabaseUtils = {
         is_active: false
       })
       .eq('id', sessionId);
+
+    if (error) throw new Error(`Failed to end session: ${error.message}`);
   },
 
   // ===== ACHIEVEMENT OPERATIONS =====
   async getAchievements(): Promise<Achievement[]> {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('achievements')
       .select('*');
+
+    if (error) throw new Error(`Failed to load achievements: ${error.message}`);
 
     return (data || []).map(a => ({
       id: a.id,
@@ -113,37 +125,30 @@ export const DatabaseUtils = {
   },
 
   async getUserAchievements(userId: string): Promise<string[]> {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('user_achievements')
       .select('achievement_id')
       .eq('user_id', userId);
+
+    if (error) throw new Error(`Failed to load user achievements: ${error.message}`);
 
     return (data || []).map(a => a.achievement_id);
   },
 
   async unlockAchievement(userId: string, achievementId: string): Promise<void> {
-    try {
-      // Check if already unlocked
-      const { data: existing } = await supabase
-        .from('user_achievements')
-        .select('id')
-        .eq('user_id', userId)
-        .eq('achievement_id', achievementId)
-        .single();
-
-      if (existing) return; // Already unlocked
-    } catch (error) {
-      // Row doesn't exist, which is expected for first unlock
-    }
-
-    // Insert the new achievement unlock
-    await supabase
+    // Use upsert to avoid race conditions and duplicate checks
+    const { error } = await supabase
       .from('user_achievements')
-      .insert([{
-        user_id: userId,
-        achievement_id: achievementId,
-        unlocked_at: new Date().toISOString()
-      }]);
+      .upsert(
+        {
+          user_id: userId,
+          achievement_id: achievementId,
+          unlocked_at: new Date().toISOString()
+        },
+        { onConflict: 'user_id,achievement_id' }
+      );
+
+    if (error) throw new Error(`Failed to unlock achievement: ${error.message}`);
   },
 
   // ===== LEADERBOARD OPERATIONS =====
@@ -161,7 +166,7 @@ export const DatabaseUtils = {
       startDate.setHours(0, 0, 0, 0);
     }
 
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('profiles')
       .select(`
         id,
@@ -175,6 +180,8 @@ export const DatabaseUtils = {
       `)
       .eq('show_on_leaderboard', true)
       .order('id');
+
+    if (error) throw new Error(`Failed to load leaderboard: ${error.message}`);
 
     return (data || []).map(profile => {
       const sessions = (profile.sessions || []).filter((s: any) => {
@@ -197,66 +204,53 @@ export const DatabaseUtils = {
 
   // ===== COSMETICS OPERATIONS =====
   async getCosmetics() {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('cosmetics')
       .select('*');
 
+    if (error) throw new Error(`Failed to load cosmetics: ${error.message}`);
     return data || [];
   },
 
   async getUserCosmetics(userId: string) {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('user_cosmetics')
       .select('cosmetic_id')
       .eq('user_id', userId);
 
+    if (error) throw new Error(`Failed to load user cosmetics: ${error.message}`);
     return (data || []).map(c => c.cosmetic_id);
   },
 
   async purchaseCosmetic(userId: string, cosmeticId: string): Promise<void> {
-    const { data: existing } = await supabase
+    // Use upsert to safely handle duplicates
+    const { error } = await supabase
       .from('user_cosmetics')
-      .select('id')
-      .eq('user_id', userId)
-      .eq('cosmetic_id', cosmeticId)
-      .single();
-
-    if (!existing) {
-      await supabase
-        .from('user_cosmetics')
-        .insert([{
+      .upsert(
+        {
           user_id: userId,
           cosmetic_id: cosmeticId,
           purchased_at: new Date().toISOString()
-        }]);
-    }
+        },
+        { onConflict: 'user_id,cosmetic_id' }
+      );
+
+    if (error) throw new Error(`Failed to purchase cosmetic: ${error.message}`);
   },
 
   async equipCosmetics(userId: string, frameId: string | null, badgeId: string | null, titleId: string | null): Promise<void> {
-    const { data: existing } = await supabase
+    const { error } = await supabase
       .from('user_equipped_cosmetics')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
-
-    if (existing) {
-      await supabase
-        .from('user_equipped_cosmetics')
-        .update({
-          frame_id: frameId,
-          badge_id: badgeId,
-          title_id: titleId
-        })
-        .eq('user_id', userId);
-    } else {
-      await supabase
-        .from('user_equipped_cosmetics')
-        .insert([{
+      .upsert(
+        {
           user_id: userId,
           frame_id: frameId,
           badge_id: badgeId,
           title_id: titleId
-        }]);
-    }
+        },
+        { onConflict: 'user_id' }
+      );
+
+    if (error) throw new Error(`Failed to equip cosmetics: ${error.message}`);
   }
 };
