@@ -24,7 +24,7 @@ const cosmetics = {
     { id: "star", name: "Rising Star", price: 99 },
     { id: "lightning", name: "Speed Demon", price: 149 },
     { id: "flame", name: "On Fire", price: 199 },
-    { id: "diamond", name: "Diamond Pro", price: 299 },
+    { id: "diamond-badge", name: "Diamond Pro", price: 299 },
     { id: "shield", name: "Elite Guard", price: 349 },
   ],
   titles: [
