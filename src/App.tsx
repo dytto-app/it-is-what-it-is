@@ -137,6 +137,16 @@ function App() {
   const handleSessionStart = async () => {
     if (!user || activeSession) return;
 
+    // Client-side rate limit: minimum 10 seconds between sessions
+    const lastSession = sessions[0]; // sessions are sorted desc
+    if (lastSession && lastSession.endTime) {
+      const timeSinceLastSession = Date.now() - lastSession.endTime.getTime();
+      if (timeSinceLastSession < 10000) {
+        console.warn('Session rate limited: please wait before starting a new session');
+        return;
+      }
+    }
+
     const newSession: Session = {
       id: uuidv4(),
       userId: user.id,
