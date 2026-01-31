@@ -18,28 +18,49 @@ export const Auth: React.FC<AuthProps> = ({ onAuthSuccess }) => {
     setLoading(true);
 
     try {
+      // Sanitize username: lowercase, trim, only allow alphanumeric + underscore + hyphen
+      const sanitizedUsername = username.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+      if (sanitizedUsername.length < 3 || sanitizedUsername.length > 30) {
+        setError('Username must be 3-30 characters (letters, numbers, underscores, hyphens)');
+        setLoading(false);
+        return;
+      }
+
+      // Use a dedicated domain to avoid collision with real emails
+      const email = `${sanitizedUsername}@backlog-app.internal`;
+
       if (isLogin) {
-        // Use username@example.com format for email (internal, user doesn't see it)
-        const email = `${username}@example.com`;
         const { data, error: signInError } = await supabase.auth.signInWithPassword({
           email,
           password
         });
 
         if (signInError) {
-          setError(signInError.message);
-          return;
+          // Also try legacy format for existing users
+          const { data: legacyData, error: legacyError } = await supabase.auth.signInWithPassword({
+            email: `${sanitizedUsername}@example.com`,
+            password
+          });
+          if (legacyError) {
+            setError(signInError.message);
+            return;
+          }
+          if (legacyData.user) {
+            onAuthSuccess(legacyData.user.id);
+            return;
+          }
         }
 
         if (data.user) {
           onAuthSuccess(data.user.id);
         }
       } else {
-        // Sign up - use username+backlog@example.com format for email (internal, user doesn't see it)
-        const email = `${username}@example.com`;
         const { data, error: signUpError } = await supabase.auth.signUp({
           email,
-          password
+          password,
+          options: {
+            data: { username: sanitizedUsername }
+          }
         });
 
         if (signUpError) {
@@ -51,8 +72,8 @@ export const Auth: React.FC<AuthProps> = ({ onAuthSuccess }) => {
           // Create profile for new user
           const { error: insertError } = await supabase.from('profiles').insert([{
             id: data.user.id,
-            username: username,
-            nickname: username,
+            username: sanitizedUsername,
+            nickname: sanitizedUsername,
             hourly_wage: 20,
             show_on_leaderboard: false,
             salary: 30,
