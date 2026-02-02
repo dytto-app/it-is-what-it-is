@@ -1,15 +1,41 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Timer, DollarSign, Trophy, Award, Sparkles, ArrowRight, BarChart3, Users, Clock, TrendingUp, Shield, Zap } from 'lucide-react';
 
 interface LandingPageProps {
-  onGetStarted: () => void;
+  onGetStarted: (mode: 'signup' | 'login') => void;
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
   return (
     <div className="min-h-screen bg-black text-white overflow-x-hidden">
+      {/* Navbar */}
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-slate-800/50 bg-black/80 backdrop-blur-lg">
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Timer className="w-5 h-5 text-indigo-400" />
+            <span className="text-xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">
+              backlog
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => onGetStarted('login')}
+              className="text-slate-300 hover:text-white transition-colors text-sm font-medium px-4 py-2"
+            >
+              Sign In
+            </button>
+            <button
+              onClick={() => onGetStarted('signup')}
+              className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white text-sm font-medium px-5 py-2 rounded-lg transition-all shadow-lg shadow-indigo-500/20"
+            >
+              Get Started
+            </button>
+          </div>
+        </div>
+      </nav>
+
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center px-4">
+      <section className="relative min-h-screen flex items-center justify-center px-4 pt-16">
         {/* Background effects */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl animate-pulse" />
@@ -30,7 +56,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
           </h1>
 
           <p className="text-xl sm:text-2xl text-slate-300 mb-4 max-w-2xl mx-auto leading-relaxed">
-            Track your bathroom breaks at work.
+            Track your work breaks.
             <br />
             <span className="text-indigo-400 font-semibold">See exactly how much you earn.</span>
           </p>
@@ -41,21 +67,28 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <button
-              onClick={onGetStarted}
+              onClick={() => onGetStarted('signup')}
               className="group flex items-center px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-bold text-lg rounded-2xl transition-all duration-300 shadow-xl shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-105"
             >
-              Start Tracking
+              Start Tracking Free
               <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
             </button>
-            <p className="text-slate-500 text-sm">Free to use · No credit card needed</p>
+            <button
+              onClick={() => onGetStarted('login')}
+              className="text-slate-400 hover:text-white font-medium px-6 py-4 rounded-2xl border border-slate-700 hover:border-slate-600 transition-all"
+            >
+              Sign In
+            </button>
           </div>
+
+          <p className="text-slate-600 text-sm mt-4">Free to use · No credit card needed</p>
 
           {/* Quick stats */}
           <div className="mt-16 grid grid-cols-3 gap-6 max-w-lg mx-auto">
             {[
-              { value: '100%', label: 'Free', icon: Zap },
-              { value: '30s', label: 'Setup', icon: Clock },
-              { value: '🚽', label: 'Powered', icon: null },
+              { value: '100%', label: 'Free' },
+              { value: '30s', label: 'Setup' },
+              { value: '🚽', label: 'Powered' },
             ].map((stat, i) => (
               <div key={i} className="text-center">
                 <div className="text-2xl font-bold text-white mb-1">{stat.value}</div>
@@ -83,7 +116,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
               </span>
             </h2>
             <p className="text-slate-400 text-lg max-w-xl mx-auto">
-              Three steps to knowing your true bathroom ROI
+              Three steps to knowing your true break-time ROI
             </p>
           </div>
 
@@ -101,7 +134,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
               {
                 step: '2',
                 title: 'Start a Session',
-                desc: 'Hit the timer when you head to the bathroom. We track every second of your break.',
+                desc: 'Hit the timer when you take a break. We track every second.',
                 icon: Timer,
                 gradient: 'from-indigo-500/20 to-blue-500/20',
                 border: 'border-indigo-400/30',
@@ -124,7 +157,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                 <div className="absolute -top-4 -left-2 w-10 h-10 bg-black border-2 border-slate-600 rounded-xl flex items-center justify-center font-bold text-slate-300 text-lg shadow-lg">
                   {step}
                 </div>
-                <div className={`w-14 h-14 bg-black/40 rounded-2xl flex items-center justify-center mb-5 border border-white/10`}>
+                <div className="w-14 h-14 bg-black/40 rounded-2xl flex items-center justify-center mb-5 border border-white/10">
                   <Icon className={`w-7 h-7 ${iconColor}`} />
                 </div>
                 <h3 className="text-xl font-bold text-white mb-3">{title}</h3>
@@ -145,14 +178,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                 Features
               </span>
             </h2>
-            <p className="text-slate-400 text-lg">Everything you need for professional bathroom tracking</p>
+            <p className="text-slate-400 text-lg">Everything you need for premium break tracking</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               { icon: Timer, title: 'Live Session Timer', desc: 'Real-time earnings counter that ticks every second', color: 'text-blue-400' },
               { icon: BarChart3, title: 'Analytics Dashboard', desc: 'Daily, weekly, monthly breakdowns of your breaks', color: 'text-green-400' },
-              { icon: Trophy, title: 'Global Leaderboard', desc: 'Compete with other trackers worldwide', color: 'text-yellow-400' },
+              { icon: Trophy, title: 'Global Leaderboard', desc: 'Compete with other trackers anonymously', color: 'text-yellow-400' },
               { icon: Award, title: 'Achievements', desc: 'Unlock badges for milestones and streaks', color: 'text-purple-400' },
               { icon: Sparkles, title: 'Cosmetics Shop', desc: 'Customize your profile with frames, badges, and titles', color: 'text-pink-400' },
               { icon: Shield, title: 'Privacy First', desc: 'Your data stays yours. No tracking beyond what you choose.', color: 'text-emerald-400' },
@@ -183,7 +216,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
               {[
                 { icon: Users, value: 'Growing', label: 'Community of Trackers' },
                 { icon: Clock, value: '∞', label: 'Hours Tracked' },
-                { icon: DollarSign, value: '$$$', label: 'Earned on the Throne' },
+                { icon: DollarSign, value: '$$$', label: 'Earned on Break' },
               ].map(({ icon: Icon, value, label }, i) => (
                 <div key={i} className="text-center">
                   <Icon className="w-8 h-8 text-indigo-400 mx-auto mb-3" />
@@ -201,14 +234,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="text-3xl sm:text-4xl font-bold mb-6">
             <span className="bg-gradient-to-r from-yellow-400 via-amber-300 to-yellow-500 bg-clip-text text-transparent">
-              Ready to Get Paid?
+              Ready to Track?
             </span>
           </h2>
           <p className="text-slate-400 text-lg mb-8">
-            You're already spending the time. Might as well track it.
+            You're already spending the time. Might as well know what it's worth.
           </p>
           <button
-            onClick={onGetStarted}
+            onClick={() => onGetStarted('signup')}
             className="group inline-flex items-center px-10 py-4 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-bold text-lg rounded-2xl transition-all duration-300 shadow-xl shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-105"
           >
             Create Free Account
@@ -226,9 +259,20 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
               backlog
             </span>
           </div>
-          <p className="text-slate-600 text-sm">
-            © {new Date().getFullYear()} back-log.com — Track what matters
-          </p>
+          <div className="flex items-center gap-4">
+            <a
+              href="https://ayaanpupala.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-slate-500 hover:text-slate-300 transition-colors text-sm"
+            >
+              built by dytto
+            </a>
+            <span className="text-slate-700">·</span>
+            <span className="text-slate-600 text-sm">
+              © {new Date().getFullYear()} back-log.com
+            </span>
+          </div>
         </div>
       </footer>
     </div>

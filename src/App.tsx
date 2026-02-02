@@ -16,6 +16,7 @@ import { Auth } from './components/Auth';
 import { Onboarding } from './components/Onboarding';
 import { LandingPage } from './components/LandingPage';
 import { supabase } from './utils/supabase';
+import { Analytics as GA } from './utils/analytics';
 
 type TabType = 'tracker' | 'analytics' | 'history' | 'achievements' | 'leaderboard' | 'profile';
 
@@ -26,10 +27,15 @@ function App() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [activeSession, setActiveSession] = useState<Session | null>(null);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
-  const [activeTab, setActiveTab] = useState<TabType>('tracker');
+  const [activeTab, setActiveTabRaw] = useState<TabType>('tracker');
+  const setActiveTab = (tab: TabType) => {
+    setActiveTabRaw(tab);
+    GA.pageView(`/${tab}`, `Back-log — ${tab}`);
+  };
   const [currentTime, setCurrentTime] = useState(Date.now());
   const [authUserId, setAuthUserId] = useState<string | null>(null);
   const [showAuth, setShowAuth] = useState(false);
+  const [authDefaultLogin, setAuthDefaultLogin] = useState(true);
   const handleSessionEndRef = useRef<(() => void) | null>(null);
 
   // Check if user is logged in
@@ -256,9 +262,28 @@ function App() {
   // Show landing page or auth if not logged in
   if (!authUserId) {
     if (showAuth) {
-      return <Auth onAuthSuccess={(userId) => setAuthUserId(userId)} />;
+      return (
+        <div className="min-h-screen bg-black">
+          <div className="container mx-auto px-4 pt-6">
+            <button
+              onClick={() => setShowAuth(false)}
+              className="text-slate-400 hover:text-slate-200 transition-colors text-sm mb-4 flex items-center gap-1"
+            >
+              ← Back to home
+            </button>
+          </div>
+          <Auth onAuthSuccess={(userId) => setAuthUserId(userId)} defaultIsLogin={authDefaultLogin} />
+        </div>
+      );
     }
-    return <LandingPage onGetStarted={() => setShowAuth(true)} />;
+    return (
+      <LandingPage
+        onGetStarted={(mode) => {
+          setAuthDefaultLogin(mode === 'login');
+          setShowAuth(true);
+        }}
+      />
+    );
   }
 
   if (!user) {

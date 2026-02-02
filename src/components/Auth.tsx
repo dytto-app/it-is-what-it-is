@@ -3,10 +3,11 @@ import { supabase } from '../utils/supabase';
 
 interface AuthProps {
   onAuthSuccess: (userId: string) => void;
+  defaultIsLogin?: boolean;
 }
 
-export const Auth: React.FC<AuthProps> = ({ onAuthSuccess }) => {
-  const [isLogin, setIsLogin] = useState(true);
+export const Auth: React.FC<AuthProps> = ({ onAuthSuccess, defaultIsLogin = true }) => {
+  const [isLogin, setIsLogin] = useState(defaultIsLogin);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
