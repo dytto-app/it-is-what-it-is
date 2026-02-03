@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trophy, Crown, Medal, Award, Star, Zap, Flame, Diamond, Sparkles, Shield, DollarSign, Clock, BarChart3, Calendar, Check, Leaf, CircleDot, Heart, Smile } from 'lucide-react';
+import { Trophy, Crown, Medal, Award, Star, Zap, Flame, Diamond, Sparkles, Shield, DollarSign, Clock, BarChart3, Calendar, Check, Heart, Smile } from 'lucide-react';
 import { LeaderboardEntry } from '../types';
 import { CalculationUtils } from '../utils/calculations';
 import { DatabaseUtils } from '../utils/database';

@@ -138,7 +138,7 @@ export const Achievements: React.FC<AchievementsProps> = ({ achievements }) => {
       {/* Category Navigation */}
       <div className="bg-gradient-to-r from-black/60 to-black/40 backdrop-blur-xl rounded-2xl p-2 border border-slate-500/20 shadow-lg">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
-          {categoryData.map(({ key, label, icon: Icon, achievements: categoryAchievements, color }) => {
+          {categoryData.map(({ key, icon: Icon, achievements: categoryAchievements, color }) => {
             const stats = getCategoryStats(categoryAchievements);
             return (
               <button

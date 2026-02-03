@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart3, History, Trophy, User, Timer, Users } from 'lucide-react';
+import { BarChart3, History, Trophy, Timer, Users } from 'lucide-react';
 
 type TabType = 'tracker' | 'analytics' | 'history' | 'achievements' | 'leaderboard' | 'profile';
 

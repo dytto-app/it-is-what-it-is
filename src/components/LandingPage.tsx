@@ -1,5 +1,5 @@
 import React from 'react';
-import { Timer, DollarSign, Trophy, Award, Sparkles, ArrowRight, BarChart3, Users, Clock, TrendingUp, Shield, Zap } from 'lucide-react';
+import { Timer, DollarSign, Trophy, Award, Sparkles, ArrowRight, BarChart3, Users, Clock, TrendingUp, Shield } from 'lucide-react';
 
 interface LandingPageProps {
   onGetStarted: (mode: 'signup' | 'login') => void;
