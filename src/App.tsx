@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { User as UserIcon } from 'lucide-react';
 import { User, Session, Achievement } from './types';
@@ -6,17 +6,20 @@ import { DatabaseUtils } from './utils/database';
 import { CalculationUtils } from './utils/calculations';
 import { AchievementUtils } from './utils/achievements';
 import { SessionTracker } from './components/SessionTracker';
-import { Analytics } from './components/Analytics';
-import { SessionHistory } from './components/SessionHistory';
-import { Achievements } from './components/Achievements';
-import { Leaderboard } from './components/Leaderboard';
-import { Profile } from './components/Profile';
 import { Navigation } from './components/Navigation';
 import { Auth } from './components/Auth';
 import { Onboarding } from './components/Onboarding';
 import { LandingPage } from './components/LandingPage';
+import { LoadingSpinner } from './components/LoadingSpinner';
 import { supabase } from './utils/supabase';
 import { Analytics as GA } from './utils/analytics';
+
+// Lazy load heavy components (Analytics uses recharts which is ~400KB)
+const Analytics = lazy(() => import('./components/Analytics').then(m => ({ default: m.Analytics })));
+const SessionHistory = lazy(() => import('./components/SessionHistory').then(m => ({ default: m.SessionHistory })));
+const Achievements = lazy(() => import('./components/Achievements').then(m => ({ default: m.Achievements })));
+const Leaderboard = lazy(() => import('./components/Leaderboard').then(m => ({ default: m.Leaderboard })));
+const Profile = lazy(() => import('./components/Profile').then(m => ({ default: m.Profile })));
 
 type TabType = 'tracker' | 'analytics' | 'history' | 'achievements' | 'leaderboard' | 'profile';
 
@@ -326,21 +329,39 @@ function App() {
           />
         );
       case 'analytics':
-        return <Analytics sessions={sessions} />;
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <Analytics sessions={sessions} />
+          </Suspense>
+        );
       case 'history':
-        return <SessionHistory sessions={sessions} onExport={handleExportData} />;
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <SessionHistory sessions={sessions} onExport={handleExportData} />
+          </Suspense>
+        );
       case 'achievements':
-        return <Achievements achievements={achievements} />;
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <Achievements achievements={achievements} />
+          </Suspense>
+        );
       case 'leaderboard':
-        return <Leaderboard entries={[]} currentUserId={user.id} />;
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <Leaderboard entries={[]} currentUserId={user.id} />
+          </Suspense>
+        );
       case 'profile':
         return (
-          <Profile
-            user={user}
-            onUpdateUser={handleUpdateUser}
-            onExportData={handleExportData}
-            onClearData={handleClearData}
-          />
+          <Suspense fallback={<LoadingSpinner />}>
+            <Profile
+              user={user}
+              onUpdateUser={handleUpdateUser}
+              onExportData={handleExportData}
+              onClearData={handleClearData}
+            />
+          </Suspense>
         );
       default:
         return null;

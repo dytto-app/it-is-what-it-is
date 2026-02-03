@@ -1,8 +1,19 @@
 import React, { useState } from 'react';
-import { Trophy, Lock, Star, Crown, Target, Clock, DollarSign, Sparkles } from 'lucide-react';
-import * as Icons from 'lucide-react';
+import { 
+  Trophy, Lock, Star, Crown, Target, Clock, DollarSign, Sparkles,
+  Award, Banknote, Briefcase, Calendar, Clock3, Clock4, Clock8, Clock12,
+  Coffee, Diamond, Flame, Gauge, Gem, Moon, Mountain, Play, Sandwich,
+  Shield, Sunrise, Timer, Utensils, Zap
+} from 'lucide-react';
 import { Achievement } from '../types';
 import { AchievementUtils } from '../utils/achievements';
+
+// Icon map for achievement icons (avoids importing all lucide icons)
+const AchievementIcons: Record<string, React.ComponentType<{ className?: string }>> = {
+  Trophy, Star, Crown, Target, Clock, DollarSign, Award, Banknote, Briefcase,
+  Calendar, Clock3, Clock4, Clock8, Clock12, Coffee, Diamond, Flame, Gauge,
+  Gem, Moon, Mountain, Play, Sandwich, Shield, Sunrise, Timer, Utensils, Zap
+};
 
 interface AchievementsProps {
   achievements: Achievement[];
@@ -187,7 +198,7 @@ export const Achievements: React.FC<AchievementsProps> = ({ achievements }) => {
           </div>
         ) : (
           getDisplayedAchievements().map((achievement) => {
-            const IconComponent = (Icons as any)[achievement.icon] || Trophy;
+            const IconComponent = AchievementIcons[achievement.icon] || Trophy;
             const isUnlocked = !!achievement.unlockedAt;
             const rarity = getAchievementRarity(achievement);
             const currentCategoryColor = categoryData.find(c => c.key === selectedCategory)?.color || 'from-emerald-400 to-teal-500';
