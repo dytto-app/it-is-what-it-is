@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { User as UserIcon } from 'lucide-react';
+import { User as UserIcon, LogOut } from 'lucide-react';
 import { User, Session, Achievement } from './types';
 import { DatabaseUtils } from './utils/database';
 import { CalculationUtils } from './utils/calculations';
@@ -243,6 +243,14 @@ function App() {
     URL.revokeObjectURL(url);
   };
 
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    setAuthUserId(null);
+    setUser(null);
+    setSessions([]);
+    setActiveSession(null);
+  };
+
   const handleClearData = async () => {
     await supabase.auth.signOut();
     setAuthUserId(null);
@@ -360,6 +368,7 @@ function App() {
               onUpdateUser={handleUpdateUser}
               onExportData={handleExportData}
               onClearData={handleClearData}
+              onSignOut={handleSignOut}
             />
           </Suspense>
         );
@@ -386,6 +395,15 @@ function App() {
               }`}
             >
               <UserIcon className="w-5 h-5" />
+            </button>
+
+            {/* Sign Out Button - Top Right */}
+            <button
+              onClick={handleSignOut}
+              className="absolute top-0 right-0 z-50 p-3 backdrop-blur-lg rounded-xl border border-slate-600/30 text-slate-400 hover:text-red-300 hover:bg-red-500/10 hover:border-red-400/30 transition-all duration-300 shadow-lg"
+              title="Sign out"
+            >
+              <LogOut className="w-5 h-5" />
             </button>
             
             <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-blue-400 bg-clip-text text-transparent mb-3 drop-shadow-lg">

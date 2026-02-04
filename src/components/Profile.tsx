@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Settings, Trash2, Download, Eye, EyeOff } from 'lucide-react';
+import { User, Settings, Trash2, Download, Eye, EyeOff, LogOut } from 'lucide-react';
 import { User as UserType } from '../types';
 
 interface ProfileProps {
@@ -7,13 +7,15 @@ interface ProfileProps {
   onUpdateUser: (user: UserType) => void;
   onExportData: () => void;
   onClearData: () => void;
+  onSignOut: () => void;
 }
 
 export const Profile: React.FC<ProfileProps> = ({ 
   user, 
   onUpdateUser, 
   onExportData, 
-  onClearData 
+  onClearData,
+  onSignOut 
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [nickname, setNickname] = useState(user.nickname || '');
@@ -262,7 +264,37 @@ export const Profile: React.FC<ProfileProps> = ({
         </div>
       </div>
 
-      {/* Enhanced Data management */}
+      {/* Account section */}
+      <div className="bg-gradient-to-br from-black/60 to-black/40 backdrop-blur-xl rounded-3xl p-6 border border-slate-500/20 shadow-xl">
+        <h3 className="text-xl font-bold bg-gradient-to-r from-slate-200 to-slate-100 bg-clip-text text-transparent mb-6">
+          Account
+        </h3>
+
+        <div className="space-y-4">
+          <button
+            onClick={onSignOut}
+            className="w-full flex items-center justify-center px-6 py-4 bg-gradient-to-r from-slate-500/20 to-slate-600/20 backdrop-blur-lg rounded-2xl border border-slate-400/40 text-slate-300 hover:from-slate-500/30 hover:to-slate-600/30 hover:text-white transition-all duration-300 shadow-xl shadow-slate-500/10 font-semibold"
+          >
+            <LogOut className="w-5 h-5 mr-3" />
+            Sign Out
+          </button>
+        </div>
+
+        <div className="mt-6 pt-6 border-t border-slate-600/30">
+          <div className="text-center">
+            <p className="text-xs text-slate-500 mb-2">Account created</p>
+            <p className="text-sm text-slate-400 font-medium">
+              {user.createdAt.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              })}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Data management */}
       <div className="bg-gradient-to-br from-black/60 to-black/40 backdrop-blur-xl rounded-3xl p-6 border border-slate-500/20 shadow-xl">
         <h3 className="text-xl font-bold bg-gradient-to-r from-slate-200 to-slate-100 bg-clip-text text-transparent mb-6">
           Data Management
@@ -284,19 +316,6 @@ export const Profile: React.FC<ProfileProps> = ({
             <Trash2 className="w-5 h-5 mr-3" />
             Delete All Data
           </button>
-        </div>
-
-        <div className="mt-6 pt-6 border-t border-slate-600/30">
-          <div className="text-center">
-            <p className="text-xs text-slate-500 mb-2">Account created</p>
-            <p className="text-sm text-slate-400 font-medium">
-              {user.createdAt.toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}
-            </p>
-          </div>
         </div>
       </div>
     </div>
