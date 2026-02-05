@@ -126,7 +126,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                 <button
                   key={value}
                   type="button"
-                  onClick={() => setFrequency(value as any)}
+                  onClick={() => setFrequency(value as 'hourly' | 'weekly' | 'monthly' | 'annually')}
                   className={`py-3 px-4 rounded-lg border-2 transition-all duration-300 font-semibold flex items-center justify-center gap-2 ${
                     frequency === value
                       ? 'bg-purple-500/30 border-purple-500 text-purple-300 shadow-lg shadow-purple-500/20'

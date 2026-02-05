@@ -576,7 +576,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ entries: initialEntrie
             ].map(({ key, label, Icon }) => (
               <button
                 key={key}
-                onClick={() => setSortBy(key as any)}
+                onClick={() => setSortBy(key as 'earnings' | 'time' | 'sessions')}
                 className={`flex-1 flex items-center justify-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-300 ${
                   sortBy === key
                     ? 'bg-gradient-to-r from-indigo-500/30 to-purple-500/30 text-indigo-300 border border-indigo-400/40 shadow-lg shadow-indigo-500/20'
@@ -600,7 +600,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ entries: initialEntrie
             ].map(({ key, label, Icon }) => (
               <button
                 key={key}
-                onClick={() => setTimeFrame(key as any)}
+                onClick={() => setTimeFrame(key as 'daily' | 'weekly' | 'alltime')}
                 className={`flex-1 flex items-center justify-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-300 ${
                   timeFrame === key
                     ? 'bg-gradient-to-r from-purple-500/30 to-pink-500/30 text-purple-300 border border-purple-400/40 shadow-lg shadow-purple-500/20'

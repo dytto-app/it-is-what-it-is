@@ -1,6 +1,13 @@
 import { supabase } from './supabase';
 import { User, Session, Achievement } from '../types';
 
+// Database row type for session data in leaderboard queries
+interface DbSession {
+  earnings: number;
+  duration: number;
+  start_time: string;
+}
+
 export const DatabaseUtils = {
   // ===== USER OPERATIONS =====
   async getUserProfile(userId: string): Promise<User> {
@@ -234,11 +241,11 @@ export const DatabaseUtils = {
 
       const startDateObj = startDate ? new Date(startDate) : new Date(0);
       return (fallbackData || []).map(profile => {
-        const sessions = (profile.sessions || []).filter((s: any) => {
+        const sessions = ((profile.sessions || []) as DbSession[]).filter((s) => {
           return new Date(s.start_time) >= startDateObj;
         });
-        const totalEarnings = sessions.reduce((sum: number, s: any) => sum + Number(s.earnings), 0);
-        const totalTime = sessions.reduce((sum: number, s: any) => sum + s.duration, 0);
+        const totalEarnings = sessions.reduce((sum: number, s) => sum + Number(s.earnings), 0);
+        const totalTime = sessions.reduce((sum: number, s) => sum + s.duration, 0);
         return {
           userId: profile.id,
           nickname: profile.nickname || 'Anonymous',
@@ -250,9 +257,9 @@ export const DatabaseUtils = {
     }
 
     return (data || []).map(profile => {
-      const sessions = profile.sessions || [];
-      const totalEarnings = sessions.reduce((sum: number, s: any) => sum + Number(s.earnings), 0);
-      const totalTime = sessions.reduce((sum: number, s: any) => sum + s.duration, 0);
+      const sessions = (profile.sessions || []) as DbSession[];
+      const totalEarnings = sessions.reduce((sum: number, s) => sum + Number(s.earnings), 0);
+      const totalTime = sessions.reduce((sum: number, s) => sum + s.duration, 0);
 
       return {
         userId: profile.id,

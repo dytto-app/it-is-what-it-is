@@ -43,10 +43,11 @@ export const SessionHistory: React.FC<SessionHistoryProps> = ({ sessions, onExpo
           return b.duration - a.duration;
         case 'earnings':
           return b.earnings - a.earnings;
-        case 'efficiency':
+        case 'efficiency': {
           const efficiencyA = a.duration > 0 ? a.earnings / (a.duration / 3600) : 0;
           const efficiencyB = b.duration > 0 ? b.earnings / (b.duration / 3600) : 0;
           return efficiencyB - efficiencyA;
+        }
         default:
           return 0;
       }

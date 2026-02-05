@@ -13,7 +13,13 @@ interface CheckoutRequest {
   userId: string
 }
 
-const cosmetics = {
+interface CosmeticItem {
+  id: string
+  name: string
+  price: number
+}
+
+const cosmetics: { frames: CosmeticItem[]; badges: CosmeticItem[]; titles: CosmeticItem[] } = {
   frames: [
     { id: "gold", name: "Golden Aura", price: 99 },
     { id: "diamond", name: "Diamond Elite", price: 299 },
@@ -82,7 +88,7 @@ serve(async (req) => {
     // Validate price against our cosmetics list
     const pluralType = cosmeticType === 'frame' ? 'frames' : cosmeticType === 'badge' ? 'badges' : 'titles'
     const cosmeticsList = cosmetics[pluralType as keyof typeof cosmetics]
-    const validCosmetic = cosmeticsList.find((c: any) => c.id === cosmeticId)
+    const validCosmetic = cosmeticsList.find((c) => c.id === cosmeticId)
 
     if (!validCosmetic || validCosmetic.price !== price) {
       return new Response(

@@ -185,7 +185,7 @@ export const Profile: React.FC<ProfileProps> = ({
                   <button
                     key={value}
                     type="button"
-                    onClick={() => setSalaryPeriod(value as any)}
+                    onClick={() => setSalaryPeriod(value as 'hourly' | 'weekly' | 'monthly' | 'annually')}
                     className={`py-2 px-3 rounded-lg border-2 transition-all duration-300 font-semibold ${
                       salaryPeriod === value
                         ? 'bg-purple-500/30 border-purple-500 text-purple-300'
