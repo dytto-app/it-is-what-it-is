@@ -129,7 +129,7 @@ function App() {
   }, [activeSession]);
 
   // Check achievements only after a session is completed (not on every render)
-  const checkAndUpdateAchievements = async (updatedSessions: Session[]) => {
+  const checkAndUpdateAchievements = useCallback(async (updatedSessions: Session[]) => {
     if (updatedSessions.length === 0 || !user) return;
 
     const updatedAchievements = AchievementUtils.checkAchievements(updatedSessions, achievements);
@@ -150,7 +150,7 @@ function App() {
     if (newlyUnlocked.length > 0) {
       setAchievements(updatedAchievements);
     }
-  };
+  }, [user, achievements]);
 
   const handleSessionStart = async () => {
     if (!user || activeSession) return;
@@ -210,7 +210,7 @@ function App() {
     } catch (error) {
       console.error('Failed to end session:', error);
     }
-  }, [activeSession, user, sessions, achievements]);
+  }, [activeSession, user, sessions, checkAndUpdateAchievements]);
 
   // Keep ref updated so timer always calls the latest version
   useEffect(() => {
