@@ -6,10 +6,14 @@ _(none)_
 
 ## Pending (Need Ayaan's Input)
 
-- **Streak Tracking (#3)** — Feature to track daily login streaks with achievements. Want me to build this?
-- **Leaderboard Cosmetics (#1)** — Show other users' equipped cosmetics on leaderboard. Monetization opportunity. Prioritize?
-- **Forgot Password (#4)** — No way to reset password currently. Critical missing feature. High priority?
-- **Social Sharing (#5)** — Share session results to social media. Strong viral/growth potential.
+*None — all approved below*
+
+## Approved — Build These (2026-02-06)
+
+- **Forgot Password (#4)** — PRIORITY. Critical missing feature. Build first.
+- **Streak Tracking (#3)** — Daily login streaks with achievements. Build it.
+- **Leaderboard Cosmetics (#1)** — Show other users' equipped cosmetics on leaderboard. Monetization opportunity.
+- **Social Sharing (#5)** — Share session results to social media. Viral growth potential.
 - **PWA Support (#6)** — Make app installable on mobile with offline support.
 
 ## Completed
