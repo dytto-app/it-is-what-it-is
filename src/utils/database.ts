@@ -216,6 +216,11 @@ export const DatabaseUtils = {
           earnings,
           duration,
           start_time
+        ),
+        user_equipped_cosmetics (
+          frame_id,
+          badge_id,
+          title_id
         )
       `)
       .eq('show_on_leaderboard', true);
@@ -225,6 +230,24 @@ export const DatabaseUtils = {
     }
 
     const { data, error } = await query;
+
+    // Helper to extract cosmetics from profile
+    interface DbEquippedCosmetics {
+      frame_id: string | null;
+      badge_id: string | null;
+      title_id: string | null;
+    }
+
+    const extractCosmetics = (equipped: DbEquippedCosmetics[] | DbEquippedCosmetics | null) => {
+      if (!equipped) return undefined;
+      const eq = Array.isArray(equipped) ? equipped[0] : equipped;
+      if (!eq) return undefined;
+      return {
+        frame: eq.frame_id,
+        badge: eq.badge_id,
+        title: eq.title_id
+      };
+    };
 
     if (error) {
       // Fallback: if inner join fails (no sessions), also fetch profiles without sessions
@@ -238,6 +261,11 @@ export const DatabaseUtils = {
             earnings,
             duration,
             start_time
+          ),
+          user_equipped_cosmetics (
+            frame_id,
+            badge_id,
+            title_id
           )
         `)
         .eq('show_on_leaderboard', true);
@@ -256,7 +284,8 @@ export const DatabaseUtils = {
           nickname: profile.nickname || 'Anonymous',
           totalEarnings,
           totalTime,
-          sessionCount: sessions.length
+          sessionCount: sessions.length,
+          equippedCosmetics: extractCosmetics(profile.user_equipped_cosmetics as DbEquippedCosmetics[] | null)
         };
       }).filter(e => e.sessionCount > 0).sort((a, b) => b.totalEarnings - a.totalEarnings);
     }
@@ -271,7 +300,8 @@ export const DatabaseUtils = {
         nickname: profile.nickname || 'Anonymous',
         totalEarnings,
         totalTime,
-        sessionCount: sessions.length
+        sessionCount: sessions.length,
+        equippedCosmetics: extractCosmetics(profile.user_equipped_cosmetics as DbEquippedCosmetics[] | null)
       };
     }).sort((a, b) => b.totalEarnings - a.totalEarnings);
   },

@@ -281,8 +281,17 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ entries: initialEntrie
     }
   };
 
-  const getUserCosmetics = (userId: string) => {
+  const getUserCosmetics = (userId: string, entryCosmetics?: { frame: string | null; badge: string | null; title: string | null }) => {
+    // For current user, use local equipped state (most up-to-date)
     if (userId === currentUserId) return equippedCosmetics;
+    // For other users, use cosmetics from leaderboard entry
+    if (entryCosmetics) {
+      return {
+        frame: entryCosmetics.frame || 'default',
+        badge: entryCosmetics.badge || 'none',
+        title: entryCosmetics.title || 'none'
+      };
+    }
     return { frame: 'default', badge: 'none', title: 'none' };
   };
 
@@ -672,7 +681,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ entries: initialEntrie
           sortedEntries.map((entry, index) => {
             const rank = index + 1;
             const isCurrentUser = entry.userId === currentUserId;
-            const cosmetics = getUserCosmetics(entry.userId);
+            const cosmetics = getUserCosmetics(entry.userId, entry.equippedCosmetics);
             const frameStyle = getFrameStyle(cosmetics.frame);
             const badge = getBadgeComponent(cosmetics.badge);
             const title = getTitleText(cosmetics.title);

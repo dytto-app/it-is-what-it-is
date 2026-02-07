@@ -39,6 +39,11 @@ export interface LeaderboardEntry {
   totalEarnings: number;
   totalTime: number;
   sessionCount: number;
+  equippedCosmetics?: {
+    frame: string | null;
+    badge: string | null;
+    title: string | null;
+  };
 }
 
 export interface Analytics {
