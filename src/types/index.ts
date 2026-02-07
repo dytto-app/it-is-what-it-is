@@ -8,6 +8,9 @@ export interface User {
   salaryPeriod: 'hourly' | 'weekly' | 'monthly' | 'annually';
   onboarded: boolean;
   recoveryEmail?: string;
+  currentStreak: number;
+  longestStreak: number;
+  lastSessionDate?: Date;
 }
 
 export interface Session {
@@ -26,7 +29,7 @@ export interface Achievement {
   description: string;
   icon: string;
   threshold: number;
-  type: 'sessions' | 'earnings' | 'time';
+  type: 'sessions' | 'earnings' | 'time' | 'streak';
   unlockedAt?: Date;
 }
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Square, DollarSign, Clock, Sparkles } from 'lucide-react';
+import { Play, Square, DollarSign, Clock, Sparkles, Flame } from 'lucide-react';
 import { Session, User } from '../types';
 import { CalculationUtils } from '../utils/calculations';
 
@@ -62,6 +62,17 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
       </div>
 
       <div className="relative z-10 w-full max-w-sm mx-auto text-center">
+        {/* Streak indicator */}
+        {user.currentStreak > 0 && (
+          <div className="mb-4">
+            <div className="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold backdrop-blur-lg border bg-gradient-to-r from-orange-500/20 to-amber-500/20 border-orange-400/40 text-orange-300 shadow-lg shadow-orange-500/10">
+              <Flame className="w-4 h-4 mr-2 text-orange-400" />
+              {user.currentStreak} day streak
+              {user.currentStreak >= 7 && <span className="ml-1">🔥</span>}
+            </div>
+          </div>
+        )}
+
         {/* Enhanced status indicator */}
         <div className="mb-8">
           <div className={`inline-flex items-center px-6 py-3 rounded-full text-sm font-semibold backdrop-blur-lg border-2 transition-all duration-500 shadow-lg ${

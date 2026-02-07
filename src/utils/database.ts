@@ -29,7 +29,10 @@ export const DatabaseUtils = {
       salary: data.salary || 0,
       salaryPeriod: data.salary_period || 'weekly',
       onboarded: data.onboarded || false,
-      recoveryEmail: data.recovery_email || undefined
+      recoveryEmail: data.recovery_email || undefined,
+      currentStreak: data.current_streak || 0,
+      longestStreak: data.longest_streak || 0,
+      lastSessionDate: data.last_session_date ? new Date(data.last_session_date) : undefined
     };
   },
 
@@ -312,5 +315,24 @@ export const DatabaseUtils = {
       );
 
     if (error) throw new Error(`Failed to equip cosmetics: ${error.message}`);
+  },
+
+  // ===== STREAK OPERATIONS =====
+  async updateStreak(userId: string): Promise<{ currentStreak: number; longestStreak: number; streakContinued: boolean }> {
+    // Call the database function that handles streak logic
+    const { data, error } = await supabase.rpc('update_user_streak', { p_user_id: userId });
+
+    if (error) {
+      console.error('Failed to update streak:', error);
+      // Return default values on error
+      return { currentStreak: 0, longestStreak: 0, streakContinued: false };
+    }
+
+    const result = data?.[0] || { current_streak: 0, longest_streak: 0, streak_continued: false };
+    return {
+      currentStreak: result.current_streak,
+      longestStreak: result.longest_streak,
+      streakContinued: result.streak_continued
+    };
   }
 };

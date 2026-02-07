@@ -142,10 +142,10 @@ function App() {
   }, [activeSession]);
 
   // Check achievements only after a session is completed (not on every render)
-  const checkAndUpdateAchievements = useCallback(async (updatedSessions: Session[]) => {
+  const checkAndUpdateAchievements = useCallback(async (updatedSessions: Session[], currentStreak?: number) => {
     if (updatedSessions.length === 0 || !user) return;
 
-    const updatedAchievements = AchievementUtils.checkAchievements(updatedSessions, achievements);
+    const updatedAchievements = AchievementUtils.checkAchievements(updatedSessions, achievements, currentStreak);
 
     // Save newly unlocked achievements to Supabase
     const newlyUnlocked = updatedAchievements.filter(
@@ -206,6 +206,17 @@ function App() {
     try {
       await DatabaseUtils.endSession(activeSession.id, endTime, duration, earnings);
 
+      // Update streak after session ends
+      const streakResult = await DatabaseUtils.updateStreak(user.id);
+      
+      // Update user state with new streak values
+      setUser(prevUser => prevUser ? {
+        ...prevUser,
+        currentStreak: streakResult.currentStreak,
+        longestStreak: streakResult.longestStreak,
+        lastSessionDate: new Date()
+      } : null);
+
       const completedSession: Session = {
         ...activeSession,
         endTime,
@@ -218,8 +229,8 @@ function App() {
       setSessions(updatedSessions);
       setActiveSession(null);
 
-      // Check achievements after session completion
-      checkAndUpdateAchievements(updatedSessions);
+      // Check achievements after session completion (including streak achievements)
+      checkAndUpdateAchievements(updatedSessions, streakResult.currentStreak);
     } catch (error) {
       console.error('Failed to end session:', error);
     }

@@ -255,12 +255,14 @@ export const DEFAULT_ACHIEVEMENTS: Achievement[] = [
 export const AchievementUtils = {
   checkAchievements(
     sessions: Session[], 
-    currentAchievements: Achievement[]
+    currentAchievements: Achievement[],
+    currentStreak?: number
   ): Achievement[] {
     const totalSessions = sessions.length;
     const totalEarnings = sessions.reduce((sum, s) => sum + s.earnings, 0);
     const totalTime = sessions.reduce((sum, s) => sum + s.duration, 0);
     const averageSessionTime = totalSessions > 0 ? totalTime / totalSessions : 0;
+    const streak = currentStreak || 0;
 
     const updatedAchievements = [...currentAchievements];
 
@@ -318,6 +320,8 @@ export const AchievementUtils = {
               return totalEarnings >= achievement.threshold;
             case 'time':
               return totalTime >= achievement.threshold;
+            case 'streak':
+              return streak >= achievement.threshold;
             default:
               return false;
           }
@@ -358,6 +362,7 @@ export const AchievementUtils = {
       sessions: achievements.filter(a => a.type === 'sessions' && !['first-session', 'early-bird', 'night-owl'].includes(a.id)),
       earnings: achievements.filter(a => a.type === 'earnings' && a.id !== 'first-dollar'),
       time: achievements.filter(a => a.type === 'time' && a.id !== 'fifteen-minutes'),
+      streaks: achievements.filter(a => a.type === 'streak'),
       special: achievements.filter(a => ['speed-demon', 'marathon-runner', 'consistency-king', 'weekend-warrior', 'workday-hero', 'efficiency-expert', 'power-user', 'midnight-warrior', 'lunch-break-legend'].includes(a.id))
     };
     return categories;
