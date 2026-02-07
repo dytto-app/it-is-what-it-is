@@ -2,7 +2,6 @@
 
 ## Approved (Do These)
 
-- **Streak Tracking (#3)** — Daily login streaks with achievements. Build it.
 - **Leaderboard Cosmetics (#1)** — Show other users' equipped cosmetics on leaderboard. Monetization opportunity.
 - **Social Sharing (#5)** — Share session results to social media. Viral growth potential.
 - **PWA Support (#6)** — Make app installable on mobile with offline support.
@@ -12,6 +11,19 @@
 *None*
 
 ## Completed
+
+### ✅ Streak Tracking (#3)
+- **Priority:** Medium (retention/engagement)
+- **Status:** Done — shipped in commit ef27434 (2026-02-07)
+- **Details:**
+  - Added `current_streak`, `longest_streak`, `last_session_date` columns to profiles
+  - Created 5 streak achievements: 3-day, 7-day, 14-day, 30-day, 100-day
+  - Built `update_user_streak()` SQL function for atomic streak updates
+  - Updated achievement system to support 'streak' type achievements
+  - Added streak counter UI on SessionTracker with 🔥 emoji
+  - Streak auto-updates after each session ends
+  - Tracks both current and longest streak
+- **Note:** Migration needs to be run on Supabase. Streak achievements will appear in Achievements tab once unlocked.
 
 ### ✅ Forgot Password (#4)
 - **Priority:** High (was PRIORITY)
