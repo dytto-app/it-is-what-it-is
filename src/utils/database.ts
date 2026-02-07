@@ -28,7 +28,8 @@ export const DatabaseUtils = {
       showOnLeaderboard: data.show_on_leaderboard,
       salary: data.salary || 0,
       salaryPeriod: data.salary_period || 'weekly',
-      onboarded: data.onboarded || false
+      onboarded: data.onboarded || false,
+      recoveryEmail: data.recovery_email || undefined
     };
   },
 
@@ -42,6 +43,7 @@ export const DatabaseUtils = {
         salary: user.salary,
         salary_period: user.salaryPeriod,
         onboarded: user.onboarded,
+        recovery_email: user.recoveryEmail || null,
         updated_at: new Date().toISOString()
       })
       .eq('id', user.id);

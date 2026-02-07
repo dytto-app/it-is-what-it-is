@@ -11,8 +11,11 @@ import { Auth } from './components/Auth';
 import { Onboarding } from './components/Onboarding';
 import { LandingPage } from './components/LandingPage';
 import { LoadingSpinner } from './components/LoadingSpinner';
+import { ResetPassword } from './components/ResetPassword';
 import { supabase } from './utils/supabase';
 import { Analytics as GA } from './utils/analytics';
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 
 // Lazy load heavy components (Analytics uses recharts which is ~400KB)
 const Analytics = lazy(() => import('./components/Analytics').then(m => ({ default: m.Analytics })));
@@ -39,7 +42,17 @@ function App() {
   const [authUserId, setAuthUserId] = useState<string | null>(null);
   const [showAuth, setShowAuth] = useState(false);
   const [authDefaultLogin, setAuthDefaultLogin] = useState(true);
+  const [resetPasswordToken, setResetPasswordToken] = useState<string | null>(null);
   const handleSessionEndRef = useRef<(() => void) | null>(null);
+
+  // Check for password reset token in URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    if (token && window.location.pathname === '/reset-password') {
+      setResetPasswordToken(token);
+    }
+  }, []);
 
   // Check if user is logged in
   useEffect(() => {
@@ -269,6 +282,27 @@ function App() {
     : 0;
 
   // Leaderboard loading is handled entirely by the Leaderboard component
+
+  // Show password reset page if token is present
+  if (resetPasswordToken) {
+    return (
+      <ResetPassword
+        token={resetPasswordToken}
+        supabaseUrl={supabaseUrl}
+        onSuccess={() => {
+          setResetPasswordToken(null);
+          // Clear URL params
+          window.history.replaceState({}, '', '/');
+          setShowAuth(true);
+          setAuthDefaultLogin(true);
+        }}
+        onBack={() => {
+          setResetPasswordToken(null);
+          window.history.replaceState({}, '', '/');
+        }}
+      />
+    );
+  }
 
   // Show landing page or auth if not logged in
   if (!authUserId) {

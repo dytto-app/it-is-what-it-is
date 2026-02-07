@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
 import { supabase } from '../utils/supabase';
+import { ForgotPassword } from './ForgotPassword';
 
 interface AuthProps {
   onAuthSuccess: (userId: string) => void;
   defaultIsLogin?: boolean;
 }
 
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+
 export const Auth: React.FC<AuthProps> = ({ onAuthSuccess, defaultIsLogin = true }) => {
   const [isLogin, setIsLogin] = useState(defaultIsLogin);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -99,6 +103,16 @@ export const Auth: React.FC<AuthProps> = ({ onAuthSuccess, defaultIsLogin = true
     }
   };
 
+  // Show forgot password screen
+  if (showForgotPassword) {
+    return (
+      <ForgotPassword 
+        onBack={() => setShowForgotPassword(false)} 
+        supabaseUrl={supabaseUrl}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -151,7 +165,18 @@ export const Auth: React.FC<AuthProps> = ({ onAuthSuccess, defaultIsLogin = true
           </button>
         </form>
 
-        <div className="mt-6 text-center">
+        {isLogin && (
+          <div className="mt-4 text-center">
+            <button
+              onClick={() => setShowForgotPassword(true)}
+              className="text-indigo-400 hover:text-indigo-300 text-sm transition-colors"
+            >
+              Forgot your password?
+            </button>
+          </div>
+        )}
+
+        <div className="mt-4 text-center">
           <button
             onClick={() => {
               setIsLogin(!isLogin);

@@ -7,6 +7,7 @@ export interface User {
   salary: number;
   salaryPeriod: 'hourly' | 'weekly' | 'monthly' | 'annually';
   onboarded: boolean;
+  recoveryEmail?: string;
 }
 
 export interface Session {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Settings, Trash2, Download, Eye, EyeOff, LogOut } from 'lucide-react';
+import { User, Settings, Trash2, Download, Eye, EyeOff, LogOut, Mail, Shield } from 'lucide-react';
 import { User as UserType } from '../types';
 
 interface ProfileProps {
@@ -22,6 +22,7 @@ export const Profile: React.FC<ProfileProps> = ({
   const [salary, setSalary] = useState(user.salary.toString());
   const [salaryPeriod, setSalaryPeriod] = useState(user.salaryPeriod);
   const [showOnLeaderboard, setShowOnLeaderboard] = useState(user.showOnLeaderboard);
+  const [recoveryEmail, setRecoveryEmail] = useState(user.recoveryEmail || '');
 
   const calculateHourlyRate = (salaryAmount: number, freq: string): number => {
     switch (freq) {
@@ -58,13 +59,21 @@ export const Profile: React.FC<ProfileProps> = ({
 
     const calculatedHourlyWage = calculateHourlyRate(salaryAmount, salaryPeriod);
 
+    // Validate recovery email if provided
+    const trimmedEmail = recoveryEmail.trim();
+    if (trimmedEmail && !trimmedEmail.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+      alert('Please enter a valid email address');
+      return;
+    }
+
     onUpdateUser({
       ...user,
       nickname: sanitizedNickname || undefined,
       salary: salaryAmount,
       salaryPeriod: salaryPeriod as 'hourly' | 'weekly' | 'monthly' | 'annually',
       hourlyWage: calculatedHourlyWage,
-      showOnLeaderboard
+      showOnLeaderboard,
+      recoveryEmail: trimmedEmail || undefined
     });
     setIsEditing(false);
   };
@@ -138,6 +147,39 @@ export const Profile: React.FC<ProfileProps> = ({
             ) : (
               <div className="px-4 py-4 bg-black/30 backdrop-blur-lg rounded-2xl border border-slate-600/30 text-white shadow-lg">
                 {user.nickname || 'Not set'}
+              </div>
+            )}
+          </div>
+
+          {/* Recovery Email */}
+          <div>
+            <label className="block text-sm font-semibold text-slate-300 mb-2">
+              Recovery Email
+            </label>
+            <p className="text-xs text-slate-500 mb-3">
+              Used to reset your password if you forget it
+            </p>
+            {isEditing ? (
+              <div className="relative">
+                <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500" />
+                <input
+                  type="email"
+                  value={recoveryEmail}
+                  onChange={(e) => setRecoveryEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  className="w-full pl-12 pr-4 py-4 bg-black/50 backdrop-blur-lg rounded-2xl border border-slate-600/50 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-400/50 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300 shadow-lg"
+                />
+              </div>
+            ) : (
+              <div className="px-4 py-4 bg-black/30 backdrop-blur-lg rounded-2xl border border-slate-600/30 text-white shadow-lg flex items-center">
+                {user.recoveryEmail ? (
+                  <>
+                    <Shield className="w-4 h-4 text-emerald-400 mr-2" />
+                    <span>{user.recoveryEmail}</span>
+                  </>
+                ) : (
+                  <span className="text-slate-500">Not set — add one to enable password reset</span>
+                )}
               </div>
             )}
           </div>
