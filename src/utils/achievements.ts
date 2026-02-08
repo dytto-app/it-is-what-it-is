@@ -399,13 +399,16 @@ export const AchievementUtils = {
   },
 
   getAchievementsByCategory(achievements: Achievement[]) {
+    // Beginner achievements are the easiest first ones to unlock
+    const beginnerIds = ['first-session', 'first-dollar', 'fifteen-minutes'];
+    
     const categories = {
-      beginner: achievements.filter(a => ['first-session', 'early-bird', 'night-owl', 'first-dollar', 'fifteen-minutes'].includes(a.id)),
-      sessions: achievements.filter(a => a.type === 'sessions' && !['first-session', 'early-bird', 'night-owl'].includes(a.id)),
-      earnings: achievements.filter(a => a.type === 'earnings' && a.id !== 'first-dollar'),
-      time: achievements.filter(a => a.type === 'time' && a.id !== 'fifteen-minutes'),
+      beginner: achievements.filter(a => beginnerIds.includes(a.id)),
+      sessions: achievements.filter(a => a.type === 'sessions' && !beginnerIds.includes(a.id)),
+      earnings: achievements.filter(a => a.type === 'earnings' && !beginnerIds.includes(a.id)),
+      time: achievements.filter(a => a.type === 'time' && !beginnerIds.includes(a.id)),
       streaks: achievements.filter(a => a.type === 'streak'),
-      special: achievements.filter(a => ['speed-demon', 'marathon-runner', 'consistency-king', 'weekend-warrior', 'workday-hero', 'efficiency-expert', 'power-user', 'midnight-warrior', 'lunch-break-legend'].includes(a.id))
+      special: achievements.filter(a => a.type === 'special')
     };
     return categories;
   }
