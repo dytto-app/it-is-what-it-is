@@ -249,6 +249,48 @@ export const DEFAULT_ACHIEVEMENTS: Achievement[] = [
     icon: 'Sandwich',
     threshold: 10,
     type: 'sessions'
+  },
+
+  // Streak Achievements
+  {
+    id: 'streak-3',
+    title: '3-Day Streak',
+    description: 'Maintain a 3-day streak',
+    icon: 'Flame',
+    threshold: 3,
+    type: 'streak'
+  },
+  {
+    id: 'streak-7',
+    title: 'Week Streak',
+    description: 'Maintain a 7-day streak',
+    icon: 'Flame',
+    threshold: 7,
+    type: 'streak'
+  },
+  {
+    id: 'streak-14',
+    title: 'Two Week Streak',
+    description: 'Maintain a 14-day streak',
+    icon: 'Flame',
+    threshold: 14,
+    type: 'streak'
+  },
+  {
+    id: 'streak-30',
+    title: 'Month Streak',
+    description: 'Maintain a 30-day streak',
+    icon: 'Flame',
+    threshold: 30,
+    type: 'streak'
+  },
+  {
+    id: 'streak-100',
+    title: 'Century Streak',
+    description: 'Maintain a 100-day streak',
+    icon: 'Fire',
+    threshold: 100,
+    type: 'streak'
   }
 ];
 

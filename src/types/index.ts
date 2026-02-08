@@ -29,7 +29,7 @@ export interface Achievement {
   description: string;
   icon: string;
   threshold: number;
-  type: 'sessions' | 'earnings' | 'time' | 'streak';
+  type: 'sessions' | 'earnings' | 'time' | 'streak' | 'special';
   unlockedAt?: Date;
 }
 
