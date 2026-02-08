@@ -157,6 +157,10 @@ function App() {
     for (const achievement of newlyUnlocked) {
       try {
         await DatabaseUtils.unlockAchievement(user.id, achievement.id);
+        GA.event('Achievement Unlocked', {
+          achievementId: achievement.id,
+          achievementTitle: achievement.title,
+        });
       } catch (err) {
         console.error('Failed to unlock achievement:', err);
       }
@@ -193,6 +197,7 @@ function App() {
     try {
       await DatabaseUtils.createSession(newSession);
       setActiveSession(newSession);
+      GA.event('Session Started', { sessionId: newSession.id });
     } catch (error) {
       console.error('Failed to start session:', error);
     }
@@ -233,6 +238,13 @@ function App() {
       
       // Show share modal with completed session
       setCompletedSession(finishedSession);
+      
+      // Track session completed
+      GA.event('Session Completed', {
+        duration: finishedSession.duration,
+        earnings: finishedSession.earnings,
+        streak: streakResult.currentStreak,
+      });
 
       // Check achievements after session completion (including streak achievements)
       checkAndUpdateAchievements(updatedSessions, streakResult.currentStreak);
@@ -364,6 +376,7 @@ function App() {
             const updatedUser = { ...user, salary, salaryPeriod, hourlyWage, onboarded: true };
             await DatabaseUtils.updateUser(updatedUser);
             setUser(updatedUser);
+            GA.event('Onboarding Completed', { salaryPeriod });
           } catch (error) {
             console.error('Failed to save onboarding:', error);
             throw error;

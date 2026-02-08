@@ -1,5 +1,5 @@
-// Google Analytics 4 utility
-// Replace G-PLACEHOLDER with your real measurement ID
+// Google Analytics 4 + Mixpanel unified analytics
+import { track, trackPage } from './mixpanel';
 
 declare global {
   interface Window {
@@ -11,16 +11,24 @@ declare global {
 export const Analytics = {
   /** Fire a page_view event — call on tab changes */
   pageView(pagePath: string, pageTitle?: string) {
-    if (typeof window.gtag !== 'function') return;
-    window.gtag('event', 'page_view', {
-      page_path: pagePath,
-      page_title: pageTitle || document.title,
-    });
+    // GA4
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'page_view', {
+        page_path: pagePath,
+        page_title: pageTitle || document.title,
+      });
+    }
+    // Mixpanel
+    trackPage(pageTitle || pagePath, { path: pagePath });
   },
 
   /** Fire a custom event */
   event(eventName: string, params?: Record<string, unknown>) {
-    if (typeof window.gtag !== 'function') return;
-    window.gtag('event', eventName, params);
+    // GA4
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', eventName, params);
+    }
+    // Mixpanel
+    track(eventName, params);
   },
 };

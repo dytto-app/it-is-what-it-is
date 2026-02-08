@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from '../utils/supabase';
 import { ForgotPassword } from './ForgotPassword';
+import { Analytics as GA } from '../utils/analytics';
 
 interface AuthProps {
   onAuthSuccess: (userId: string) => void;
@@ -57,6 +58,7 @@ export const Auth: React.FC<AuthProps> = ({ onAuthSuccess, defaultIsLogin = true
         }
 
         if (data.user) {
+          GA.event('User Signed In');
           onAuthSuccess(data.user.id);
         }
       } else {
@@ -93,6 +95,7 @@ export const Auth: React.FC<AuthProps> = ({ onAuthSuccess, defaultIsLogin = true
             return;
           }
 
+          GA.event('User Signed Up');
           onAuthSuccess(data.user.id);
         }
       }
