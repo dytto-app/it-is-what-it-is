@@ -691,7 +691,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ entries: initialEntrie
                 key={entry.userId}
                 className={`relative overflow-hidden rounded-3xl transition-all duration-500 transform hover:scale-[1.02] ${
                   isCurrentUser
-                    ? `bg-gradient-to-br ${frameStyle.gradient} border-2 ${frameStyle.border} shadow-2xl ring-2 ring-emerald-400/60 ring-offset-2 ring-offset-slate-900`
+                    ? `bg-gradient-to-br ${frameStyle.gradient} border-2 ${frameStyle.border} shadow-2xl ring-2 ring-yellow-400/60 ring-offset-2 ring-offset-slate-900`
                     : rank <= 3
                     ? `bg-gradient-to-br ${frameStyle.gradient} border-2 ${frameStyle.border} shadow-2xl`
                     : `bg-gradient-to-br ${frameStyle.gradient} border ${frameStyle.border} shadow-lg hover:shadow-xl`
@@ -702,7 +702,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ entries: initialEntrie
                 )}
 
                 {isCurrentUser && (
-                  <div className="absolute top-3 right-3 bg-gradient-to-r from-emerald-500/30 to-green-500/30 text-emerald-300 px-3 py-1 rounded-full text-xs font-bold border border-emerald-400/30 shadow-lg">
+                  <div className="absolute top-3 right-3 bg-gradient-to-r from-yellow-500/30 to-amber-500/30 text-yellow-300 px-3 py-1 rounded-full text-xs font-bold border border-yellow-400/30 shadow-lg">
                     YOU
                   </div>
                 )}
