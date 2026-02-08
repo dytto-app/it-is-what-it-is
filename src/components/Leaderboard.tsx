@@ -691,7 +691,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ entries: initialEntrie
                 key={entry.userId}
                 className={`relative overflow-hidden rounded-3xl transition-all duration-500 transform hover:scale-[1.02] ${
                   isCurrentUser
-                    ? 'bg-gradient-to-br from-emerald-500/20 via-green-500/15 to-emerald-600/20 border-2 border-emerald-400/40 shadow-2xl shadow-emerald-500/20'
+                    ? `bg-gradient-to-br ${frameStyle.gradient} border-2 ${frameStyle.border} shadow-2xl ring-2 ring-emerald-400/60 ring-offset-2 ring-offset-slate-900`
                     : rank <= 3
                     ? `bg-gradient-to-br ${frameStyle.gradient} border-2 ${frameStyle.border} shadow-2xl`
                     : `bg-gradient-to-br ${frameStyle.gradient} border ${frameStyle.border} shadow-lg hover:shadow-xl`
