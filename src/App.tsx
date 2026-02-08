@@ -12,6 +12,7 @@ import { Onboarding } from './components/Onboarding';
 import { LandingPage } from './components/LandingPage';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { ResetPassword } from './components/ResetPassword';
+import { ShareSessionModal } from './components/ShareSessionModal';
 import { supabase } from './utils/supabase';
 import { Analytics as GA } from './utils/analytics';
 
@@ -43,6 +44,7 @@ function App() {
   const [showAuth, setShowAuth] = useState(false);
   const [authDefaultLogin, setAuthDefaultLogin] = useState(true);
   const [resetPasswordToken, setResetPasswordToken] = useState<string | null>(null);
+  const [completedSession, setCompletedSession] = useState<Session | null>(null);
   const handleSessionEndRef = useRef<(() => void) | null>(null);
 
   // Check for password reset token in URL
@@ -217,7 +219,7 @@ function App() {
         lastSessionDate: new Date()
       } : null);
 
-      const completedSession: Session = {
+      const finishedSession: Session = {
         ...activeSession,
         endTime,
         duration,
@@ -225,9 +227,12 @@ function App() {
         isActive: false
       };
 
-      const updatedSessions = [...sessions, completedSession];
+      const updatedSessions = [...sessions, finishedSession];
       setSessions(updatedSessions);
       setActiveSession(null);
+      
+      // Show share modal with completed session
+      setCompletedSession(finishedSession);
 
       // Check achievements after session completion (including streak achievements)
       checkAndUpdateAchievements(updatedSessions, streakResult.currentStreak);
@@ -491,6 +496,15 @@ function App() {
           </a>
         </div>
       </div>
+
+      {/* Share session modal */}
+      {completedSession && (
+        <ShareSessionModal
+          session={completedSession}
+          currentStreak={user.currentStreak}
+          onClose={() => setCompletedSession(null)}
+        />
+      )}
     </div>
   );
 }
