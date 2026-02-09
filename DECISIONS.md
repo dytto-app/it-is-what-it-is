@@ -10,6 +10,16 @@
 
 ## Completed
 
+### ✅ Live Landing Page Stats (#10)
+- **Priority:** Medium (social proof)
+- **Status:** Done — shipped in commit fdbc6a5 (2026-02-09)
+- **Details:**
+  - Created `get_platform_stats()` RPC function for aggregate stats
+  - Added AnimatedCounter component with smooth easing animation
+  - Landing page now shows real user count, hours tracked, and total earnings
+  - Graceful loading state while fetching
+  - No auth required for public stats
+
 ### ✅ PWA Support (#6)
 - **Priority:** Medium (mobile experience)
 - **Status:** Done — shipped in commit db3b804 (2026-02-08)
