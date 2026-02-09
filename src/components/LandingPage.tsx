@@ -1,11 +1,87 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Timer, DollarSign, Trophy, Award, Sparkles, ArrowRight, BarChart3, Users, Clock, TrendingUp, Shield } from 'lucide-react';
+import { supabase } from '../utils/supabase';
 
 interface LandingPageProps {
   onGetStarted: (mode: 'signup' | 'login') => void;
 }
 
+interface PlatformStats {
+  total_users: number;
+  total_sessions: number;
+  total_hours_tracked: number;
+  total_earnings: number;
+}
+
+// Animated counter component
+const AnimatedCounter: React.FC<{ value: number; prefix?: string; suffix?: string; decimals?: number; duration?: number }> = ({ 
+  value, 
+  prefix = '', 
+  suffix = '', 
+  decimals = 0,
+  duration = 2000 
+}) => {
+  const [displayValue, setDisplayValue] = useState(0);
+  const startTime = useRef<number | null>(null);
+  const animationRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (value === 0) {
+      setDisplayValue(0);
+      return;
+    }
+
+    const animate = (timestamp: number) => {
+      if (!startTime.current) startTime.current = timestamp;
+      const progress = Math.min((timestamp - startTime.current) / duration, 1);
+      
+      // Easing function for smooth deceleration
+      const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+      setDisplayValue(value * easeOutQuart);
+
+      if (progress < 1) {
+        animationRef.current = requestAnimationFrame(animate);
+      }
+    };
+
+    startTime.current = null;
+    animationRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+    };
+  }, [value, duration]);
+
+  const formattedValue = decimals > 0 
+    ? displayValue.toFixed(decimals) 
+    : Math.round(displayValue).toLocaleString();
+
+  return <>{prefix}{formattedValue}{suffix}</>;
+};
+
 export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
+  const [stats, setStats] = useState<PlatformStats | null>(null);
+  const [statsLoaded, setStatsLoaded] = useState(false);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const { data, error } = await supabase.rpc('get_platform_stats');
+        if (error) {
+          console.error('Failed to fetch platform stats:', error);
+          return;
+        }
+        if (data && data[0]) {
+          setStats(data[0]);
+          setStatsLoaded(true);
+        }
+      } catch (err) {
+        console.error('Error fetching platform stats:', err);
+      }
+    };
+
+    fetchStats();
+  }, []);
   return (
     <div className="min-h-screen bg-black text-white overflow-x-hidden">
       {/* Navbar */}
@@ -213,17 +289,39 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
               </span>
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
-              {[
-                { icon: Users, value: 'Growing', label: 'Community of Trackers' },
-                { icon: Clock, value: '∞', label: 'Hours Tracked' },
-                { icon: DollarSign, value: '$$$', label: 'Earned on Break' },
-              ].map(({ icon: Icon, value, label }, i) => (
-                <div key={i} className="text-center">
-                  <Icon className="w-8 h-8 text-indigo-400 mx-auto mb-3" />
-                  <div className="text-3xl font-bold text-white mb-1">{value}</div>
-                  <div className="text-slate-400 text-sm">{label}</div>
+              <div className="text-center">
+                <Users className="w-8 h-8 text-indigo-400 mx-auto mb-3" />
+                <div className="text-3xl font-bold text-white mb-1">
+                  {statsLoaded && stats ? (
+                    <AnimatedCounter value={stats.total_users} suffix="+" />
+                  ) : (
+                    <span className="animate-pulse">—</span>
+                  )}
                 </div>
-              ))}
+                <div className="text-slate-400 text-sm">Trackers</div>
+              </div>
+              <div className="text-center">
+                <Clock className="w-8 h-8 text-indigo-400 mx-auto mb-3" />
+                <div className="text-3xl font-bold text-white mb-1">
+                  {statsLoaded && stats ? (
+                    <AnimatedCounter value={stats.total_hours_tracked} suffix=" hrs" decimals={1} />
+                  ) : (
+                    <span className="animate-pulse">—</span>
+                  )}
+                </div>
+                <div className="text-slate-400 text-sm">Hours Tracked</div>
+              </div>
+              <div className="text-center">
+                <DollarSign className="w-8 h-8 text-indigo-400 mx-auto mb-3" />
+                <div className="text-3xl font-bold text-white mb-1">
+                  {statsLoaded && stats ? (
+                    <AnimatedCounter value={stats.total_earnings} prefix="$" decimals={2} />
+                  ) : (
+                    <span className="animate-pulse">—</span>
+                  )}
+                </div>
+                <div className="text-slate-400 text-sm">Earned on Break</div>
+              </div>
             </div>
           </div>
         </div>
