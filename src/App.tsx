@@ -144,6 +144,68 @@ function App() {
     return () => clearInterval(interval);
   }, [activeSession]);
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    if (!user || !user.onboarded) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore if user is typing in an input
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+        return;
+      }
+
+      switch (e.code) {
+        case 'Space':
+          // Space to toggle session (only on tracker tab)
+          if (activeTab === 'tracker') {
+            e.preventDefault();
+            if (activeSession) {
+              handleSessionEndRef.current?.();
+            } else {
+              handleSessionStart();
+            }
+          }
+          break;
+        case 'Digit1':
+        case 'Numpad1':
+          e.preventDefault();
+          setActiveTab('tracker');
+          break;
+        case 'Digit2':
+        case 'Numpad2':
+          e.preventDefault();
+          setActiveTab('analytics');
+          break;
+        case 'Digit3':
+        case 'Numpad3':
+          e.preventDefault();
+          setActiveTab('history');
+          break;
+        case 'Digit4':
+        case 'Numpad4':
+          e.preventDefault();
+          setActiveTab('achievements');
+          break;
+        case 'Digit5':
+        case 'Numpad5':
+          e.preventDefault();
+          setActiveTab('leaderboard');
+          break;
+        case 'Escape':
+          // Close share modal if open
+          if (completedSession) {
+            e.preventDefault();
+            setCompletedSession(null);
+          }
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [user, activeTab, activeSession, completedSession]);
+
   // Check achievements only after a session is completed (not on every render)
   const checkAndUpdateAchievements = useCallback(async (updatedSessions: Session[], currentStreak?: number) => {
     if (updatedSessions.length === 0 || !user) return;
