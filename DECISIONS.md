@@ -10,6 +10,24 @@
 
 ## Completed
 
+### ✅ Keyboard Shortcuts (#12)
+- **Priority:** Medium (UX)
+- **Status:** Done — shipped in commit 876410a (2026-02-10)
+- **Details:**
+  - Space to start/stop session (on tracker tab)
+  - 1-5 for quick tab navigation
+  - Escape to close modals
+  - Disabled when typing in inputs
+
+### ✅ Confetti on Achievement Unlock (#11)
+- **Priority:** Medium (delight)
+- **Status:** Done — shipped in commit 3eb7954 (2026-02-10)
+- **Details:**
+  - Added canvas-confetti library (~3KB gzipped)
+  - Rarity-based celebration effects
+  - Common: simple burst, Rare: side cannons, Epic: double burst, Legendary: multi-burst explosion
+  - Respects prefers-reduced-motion for accessibility
+
 ### ✅ Live Landing Page Stats (#10)
 - **Priority:** Medium (social proof)
 - **Status:** Done — shipped in commit fdbc6a5 (2026-02-09)
