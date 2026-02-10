@@ -5,6 +5,7 @@ import { User, Session, Achievement } from './types';
 import { DatabaseUtils } from './utils/database';
 import { CalculationUtils } from './utils/calculations';
 import { AchievementUtils } from './utils/achievements';
+import { celebrateAchievement, celebrateMultipleAchievements, getAchievementRarity } from './utils/confetti';
 import { SessionTracker } from './components/SessionTracker';
 import { Navigation } from './components/Navigation';
 import { Auth } from './components/Auth';
@@ -168,6 +169,17 @@ function App() {
 
     if (newlyUnlocked.length > 0) {
       setAchievements(updatedAchievements);
+      
+      // Celebrate with confetti! 🎉
+      if (newlyUnlocked.length === 1) {
+        // Single achievement - use rarity-based celebration
+        const achievement = newlyUnlocked[0];
+        const rarity = getAchievementRarity(achievement.threshold, achievement.id);
+        celebrateAchievement(rarity);
+      } else {
+        // Multiple achievements at once - special multi celebration
+        celebrateMultipleAchievements(newlyUnlocked.length);
+      }
     }
   }, [user, achievements]);
 
