@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { User as UserIcon, LogOut } from 'lucide-react';
+import { User as UserIcon, LogOut, HelpCircle } from 'lucide-react';
 import { User, Session, Achievement } from './types';
 import { DatabaseUtils } from './utils/database';
 import { CalculationUtils } from './utils/calculations';
@@ -14,6 +14,7 @@ import { LandingPage } from './components/LandingPage';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { ResetPassword } from './components/ResetPassword';
 import { ShareSessionModal } from './components/ShareSessionModal';
+import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
 import { supabase } from './utils/supabase';
 import { Analytics as GA } from './utils/analytics';
 
@@ -46,6 +47,7 @@ function App() {
   const [authDefaultLogin, setAuthDefaultLogin] = useState(true);
   const [resetPasswordToken, setResetPasswordToken] = useState<string | null>(null);
   const [completedSession, setCompletedSession] = useState<Session | null>(null);
+  const [showShortcutsModal, setShowShortcutsModal] = useState(false);
   const handleSessionEndRef = useRef<(() => void) | null>(null);
 
   // Check for password reset token in URL
@@ -193,10 +195,20 @@ function App() {
           setActiveTab('leaderboard');
           break;
         case 'Escape':
-          // Close share modal if open
+          // Close any open modal
           if (completedSession) {
             e.preventDefault();
             setCompletedSession(null);
+          } else if (showShortcutsModal) {
+            e.preventDefault();
+            setShowShortcutsModal(false);
+          }
+          break;
+        case 'Slash':
+          // "?" key opens shortcuts modal (Shift + /)
+          if (e.shiftKey) {
+            e.preventDefault();
+            setShowShortcutsModal(true);
           }
           break;
       }
@@ -204,7 +216,7 @@ function App() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [user, activeTab, activeSession, completedSession]);
+  }, [user, activeTab, activeSession, completedSession, showShortcutsModal]);
 
   // Check achievements only after a session is completed (not on every render)
   const checkAndUpdateAchievements = useCallback(async (updatedSessions: Session[], currentStreak?: number) => {
@@ -534,14 +546,26 @@ function App() {
               <UserIcon className="w-5 h-5" />
             </button>
 
-            {/* Sign Out Button - Top Right */}
-            <button
-              onClick={handleSignOut}
-              className="absolute top-0 right-0 z-50 p-3 backdrop-blur-lg rounded-xl border border-slate-600/30 text-slate-400 hover:text-red-300 hover:bg-red-500/10 hover:border-red-400/30 transition-all duration-300 shadow-lg"
-              title="Sign out"
-            >
-              <LogOut className="w-5 h-5" />
-            </button>
+            {/* Top Right Buttons */}
+            <div className="absolute top-0 right-0 z-50 flex items-center gap-2">
+              {/* Keyboard Shortcuts Button - Desktop Only */}
+              <button
+                onClick={() => setShowShortcutsModal(true)}
+                className="hidden md:flex p-3 backdrop-blur-lg rounded-xl border border-slate-600/30 text-slate-400 hover:text-indigo-300 hover:bg-indigo-500/10 hover:border-indigo-400/30 transition-all duration-300 shadow-lg"
+                title="Keyboard shortcuts (?)"
+              >
+                <HelpCircle className="w-5 h-5" />
+              </button>
+              
+              {/* Sign Out Button */}
+              <button
+                onClick={handleSignOut}
+                className="p-3 backdrop-blur-lg rounded-xl border border-slate-600/30 text-slate-400 hover:text-red-300 hover:bg-red-500/10 hover:border-red-400/30 transition-all duration-300 shadow-lg"
+                title="Sign out"
+              >
+                <LogOut className="w-5 h-5" />
+              </button>
+            </div>
             
             <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-blue-400 bg-clip-text text-transparent mb-3 drop-shadow-lg">
               backlog
@@ -592,6 +616,12 @@ function App() {
           onClose={() => setCompletedSession(null)}
         />
       )}
+
+      {/* Keyboard shortcuts modal */}
+      <KeyboardShortcutsModal
+        isOpen={showShortcutsModal}
+        onClose={() => setShowShortcutsModal(false)}
+      />
     </div>
   );
 }
