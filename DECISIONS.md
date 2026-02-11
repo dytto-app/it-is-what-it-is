@@ -4,6 +4,18 @@
 
 *None pending — all approved items shipped!*
 
+## Completed
+
+### ✅ Keyboard Shortcut Hints (#15)
+- **Priority:** Low (UX polish)
+- **Status:** Done — shipped in commit a0cc480 (2026-02-11)
+- **Details:**
+  - Added KeyboardShortcutsModal component with all shortcuts listed
+  - "?" button in header (desktop only) opens modal
+  - Shift+? keyboard shortcut also opens modal
+  - Clean modal UI with kbd-styled keys
+  - Shows "Desktop only · Disabled when typing" hint
+
 ## Pending (Need Ayaan's Input)
 
 *None*
