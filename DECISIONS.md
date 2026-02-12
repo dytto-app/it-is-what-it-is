@@ -6,6 +6,25 @@
 
 ## Completed
 
+### ✅ Haptic Feedback on Mobile (#18)
+- **Priority:** Low (polish)
+- **Status:** Done — shipped in commit 3da3c1b (2026-02-12)
+- **Details:**
+  - Added haptics.ts utility using navigator.vibrate() API
+  - Session start: short pulse (50ms)
+  - Session end: double pulse pattern (50, 30, 50)
+  - Achievement unlock: celebration pattern (100, 30, 100, 30, 100)
+  - Graceful degradation on unsupported devices
+
+### ✅ Session Rate Limit Feedback (#16)
+- **Priority:** Low (bug fix)
+- **Status:** Done — shipped in commit c840adb (2026-02-12)
+- **Details:**
+  - Added cooldownRemaining state with countdown timer
+  - Shows animated amber warning indicator when rate limited
+  - Displays countdown ("Wait Xs before starting")
+  - Disappears when cooldown completes
+
 ### ✅ Keyboard Shortcut Hints (#15)
 - **Priority:** Low (UX polish)
 - **Status:** Done — shipped in commit a0cc480 (2026-02-11)
