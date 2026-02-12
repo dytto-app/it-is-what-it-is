@@ -12,6 +12,7 @@ interface SessionTrackerProps {
   onSessionEnd: () => void;
   currentEarnings: number;
   currentDuration: number;
+  cooldownRemaining?: number;
 }
 
 export const SessionTracker: React.FC<SessionTrackerProps> = ({
@@ -20,7 +21,8 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
   onSessionStart,
   onSessionEnd,
   currentEarnings,
-  currentDuration
+  currentDuration,
+  cooldownRemaining = 0
 }) => {
   const [animate, setAnimate] = useState(false);
   const [ripples, setRipples] = useState<Array<{ id: number; x: number; y: number }>>([]);
@@ -87,6 +89,16 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
             {activeSession && <Sparkles className="w-4 h-4 ml-2 animate-pulse" />}
           </div>
         </div>
+
+        {/* Cooldown warning */}
+        {cooldownRemaining > 0 && !activeSession && (
+          <div className="mb-4 animate-pulse">
+            <div className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium backdrop-blur-lg border bg-gradient-to-r from-amber-500/20 to-orange-500/20 border-amber-400/40 text-amber-300 shadow-lg shadow-amber-500/10">
+              <Clock className="w-4 h-4 mr-2 text-amber-400" />
+              Wait {cooldownRemaining}s before starting
+            </div>
+          </div>
+        )}
 
         {/* Incredible main action button */}
         <div className="mb-8 relative">

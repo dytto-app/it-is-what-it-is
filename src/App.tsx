@@ -48,6 +48,7 @@ function App() {
   const [resetPasswordToken, setResetPasswordToken] = useState<string | null>(null);
   const [completedSession, setCompletedSession] = useState<Session | null>(null);
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
+  const [cooldownRemaining, setCooldownRemaining] = useState(0);
   const handleSessionEndRef = useRef<(() => void) | null>(null);
 
   // Check for password reset token in URL
@@ -257,6 +258,15 @@ function App() {
     }
   }, [user, achievements]);
 
+  // Countdown effect for cooldown
+  useEffect(() => {
+    if (cooldownRemaining <= 0) return;
+    const timer = setInterval(() => {
+      setCooldownRemaining(prev => Math.max(0, prev - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [cooldownRemaining]);
+
   const handleSessionStart = async () => {
     if (!user || activeSession) return;
 
@@ -265,7 +275,8 @@ function App() {
     if (lastSession && lastSession.endTime) {
       const timeSinceLastSession = Date.now() - lastSession.endTime.getTime();
       if (timeSinceLastSession < 10000) {
-        console.warn('Session rate limited: please wait before starting a new session');
+        const remaining = Math.ceil((10000 - timeSinceLastSession) / 1000);
+        setCooldownRemaining(remaining);
         return;
       }
     }
@@ -483,6 +494,7 @@ function App() {
             onSessionEnd={handleSessionEnd}
             currentEarnings={currentEarnings}
             currentDuration={currentDuration}
+            cooldownRemaining={cooldownRemaining}
           />
         );
       case 'analytics':
