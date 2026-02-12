@@ -6,6 +6,7 @@ import { DatabaseUtils } from './utils/database';
 import { CalculationUtils } from './utils/calculations';
 import { AchievementUtils } from './utils/achievements';
 import { celebrateAchievement, celebrateMultipleAchievements, getAchievementRarity } from './utils/confetti';
+import { Haptics } from './utils/haptics';
 import { SessionTracker } from './components/SessionTracker';
 import { Navigation } from './components/Navigation';
 import { Auth } from './components/Auth';
@@ -245,7 +246,8 @@ function App() {
     if (newlyUnlocked.length > 0) {
       setAchievements(updatedAchievements);
       
-      // Celebrate with confetti! 🎉
+      // Celebrate with confetti + haptic! 🎉
+      Haptics.achievement();
       if (newlyUnlocked.length === 1) {
         // Single achievement - use rarity-based celebration
         const achievement = newlyUnlocked[0];
@@ -294,6 +296,7 @@ function App() {
     try {
       await DatabaseUtils.createSession(newSession);
       setActiveSession(newSession);
+      Haptics.sessionStart();
       GA.event('Session Started', { sessionId: newSession.id });
     } catch (error) {
       console.error('Failed to start session:', error);
@@ -332,6 +335,7 @@ function App() {
       const updatedSessions = [...sessions, finishedSession];
       setSessions(updatedSessions);
       setActiveSession(null);
+      Haptics.sessionEnd();
       
       // Show share modal with completed session
       setCompletedSession(finishedSession);
