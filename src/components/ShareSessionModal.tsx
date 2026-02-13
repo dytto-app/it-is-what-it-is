@@ -140,9 +140,8 @@ export const ShareSessionModal: React.FC<ShareSessionModalProps> = ({
           text: shareText,
           url: 'https://back-log.com'
         });
-      } catch (error) {
+      } catch {
         // User cancelled or share failed - that's okay
-        console.log('Share cancelled or failed:', error);
       }
     }
   };

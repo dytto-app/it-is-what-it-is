@@ -28,7 +28,6 @@ export function initAnalytics() {
   });
   
   initialized = true;
-  console.log(`[Analytics] Mixpanel initialized for ${APP_NAME}`);
 }
 
 /**

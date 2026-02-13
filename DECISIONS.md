@@ -4,6 +4,15 @@
 
 *None pending — all approved items shipped!*
 
+### ✅ CSV Export Option (#17)
+- **Priority:** Low (nice to have)
+- **Status:** Done — shipped in commit dc0e828 (2026-02-13)
+- **Details:**
+  - Added CSV export alongside existing JSON export
+  - Session History page has two export buttons: CSV and JSON
+  - CSV format: date, start_time, end_time, duration_seconds, earnings
+  - Profile still exports JSON (user profile + sessions)
+
 ## Completed
 
 ### ✅ Haptic Feedback on Mobile (#18)
