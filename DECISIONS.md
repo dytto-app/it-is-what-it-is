@@ -13,6 +13,13 @@
   - CSV format: date, start_time, end_time, duration_seconds, earnings
   - Profile still exports JSON (user profile + sessions)
 
+### ✅ Code cleanup: remove debug console.logs
+- **Priority:** Low (cleanup)
+- **Status:** Done — shipped in commit aa3c110 (2026-02-13)
+- **Details:**
+  - Removed Mixpanel initialization console.log
+  - Cleaned up share modal error logging
+
 ## Completed
 
 ### ✅ Haptic Feedback on Mobile (#18)
