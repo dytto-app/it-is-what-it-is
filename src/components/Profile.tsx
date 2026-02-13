@@ -5,7 +5,7 @@ import { User as UserType } from '../types';
 interface ProfileProps {
   user: UserType;
   onUpdateUser: (user: UserType) => void;
-  onExportData: () => void;
+  onExportData: (format: 'json' | 'csv') => void;
   onClearData: () => void;
   onSignOut: () => void;
 }
@@ -344,7 +344,7 @@ export const Profile: React.FC<ProfileProps> = ({
         
         <div className="space-y-4">
           <button
-            onClick={onExportData}
+            onClick={() => onExportData('json')}
             className="w-full flex items-center justify-center px-6 py-4 bg-gradient-to-r from-emerald-500/20 to-green-500/20 backdrop-blur-lg rounded-2xl border border-emerald-400/40 text-emerald-300 hover:from-emerald-500/30 hover:to-green-500/30 transition-all duration-300 shadow-xl shadow-emerald-500/20 font-semibold"
           >
             <Download className="w-5 h-5 mr-3" />

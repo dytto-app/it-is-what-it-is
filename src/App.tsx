@@ -368,21 +368,49 @@ function App() {
     }
   };
 
-  const handleExportData = () => {
-    const exportData = {
-      user,
-      sessions,
-      exportedAt: new Date().toISOString()
-    };
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `backlog-data-${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+  const handleExportData = (format: 'json' | 'csv' = 'json') => {
+    const dateStr = new Date().toISOString().split('T')[0];
+    
+    if (format === 'csv') {
+      // CSV export for sessions only
+      const headers = ['date', 'start_time', 'end_time', 'duration_seconds', 'earnings'];
+      const rows = sessions
+        .filter(s => !s.isActive && s.endTime)
+        .map(s => [
+          s.startTime.toISOString().split('T')[0],
+          s.startTime.toISOString(),
+          s.endTime?.toISOString() || '',
+          s.duration.toString(),
+          s.earnings.toFixed(2)
+        ]);
+      
+      const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `backlog-sessions-${dateStr}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } else {
+      // JSON export (includes user profile)
+      const exportData = {
+        user,
+        sessions,
+        exportedAt: new Date().toISOString()
+      };
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `backlog-data-${dateStr}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
   };
 
   const handleSignOut = async () => {

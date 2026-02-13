@@ -5,7 +5,7 @@ import { CalculationUtils } from '../utils/calculations';
 
 interface SessionHistoryProps {
   sessions: Session[];
-  onExport: () => void;
+  onExport: (format: 'json' | 'csv') => void;
 }
 
 type SortOption = 'date' | 'duration' | 'earnings' | 'efficiency';
@@ -278,15 +278,23 @@ export const SessionHistory: React.FC<SessionHistoryProps> = ({ sessions, onExpo
           </div>
         </div>
 
-        {/* Export button */}
-        <button
-          onClick={onExport}
-          className="w-full flex items-center justify-center px-6 py-4 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 backdrop-blur-xl rounded-2xl border border-emerald-400/30 text-emerald-300 hover:from-emerald-500/30 hover:to-teal-500/30 transition-all duration-300 shadow-lg shadow-emerald-500/10 font-semibold"
-        >
-          <Download className="w-5 h-5 mr-3" />
-          Export Session Data
-          <Sparkles className="w-4 h-4 ml-2 animate-pulse" />
-        </button>
+        {/* Export buttons */}
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            onClick={() => onExport('csv')}
+            className="flex items-center justify-center px-4 py-4 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 backdrop-blur-xl rounded-2xl border border-emerald-400/30 text-emerald-300 hover:from-emerald-500/30 hover:to-teal-500/30 transition-all duration-300 shadow-lg shadow-emerald-500/10 font-semibold"
+          >
+            <Download className="w-5 h-5 mr-2" />
+            CSV
+          </button>
+          <button
+            onClick={() => onExport('json')}
+            className="flex items-center justify-center px-4 py-4 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 backdrop-blur-xl rounded-2xl border border-blue-400/30 text-blue-300 hover:from-blue-500/30 hover:to-indigo-500/30 transition-all duration-300 shadow-lg shadow-blue-500/10 font-semibold"
+          >
+            <Download className="w-5 h-5 mr-2" />
+            JSON
+          </button>
+        </div>
       </div>
 
       {/* Recent Sessions */}
