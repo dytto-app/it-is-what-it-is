@@ -183,6 +183,7 @@ export const ShareSessionModal: React.FC<ShareSessionModalProps> = ({
         {/* Close button */}
         <button
           onClick={onClose}
+          aria-label="Close share modal"
           className="absolute top-4 right-4 z-10 p-2 rounded-full bg-slate-800/50 text-slate-400 hover:text-white hover:bg-slate-700/50 transition-all"
         >
           <X className="w-5 h-5" />
@@ -227,6 +228,7 @@ export const ShareSessionModal: React.FC<ShareSessionModalProps> = ({
           <div className="grid grid-cols-3 gap-3">
             <button
               onClick={handleTwitterShare}
+              aria-label="Share on Twitter"
               className="flex flex-col items-center justify-center gap-2 py-3 px-4 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 hover:text-white rounded-xl transition-all border border-slate-700/30"
             >
               <Twitter className="w-5 h-5" />
@@ -235,6 +237,7 @@ export const ShareSessionModal: React.FC<ShareSessionModalProps> = ({
 
             <button
               onClick={handleCopy}
+              aria-label={copied ? 'Copied to clipboard' : 'Copy to clipboard'}
               className="flex flex-col items-center justify-center gap-2 py-3 px-4 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 hover:text-white rounded-xl transition-all border border-slate-700/30"
             >
               {copied ? (
@@ -247,6 +250,7 @@ export const ShareSessionModal: React.FC<ShareSessionModalProps> = ({
 
             <button
               onClick={handleDownloadImage}
+              aria-label="Download share image"
               className="flex flex-col items-center justify-center gap-2 py-3 px-4 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 hover:text-white rounded-xl transition-all border border-slate-700/30"
             >
               <Download className="w-5 h-5" />

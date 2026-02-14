@@ -26,6 +26,8 @@ export const Navigation: React.FC<NavigationProps> = ({ activeTab, onTabChange }
             <button
               key={id}
               onClick={() => onTabChange(id)}
+              aria-label={`View ${label}`}
+              aria-current={activeTab === id ? 'page' : undefined}
               className={`flex flex-col items-center justify-center w-16 h-16 transition-colors duration-200 ${
                 activeTab === id
                   ? 'text-indigo-400'
@@ -52,6 +54,8 @@ export const Navigation: React.FC<NavigationProps> = ({ activeTab, onTabChange }
               <div key={id} className="flex-1 max-w-[120px]">
                 <button
                   onClick={() => onTabChange(id)}
+                  aria-label={`View ${label}`}
+                  aria-current={activeTab === id ? 'page' : undefined}
                   className={`w-full flex items-center justify-center px-3 py-3 rounded-xl transition-all duration-300 font-medium text-sm ${
                     activeTab === id
                       ? 'bg-gradient-to-r from-indigo-500/30 to-purple-500/30 text-indigo-300 shadow-lg border border-indigo-400/30'

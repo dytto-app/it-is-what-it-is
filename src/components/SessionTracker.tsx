@@ -104,6 +104,7 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
         <div className="mb-8 relative">
           <button
             onClick={handleButtonClick}
+            aria-label={activeSession ? 'End break session' : 'Start break session'}
             className={`group relative w-48 h-48 rounded-full backdrop-blur-xl border-4 transition-all duration-500 transform hover:scale-110 active:scale-95 overflow-hidden ${
               activeSession
                 ? 'bg-gradient-to-br from-red-500/20 via-pink-500/20 to-red-600/20 border-red-400/50 text-red-300 hover:from-red-500/30 hover:via-pink-500/30 hover:to-red-600/30 shadow-2xl shadow-red-500/25'

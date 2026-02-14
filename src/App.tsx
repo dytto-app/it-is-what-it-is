@@ -581,6 +581,7 @@ function App() {
             {/* Profile Button - Top Left within content */}
             <button
               onClick={() => setActiveTab(activeTab === 'profile' ? 'tracker' : 'profile')}
+              aria-label={activeTab === 'profile' ? 'Close profile' : 'View profile'}
               className={`absolute top-0 left-0 z-50 p-3 backdrop-blur-lg rounded-xl border transition-all duration-300 shadow-lg ${
                 activeTab === 'profile'
                   ? 'bg-indigo-500/20 border-indigo-400/40 text-indigo-300 hover:bg-indigo-500/30'
@@ -595,6 +596,7 @@ function App() {
               {/* Keyboard Shortcuts Button - Desktop Only */}
               <button
                 onClick={() => setShowShortcutsModal(true)}
+                aria-label="View keyboard shortcuts"
                 className="hidden md:flex p-3 backdrop-blur-lg rounded-xl border border-slate-600/30 text-slate-400 hover:text-indigo-300 hover:bg-indigo-500/10 hover:border-indigo-400/30 transition-all duration-300 shadow-lg"
                 title="Keyboard shortcuts (?)"
               >
@@ -604,6 +606,7 @@ function App() {
               {/* Sign Out Button */}
               <button
                 onClick={handleSignOut}
+                aria-label="Sign out of account"
                 className="p-3 backdrop-blur-lg rounded-xl border border-slate-600/30 text-slate-400 hover:text-red-300 hover:bg-red-500/10 hover:border-red-400/30 transition-all duration-300 shadow-lg"
                 title="Sign out"
               >
