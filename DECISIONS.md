@@ -4,6 +4,16 @@
 
 *None pending — all approved items shipped!*
 
+### ✅ Accessibility: aria-labels (#21)
+- **Priority:** Low (accessibility polish)
+- **Status:** Done — shipped in commit b296159 (2026-02-14)
+- **Details:**
+  - Added aria-labels to session start/stop button
+  - Navigation tabs now have aria-labels and aria-current
+  - Profile, sign out, and keyboard shortcuts buttons labeled
+  - Modal close buttons and share actions labeled
+  - Full screen reader compatibility for interactive elements
+
 ### ✅ CSV Export Option (#17)
 - **Priority:** Low (nice to have)
 - **Status:** Done — shipped in commit dc0e828 (2026-02-13)
