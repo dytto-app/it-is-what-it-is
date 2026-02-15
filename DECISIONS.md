@@ -4,6 +4,17 @@
 
 *None pending — all approved items shipped!*
 
+### ✅ Modal Focus Trap (#24)
+- **Priority:** Low (accessibility)
+- **Status:** Done — shipped in commit 61ff978 (2026-02-15)
+- **Details:**
+  - Created reusable `useFocusTrap` hook
+  - Tab/Shift+Tab cycles through modal elements only
+  - Focus moves to first element on modal open
+  - Focus restores to previous element on modal close
+  - Added proper ARIA attributes (role=dialog, aria-modal, aria-labelledby)
+  - Applied to KeyboardShortcutsModal and ShareSessionModal
+
 ### ✅ Accessibility: aria-labels (#21)
 - **Priority:** Low (accessibility polish)
 - **Status:** Done — shipped in commit b296159 (2026-02-14)
