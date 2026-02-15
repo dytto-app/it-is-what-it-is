@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { X, Share2, Twitter, Copy, Check, Download } from 'lucide-react';
 import { Session } from '../types';
 import { CalculationUtils } from '../utils/calculations';
+import { useFocusTrap } from '../utils/useFocusTrap';
 
 interface ShareSessionModalProps {
   session: Session;
@@ -17,6 +18,7 @@ export const ShareSessionModal: React.FC<ShareSessionModalProps> = ({
   const [copied, setCopied] = useState(false);
   const [imageGenerated, setImageGenerated] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const focusTrapRef = useFocusTrap(true);
 
   const earnings = session.earnings;
   const duration = session.duration;
@@ -178,8 +180,8 @@ export const ShareSessionModal: React.FC<ShareSessionModalProps> = ({
   const canShare = typeof navigator !== 'undefined' && navigator.share;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-      <div className="relative w-full max-w-md bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl border border-slate-700/50 shadow-2xl overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="share-modal-title">
+      <div ref={focusTrapRef} className="relative w-full max-w-md bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl border border-slate-700/50 shadow-2xl overflow-hidden">
         {/* Close button */}
         <button
           onClick={onClose}
@@ -191,7 +193,7 @@ export const ShareSessionModal: React.FC<ShareSessionModalProps> = ({
 
         {/* Header */}
         <div className="pt-6 pb-4 px-6 text-center">
-          <h2 className="text-2xl font-bold text-white mb-1">Session Complete!</h2>
+          <h2 id="share-modal-title" className="text-2xl font-bold text-white mb-1">Session Complete!</h2>
           <p className="text-slate-400 text-sm">Share your accomplishment</p>
         </div>
 

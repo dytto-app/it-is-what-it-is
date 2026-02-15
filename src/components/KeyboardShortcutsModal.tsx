@@ -1,5 +1,6 @@
 import React from 'react';
 import { X, Keyboard } from 'lucide-react';
+import { useFocusTrap } from '../utils/useFocusTrap';
 
 interface KeyboardShortcutsModalProps {
   isOpen: boolean;
@@ -7,6 +8,8 @@ interface KeyboardShortcutsModalProps {
 }
 
 export const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({ isOpen, onClose }) => {
+  const focusTrapRef = useFocusTrap(isOpen);
+
   if (!isOpen) return null;
 
   const shortcuts = [
@@ -20,22 +23,23 @@ export const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({ 
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="keyboard-shortcuts-title">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/70 backdrop-blur-sm"
         onClick={onClose}
+        aria-hidden="true"
       />
 
       {/* Modal */}
-      <div className="relative bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl border border-slate-700/50 shadow-2xl max-w-sm w-full p-6">
+      <div ref={focusTrapRef} className="relative bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl border border-slate-700/50 shadow-2xl max-w-sm w-full p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-indigo-500/20 rounded-lg">
               <Keyboard className="w-5 h-5 text-indigo-400" />
             </div>
-            <h3 className="text-lg font-semibold text-white">Keyboard Shortcuts</h3>
+            <h3 id="keyboard-shortcuts-title" className="text-lg font-semibold text-white">Keyboard Shortcuts</h3>
           </div>
           <button
             onClick={onClose}
