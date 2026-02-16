@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   Trophy, Lock, Star, Crown, Target, Clock, DollarSign, Sparkles,
   Award, Banknote, Briefcase, Calendar, Clock3, Clock4, Clock8, Clock12,
   Coffee, Diamond, Flame, Gauge, Gem, Moon, Mountain, Play, Sandwich,
   Shield, Sunrise, Timer, Utensils, Zap
 } from 'lucide-react';
-import { Achievement } from '../types';
+import { Achievement, Session } from '../types';
 import { AchievementUtils } from '../utils/achievements';
+import { CalculationUtils } from '../utils/calculations';
 
 // Icon map for achievement icons (avoids importing all lucide icons)
 const AchievementIcons: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -17,16 +18,163 @@ const AchievementIcons: Record<string, React.ComponentType<{ className?: string 
 
 interface AchievementsProps {
   achievements: Achievement[];
+  sessions?: Session[];
+  currentStreak?: number;
 }
 
 type CategoryType = 'all' | 'beginner' | 'sessions' | 'earnings' | 'time' | 'special';
 
-export const Achievements: React.FC<AchievementsProps> = ({ achievements }) => {
+export const Achievements: React.FC<AchievementsProps> = ({ achievements, sessions = [], currentStreak = 0 }) => {
   const [selectedCategory, setSelectedCategory] = useState<CategoryType>('all');
 
   const unlockedCount = achievements.filter(a => a.unlockedAt).length;
   const totalCount = achievements.length;
   const categories = AchievementUtils.getAchievementsByCategory(achievements);
+
+  // Calculate progress metrics from sessions
+  const progressMetrics = useMemo(() => {
+    const totalSessions = sessions.length;
+    const totalEarnings = sessions.reduce((sum, s) => sum + s.earnings, 0);
+    const totalTime = sessions.reduce((sum, s) => sum + s.duration, 0);
+    
+    // Calculate special achievement progress
+    const earlyBirdSessions = sessions.filter(s => s.startTime.getHours() < 8).length;
+    const nightOwlSessions = sessions.filter(s => s.startTime.getHours() >= 22).length;
+    const speedySessions = sessions.filter(s => s.duration < 30).length;
+    const marathonSessions = sessions.filter(s => s.duration > 1200).length;
+    const weekendSessions = sessions.filter(s => {
+      const day = s.startTime.getDay();
+      return day === 0 || day === 6;
+    }).length;
+    const workdaySessions = sessions.filter(s => {
+      const day = s.startTime.getDay();
+      return day >= 1 && day <= 5;
+    }).length;
+    const midnightSessions = sessions.filter(s => s.startTime.getHours() === 0).length;
+    const lunchSessions = sessions.filter(s => s.startTime.getHours() === 12).length;
+    
+    // Max sessions in a day
+    const sessionsByDay: { [key: string]: number } = {};
+    sessions.forEach(s => {
+      const dateKey = s.startTime.toDateString();
+      sessionsByDay[dateKey] = (sessionsByDay[dateKey] || 0) + 1;
+    });
+    const maxSessionsInDay = Math.max(...Object.values(sessionsByDay), 0);
+    
+    return {
+      totalSessions,
+      totalEarnings,
+      totalTime,
+      currentStreak,
+      earlyBirdSessions,
+      nightOwlSessions,
+      speedySessions,
+      marathonSessions,
+      weekendSessions,
+      workdaySessions,
+      midnightSessions,
+      lunchSessions,
+      maxSessionsInDay,
+    };
+  }, [sessions, currentStreak]);
+
+  // Get progress for a specific achievement
+  const getAchievementProgress = (achievement: Achievement): { current: number; target: number; percentage: number } | null => {
+    if (achievement.unlockedAt) return null; // Already unlocked, no progress needed
+    
+    let current = 0;
+    const target = achievement.threshold;
+    
+    // Map achievement IDs to their progress values
+    switch (achievement.id) {
+      // Session count achievements
+      case 'first-session':
+      case 'five-sessions':
+      case 'ten-sessions':
+      case 'twenty-five-sessions':
+      case 'fifty-sessions':
+      case 'hundred-sessions':
+      case 'two-fifty-sessions':
+      case 'five-hundred-sessions':
+        current = progressMetrics.totalSessions;
+        break;
+      
+      // Earnings achievements
+      case 'first-dollar':
+      case 'ten-dollars':
+      case 'fifty-dollars':
+      case 'hundred-dollars':
+      case 'five-hundred-dollars':
+      case 'thousand-dollars':
+        current = progressMetrics.totalEarnings;
+        break;
+      
+      // Time achievements
+      case 'fifteen-minutes':
+      case 'one-hour':
+      case 'five-hours':
+      case 'ten-hours':
+      case 'twenty-four-hours':
+        current = progressMetrics.totalTime;
+        break;
+      
+      // Streak achievements
+      case 'streak-3':
+      case 'streak-7':
+      case 'streak-14':
+      case 'streak-30':
+      case 'streak-100':
+        current = progressMetrics.currentStreak;
+        break;
+      
+      // Special achievements with numeric progress
+      case 'early-bird':
+        current = progressMetrics.earlyBirdSessions;
+        break;
+      case 'night-owl':
+        current = progressMetrics.nightOwlSessions;
+        break;
+      case 'speed-demon':
+        current = progressMetrics.speedySessions;
+        break;
+      case 'marathon-runner':
+        current = progressMetrics.marathonSessions;
+        break;
+      case 'weekend-warrior':
+        current = progressMetrics.weekendSessions;
+        break;
+      case 'workday-hero':
+        current = progressMetrics.workdaySessions;
+        break;
+      case 'midnight-warrior':
+        current = progressMetrics.midnightSessions;
+        break;
+      case 'lunch-break-legend':
+        current = progressMetrics.lunchSessions;
+        break;
+      case 'power-user':
+        current = progressMetrics.maxSessionsInDay;
+        break;
+      
+      default:
+        return null; // Can't track progress for this achievement
+    }
+    
+    const percentage = Math.min(100, (current / target) * 100);
+    return { current, target, percentage };
+  };
+
+  // Format progress display based on achievement type
+  const formatProgress = (achievement: Achievement, progress: { current: number; target: number }): string => {
+    switch (achievement.type) {
+      case 'earnings':
+        return `$${progress.current.toFixed(2)} / $${progress.target}`;
+      case 'time':
+        return `${CalculationUtils.formatDuration(progress.current)} / ${CalculationUtils.formatDuration(progress.target)}`;
+      default:
+        return `${Math.floor(progress.current)} / ${progress.target}`;
+    }
+  };
 
   const getDisplayedAchievements = () => {
     if (selectedCategory === 'all') return achievements;
@@ -273,6 +421,36 @@ export const Achievements: React.FC<AchievementsProps> = ({ achievements }) => {
                         </span>
                       </div>
                     )}
+
+                    {/* Progress bar for locked achievements */}
+                    {!isUnlocked && (() => {
+                      const progress = getAchievementProgress(achievement);
+                      if (!progress) return null;
+                      
+                      return (
+                        <div className="mt-4">
+                          <div className="flex items-center justify-between mb-1.5">
+                            <span className="text-xs text-slate-500">Progress</span>
+                            <span className="text-xs text-slate-400 font-medium">
+                              {formatProgress(achievement, progress)}
+                            </span>
+                          </div>
+                          <div className="w-full bg-black/40 rounded-full h-2 border border-slate-600/30">
+                            <div
+                              className="bg-gradient-to-r from-slate-500 to-slate-400 h-full rounded-full transition-all duration-500"
+                              style={{ width: `${progress.percentage}%` }}
+                            />
+                          </div>
+                          {progress.percentage > 0 && progress.percentage < 100 && (
+                            <p className="text-xs text-slate-500 mt-1.5">
+                              {progress.percentage >= 75 ? "Almost there!" : 
+                               progress.percentage >= 50 ? "Halfway there!" : 
+                               progress.percentage >= 25 ? "Good progress!" : "Keep going!"}
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
               </div>

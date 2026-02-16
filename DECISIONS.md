@@ -4,6 +4,19 @@
 
 *None pending — all approved items shipped!*
 
+### ✅ Skeleton Loading States (#28)
+- **Priority:** Low (UX polish)
+- **Status:** Done — shipped in commit 8b4bd4e (2026-02-16)
+- **Details:**
+  - Created Skeleton.tsx with reusable primitives (SkeletonPulse, SkeletonText, SkeletonCircle)
+  - Added AnalyticsSkeleton matching Analytics page structure with chart placeholders
+  - Added SessionHistorySkeleton with summary cards and session list
+  - Added AchievementsSkeleton with progress bar and category navigation
+  - Added LeaderboardSkeleton with entry cards and sort controls
+  - Added ProfileSkeleton with settings sections
+  - Each skeleton uses theme colors matching its page (emerald for history, yellow for achievements, etc.)
+  - Replaced generic LoadingSpinner with context-aware skeletons for all lazy-loaded components
+
 ### ✅ Modal Focus Trap (#24)
 - **Priority:** Low (accessibility)
 - **Status:** Done — shipped in commit 61ff978 (2026-02-15)

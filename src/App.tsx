@@ -551,7 +551,7 @@ function App() {
       case 'achievements':
         return (
           <Suspense fallback={<AchievementsSkeleton />}>
-            <Achievements achievements={achievements} />
+            <Achievements achievements={achievements} sessions={sessions} currentStreak={user.currentStreak} />
           </Suspense>
         );
       case 'leaderboard':
