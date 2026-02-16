@@ -13,6 +13,13 @@ import { Auth } from './components/Auth';
 import { Onboarding } from './components/Onboarding';
 import { LandingPage } from './components/LandingPage';
 import { LoadingSpinner } from './components/LoadingSpinner';
+import { 
+  AnalyticsSkeleton, 
+  SessionHistorySkeleton, 
+  AchievementsSkeleton, 
+  LeaderboardSkeleton, 
+  ProfileSkeleton 
+} from './components/Skeleton';
 import { ResetPassword } from './components/ResetPassword';
 import { ShareSessionModal } from './components/ShareSessionModal';
 import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
@@ -531,31 +538,31 @@ function App() {
         );
       case 'analytics':
         return (
-          <Suspense fallback={<LoadingSpinner />}>
+          <Suspense fallback={<AnalyticsSkeleton />}>
             <Analytics sessions={sessions} />
           </Suspense>
         );
       case 'history':
         return (
-          <Suspense fallback={<LoadingSpinner />}>
+          <Suspense fallback={<SessionHistorySkeleton />}>
             <SessionHistory sessions={sessions} onExport={handleExportData} />
           </Suspense>
         );
       case 'achievements':
         return (
-          <Suspense fallback={<LoadingSpinner />}>
+          <Suspense fallback={<AchievementsSkeleton />}>
             <Achievements achievements={achievements} />
           </Suspense>
         );
       case 'leaderboard':
         return (
-          <Suspense fallback={<LoadingSpinner />}>
+          <Suspense fallback={<LeaderboardSkeleton />}>
             <Leaderboard entries={[]} currentUserId={user.id} />
           </Suspense>
         );
       case 'profile':
         return (
-          <Suspense fallback={<LoadingSpinner />}>
+          <Suspense fallback={<ProfileSkeleton />}>
             <Profile
               user={user}
               onUpdateUser={handleUpdateUser}
