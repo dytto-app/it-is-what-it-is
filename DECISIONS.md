@@ -4,6 +4,16 @@
 
 *None pending — all approved items shipped!*
 
+### ✅ Achievement Progress Bars (#26)
+- **Priority:** Low (UX polish)
+- **Status:** Done — shipped in commit ff5e368 (2026-02-16)
+- **Details:**
+  - Calculate progress metrics from sessions (counts, earnings, time, streak)
+  - Show progress bars for all trackable achievements (sessions, earnings, time, streak, special)
+  - Format progress display based on achievement type ($X / $Y, Xh Ym / Yh, X / Y)
+  - Show encouraging messages at milestones (25%, 50%, 75%)
+  - Subtle gradient progress bar that visually indicates completion
+
 ### ✅ Skeleton Loading States (#28)
 - **Priority:** Low (UX polish)
 - **Status:** Done — shipped in commit 8b4bd4e (2026-02-16)
