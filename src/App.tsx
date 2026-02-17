@@ -117,7 +117,27 @@ function App() {
           ...achievement,
           unlockedAt: unlockedAchievementIds.includes(achievement.id) ? new Date() : undefined
         }));
-        setAchievements(achievementsWithStatus);
+        
+        // Check and unlock achievements based on existing sessions (retroactive unlock)
+        const checkedAchievements = AchievementUtils.checkAchievements(
+          userSessions, 
+          achievementsWithStatus, 
+          userProfile.currentStreak
+        );
+        
+        // Save any newly unlocked achievements
+        const newlyUnlocked = checkedAchievements.filter(
+          a => a.unlockedAt && !unlockedAchievementIds.includes(a.id)
+        );
+        for (const achievement of newlyUnlocked) {
+          try {
+            await DatabaseUtils.unlockAchievement(userProfile.id, achievement.id);
+          } catch (err) {
+            console.error('Failed to unlock achievement on init:', err);
+          }
+        }
+        
+        setAchievements(checkedAchievements);
 
         // Restore active session if any — close if stale (>30 min)
         const foundActiveSession = userSessions.find(s => s.isActive);
