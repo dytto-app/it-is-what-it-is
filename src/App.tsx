@@ -23,6 +23,7 @@ import {
 import { ResetPassword } from './components/ResetPassword';
 import { ShareSessionModal } from './components/ShareSessionModal';
 import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
+import { OfflineIndicator } from './components/OfflineIndicator';
 import { supabase } from './utils/supabase';
 import { Analytics as GA } from './utils/analytics';
 
@@ -579,6 +580,9 @@ function App() {
 
   return (
     <div className="min-h-screen bg-black">
+      {/* Offline indicator */}
+      <OfflineIndicator />
+      
       <div className="container mx-auto pb-20 md:pb-6">
         {/* Enhanced Header */}
         <div className="text-center py-8 px-4 relative">
