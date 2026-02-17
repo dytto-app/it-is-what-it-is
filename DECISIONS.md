@@ -4,6 +4,28 @@
 
 *None pending — all approved items shipped!*
 
+### ✅ PWA Install Prompt Banner (#25)
+- **Priority:** Low-Medium (growth)
+- **Status:** Done — shipped in commit 9d0129c (2026-02-17)
+- **Details:**
+  - Created InstallPrompt component with beforeinstallprompt listener
+  - Shows banner after user completes 2+ sessions
+  - Respects user dismissal (stored in localStorage)
+  - Detects if already installed (display-mode: standalone)
+  - Tracks install events via GA
+  - Gradient design matching app aesthetic
+  - Smooth slide-up animation
+
+### ✅ Offline Indicator for PWA (#22)
+- **Priority:** Low (UX polish)
+- **Status:** Done — shipped in commit c914b50 (2026-02-17)
+- **Details:**
+  - Created OfflineIndicator component
+  - Shows amber banner when offline: "You're offline — data will sync when connected"
+  - Shows green banner briefly when back online: "Back online — syncing..."
+  - Auto-hides after reconnection
+  - Uses z-index 100 to appear above all content
+
 ### ✅ Achievement Progress Bars (#26)
 - **Priority:** Low (UX polish)
 - **Status:** Done — shipped in commit ff5e368 (2026-02-16)
