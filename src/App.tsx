@@ -24,6 +24,7 @@ import { ResetPassword } from './components/ResetPassword';
 import { ShareSessionModal } from './components/ShareSessionModal';
 import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
 import { OfflineIndicator } from './components/OfflineIndicator';
+import { InstallPrompt } from './components/InstallPrompt';
 import { supabase } from './utils/supabase';
 import { Analytics as GA } from './utils/analytics';
 
@@ -680,6 +681,9 @@ function App() {
         isOpen={showShortcutsModal}
         onClose={() => setShowShortcutsModal(false)}
       />
+
+      {/* PWA install prompt */}
+      <InstallPrompt sessionCount={sessions.filter(s => !s.isActive).length} />
     </div>
   );
 }
