@@ -13,6 +13,12 @@ interface PlatformStats {
   total_earnings: number;
 }
 
+interface RecentActivity {
+  users_this_week: number;
+  sessions_today: number;
+  earnings_today: number;
+}
+
 // Animated counter component
 const AnimatedCounter: React.FC<{ value: number; prefix?: string; suffix?: string; decimals?: number; duration?: number }> = ({ 
   value, 
@@ -62,6 +68,7 @@ const AnimatedCounter: React.FC<{ value: number; prefix?: string; suffix?: strin
 export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
   const [stats, setStats] = useState<PlatformStats | null>(null);
   const [statsLoaded, setStatsLoaded] = useState(false);
+  const [recentActivity, setRecentActivity] = useState<RecentActivity | null>(null);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -80,7 +87,20 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
       }
     };
 
+    const fetchRecentActivity = async () => {
+      try {
+        const { data, error } = await supabase.rpc('get_recent_activity');
+        if (error) return; // Graceful — RPC may not exist yet on older deploys
+        if (data && data[0]) {
+          setRecentActivity(data[0]);
+        }
+      } catch {
+        // Silently fail — not critical
+      }
+    };
+
     fetchStats();
+    fetchRecentActivity();
   }, []);
   return (
     <div className="min-h-screen bg-black text-white overflow-x-hidden">
@@ -283,11 +303,30 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
       <section className="py-24 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-blue-500/10 backdrop-blur-xl rounded-3xl p-12 border border-indigo-500/20 shadow-2xl text-center">
-            <h2 className="text-3xl font-bold mb-8">
+            <h2 className="text-3xl font-bold mb-4">
               <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
                 Join the Movement
               </span>
             </h2>
+
+            {/* Recent activity pulse — creates FOMO */}
+            {recentActivity && (recentActivity.users_this_week > 0 || recentActivity.sessions_today > 0) && (
+              <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
+                {recentActivity.users_this_week > 0 && (
+                  <span className="inline-flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-400/30 text-emerald-300 text-xs font-medium px-3 py-1.5 rounded-full">
+                    <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+                    {recentActivity.users_this_week} joined this week
+                  </span>
+                )}
+                {recentActivity.sessions_today > 0 && (
+                  <span className="inline-flex items-center gap-1.5 bg-blue-500/10 border border-blue-400/30 text-blue-300 text-xs font-medium px-3 py-1.5 rounded-full">
+                    <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" />
+                    {recentActivity.sessions_today} sessions tracked today
+                  </span>
+                )}
+              </div>
+            )}
+
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
               <div className="text-center">
                 <Users className="w-8 h-8 text-indigo-400 mx-auto mb-3" />
