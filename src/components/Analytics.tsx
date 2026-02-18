@@ -1,15 +1,21 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from 'recharts';
-import { TrendingUp, Clock, DollarSign, Target, BarChart3, Sparkles } from 'lucide-react';
+import { TrendingUp, Clock, DollarSign, Target, BarChart3, Sparkles, Lightbulb } from 'lucide-react';
 import { Session } from '../types';
 import { CalculationUtils } from '../utils/calculations';
 
 interface AnalyticsProps {
   sessions: Session[];
+  currentStreak?: number;
+  longestStreak?: number;
 }
 
-export const Analytics: React.FC<AnalyticsProps> = ({ sessions }) => {
+export const Analytics: React.FC<AnalyticsProps> = ({ sessions, currentStreak = 0, longestStreak = 0 }) => {
   const analytics = CalculationUtils.generateAnalytics(sessions);
+  const insights = useMemo(
+    () => CalculationUtils.generateInsights(sessions, currentStreak, longestStreak),
+    [sessions, currentStreak, longestStreak]
+  );
 
   // Prepare hourly data for the chart
   const hourlyData = Array.from({ length: 24 }, (_, hour) => {
@@ -169,27 +175,44 @@ export const Analytics: React.FC<AnalyticsProps> = ({ sessions }) => {
         </div>
       </div>
 
-      {/* Insights section */}
-      <div className="bg-gradient-to-br from-black/60 to-black/40 backdrop-blur-xl rounded-3xl p-8 border border-slate-500/20 shadow-2xl">
-        <h3 className="text-2xl font-bold bg-gradient-to-r from-slate-200 to-slate-100 bg-clip-text text-transparent mb-6">
-          Quick Insights
-        </h3>
-        <div className="grid grid-cols-1 gap-4">
-          <div className="bg-black/30 backdrop-blur-lg rounded-2xl p-4 border border-slate-600/30">
-            <div className="flex items-center justify-between">
-              <span className="text-slate-300">Most productive hour</span>
-              <span className="text-indigo-400 font-semibold">
-                {analytics.topHour}:00
-              </span>
-            </div>
+      {/* Smart Insights section */}
+      <div className="bg-gradient-to-br from-black/60 to-black/40 backdrop-blur-xl rounded-3xl p-8 border border-yellow-500/20 shadow-2xl">
+        <div className="flex items-center mb-6">
+          <div className="p-2 bg-yellow-500/20 rounded-xl mr-3">
+            <Lightbulb className="w-6 h-6 text-yellow-400" />
           </div>
-          <div className="bg-black/30 backdrop-blur-lg rounded-2xl p-4 border border-slate-600/30">
-            <div className="flex items-center justify-between">
-              <span className="text-slate-300">Monthly total</span>
-              <span className="text-emerald-400 font-semibold">
-                {CalculationUtils.formatCurrency(analytics.monthlyTotal)}
-              </span>
-            </div>
+          <h3 className="text-2xl font-bold bg-gradient-to-r from-yellow-400 to-amber-300 bg-clip-text text-transparent">
+            Your Patterns
+          </h3>
+        </div>
+
+        {insights.length === 0 ? (
+          <p className="text-slate-400 text-sm text-center py-4">
+            Track a few more sessions to unlock personal insights ✨
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 gap-3">
+            {insights.map((insight, i) => (
+              <div
+                key={i}
+                className="bg-black/30 backdrop-blur-lg rounded-2xl p-4 border border-yellow-500/10 hover:border-yellow-500/30 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl flex-shrink-0">{insight.emoji}</span>
+                  <span className="text-slate-200 text-sm font-medium leading-snug">{insight.text}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Static fallback: monthly total always useful */}
+        <div className="mt-4 bg-black/20 rounded-2xl p-4 border border-slate-600/20">
+          <div className="flex items-center justify-between">
+            <span className="text-slate-400 text-sm">This month's total</span>
+            <span className="text-emerald-400 font-semibold text-sm">
+              {CalculationUtils.formatCurrency(analytics.monthlyTotal)}
+            </span>
           </div>
         </div>
       </div>

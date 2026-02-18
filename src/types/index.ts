@@ -54,3 +54,9 @@ export interface Analytics {
   totalSessions: number;
   topHour: number;
 }
+
+export interface Insight {
+  emoji: string;
+  text: string;
+  category: 'timing' | 'earnings' | 'consistency' | 'milestone';
+}

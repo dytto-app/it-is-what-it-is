@@ -25,6 +25,7 @@ import { ShareSessionModal } from './components/ShareSessionModal';
 import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { InstallPrompt } from './components/InstallPrompt';
+import { WelcomeBackModal } from './components/WelcomeBackModal';
 import { supabase } from './utils/supabase';
 import { Analytics as GA } from './utils/analytics';
 
@@ -561,7 +562,11 @@ function App() {
       case 'analytics':
         return (
           <Suspense fallback={<AnalyticsSkeleton />}>
-            <Analytics sessions={sessions} />
+            <Analytics
+              sessions={sessions}
+              currentStreak={user.currentStreak}
+              longestStreak={user.longestStreak}
+            />
           </Suspense>
         );
       case 'history':
@@ -704,6 +709,16 @@ function App() {
 
       {/* PWA install prompt */}
       <InstallPrompt sessionCount={sessions.filter(s => !s.isActive).length} />
+
+      {/* Welcome back modal for dormant users */}
+      {user && (
+        <WelcomeBackModal
+          user={user}
+          sessions={sessions}
+          onDismiss={() => {}}
+          onStartSession={() => setActiveTab('tracker')}
+        />
+      )}
     </div>
   );
 }
