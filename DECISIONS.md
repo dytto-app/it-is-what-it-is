@@ -2,7 +2,28 @@
 
 ## Approved (Do These)
 
-*None pending — all approved items shipped!*
+### ⏳ Deploy Supabase migration 025_recent_activity (#32)
+- **Priority:** Low (quick manual step)
+- **Status:** Migration written, needs `supabase db push` to prod
+- **Details:** `get_recent_activity()` RPC. Landing page gracefully degrades until this is applied.
+
+### ✅ Recent Activity Stats on Landing (#23)
+- **Priority:** Medium (growth/marketing)
+- **Status:** Done — shipped in commit 58d8b7a (2026-02-18)
+- **Details:**
+  - Added Supabase migration 025_recent_activity.sql with get_recent_activity() RPC
+  - Landing page fetches users_this_week and sessions_today
+  - Shows animated pulse badges ("X joined this week", "Y sessions today") above stats
+  - Graceful degradation if migration not yet deployed
+
+### ✅ Smart Session Insights + Welcome Back Modal (#31, #30)
+- **Priority:** Medium (engagement/retention)
+- **Status:** Done — shipped in commit ae00ac2 (2026-02-18)
+- **Details:**
+  - generateInsights() in calculations.ts: peak hour, best day, avg earnings, monthly pace, 7-day consistency, streak proximity, weekday/weekend split
+  - Analytics "Your Patterns" card shows up to 3 personalized insights
+  - WelcomeBackModal: shows on login after 3+ days away, estimates missed earnings, prompts re-engagement
+  - Inspired by arxiv:2602.13134 (Awakening Dormant Users) + arxiv:2602.15012 (Cold-Start Personalization)
 
 ### ✅ PWA Install Prompt Banner (#25)
 - **Priority:** Low-Medium (growth)
