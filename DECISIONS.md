@@ -7,6 +7,37 @@
 - **Status:** Migration written, needs `supabase db push` to prod
 - **Details:** `get_recent_activity()` RPC. Landing page gracefully degrades until this is applied.
 
+### 🔲 Session History Pagination (#94)
+- **Priority:** Medium (data visibility)
+- **Status:** Done — shipped in commit 8446688 (2026-02-19)
+- **Details:** Shows 10 sessions per page with Prev/Next. Previously capped at 6 sessions visible.
+
+### 🔲 Streak Freeze (#92)
+- **Priority:** Medium (retention)
+- **Status:** Issue created, not started
+- **Details:** Let users protect streaks with freeze mechanic (like Duolingo). Earn freezes via milestones.
+
+### 🔲 Push Notifications (#95)
+- **Priority:** High (retention)
+- **Status:** Issue created, not started
+- **Details:** Web Push API, streak-at-risk alerts first. PWA service worker already in place.
+
+### 🔲 Referral System (#96)
+- **Priority:** Medium (growth)
+- **Status:** Issue created, not started
+- **Details:** Unique referral codes, rewards for both referrer and new user.
+- **Priority:** Low (quick manual step)
+- **Status:** Migration written, needs `supabase db push` to prod
+- **Details:** `get_recent_activity()` RPC. Landing page gracefully degrades until this is applied.
+
+### ✅ Bug fixes: Delete All Data, Auth Flash, Active Session Warning (2026-02-19)
+- **Priority:** High (trust, UX)
+- **Status:** Done — shipped in commit 2c0acb5 (2026-02-19)
+- **Details:**
+  - Fixed #84: Delete All Data now actually deletes sessions, achievements, cosmetics from Supabase
+  - Fixed #91: Auth loading state prevents landing page flash for returning users
+  - Fixed #89: beforeunload warning when navigating away with active session
+
 ### ✅ Recent Activity Stats on Landing (#23)
 - **Priority:** Medium (growth/marketing)
 - **Status:** Done — shipped in commit 58d8b7a (2026-02-18)
