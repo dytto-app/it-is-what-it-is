@@ -54,6 +54,7 @@ function App() {
   };
   const [currentTime, setCurrentTime] = useState(Date.now());
   const [authUserId, setAuthUserId] = useState<string | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const [showAuth, setShowAuth] = useState(false);
   const [authDefaultLogin, setAuthDefaultLogin] = useState(true);
   const [resetPasswordToken, setResetPasswordToken] = useState<string | null>(null);
@@ -78,6 +79,7 @@ function App() {
       if (data.session?.user) {
         setAuthUserId(data.session.user.id);
       }
+      setAuthLoading(false);
     };
 
     checkAuth();
@@ -93,6 +95,20 @@ function App() {
 
     return () => subscription?.unsubscribe();
   }, []);
+
+  // Warn user before leaving with an active session (#89)
+  useEffect(() => {
+    if (!activeSession) return;
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = 'You have an active break session. Leaving now will stop your timer.';
+      return e.returnValue;
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [activeSession]);
 
   // Initialize user and load data from Supabase
   useEffect(() => {
@@ -452,11 +468,20 @@ function App() {
   };
 
   const handleClearData = async () => {
+    if (!authUserId) return;
+    try {
+      // Actually delete all user data from Supabase (sessions, achievements, cosmetics, reset profile)
+      await DatabaseUtils.deleteAllUserData(authUserId);
+    } catch (error) {
+      console.error('Failed to delete user data:', error);
+      // Still sign out even if deletion fails
+    }
     await supabase.auth.signOut();
     setAuthUserId(null);
     setUser(null);
     setSessions([]);
     setActiveSession(null);
+    setAchievements([]);
   };
 
   // Calculate current session stats - ensure non-negative values
@@ -488,6 +513,15 @@ function App() {
           window.history.replaceState({}, '', '/');
         }}
       />
+    );
+  }
+
+  // Show nothing (blank screen) while we check auth to avoid landing page flash (#91)
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <LoadingSpinner />
+      </div>
     );
   }
 

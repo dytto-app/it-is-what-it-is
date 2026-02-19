@@ -347,6 +347,43 @@ export const DatabaseUtils = {
     if (error) throw new Error(`Failed to equip cosmetics: ${error.message}`);
   },
 
+  // ===== DATA DELETION =====
+  async deleteAllUserData(userId: string): Promise<void> {
+    // Delete in order: user_achievements, user_equipped_cosmetics, user_cosmetics, sessions
+    // (profile stays for auth; we reset it instead)
+    const deletions = [
+      supabase.from('user_achievements').delete().eq('user_id', userId),
+      supabase.from('user_equipped_cosmetics').delete().eq('user_id', userId),
+      supabase.from('user_cosmetics').delete().eq('user_id', userId),
+      supabase.from('sessions').delete().eq('user_id', userId),
+    ];
+
+    const results = await Promise.all(deletions);
+    for (const { error } of results) {
+      if (error) throw new Error(`Failed to delete user data: ${error.message}`);
+    }
+
+    // Reset profile to defaults (keep id/email for auth, clear everything else)
+    const { error: resetError } = await supabase
+      .from('profiles')
+      .update({
+        nickname: null,
+        hourly_wage: 0,
+        salary: 0,
+        salary_period: 'weekly',
+        onboarded: false,
+        show_on_leaderboard: false,
+        current_streak: 0,
+        longest_streak: 0,
+        last_session_date: null,
+        recovery_email: null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', userId);
+
+    if (resetError) throw new Error(`Failed to reset profile: ${resetError.message}`);
+  },
+
   // ===== STREAK OPERATIONS =====
   async updateStreak(userId: string): Promise<{ currentStreak: number; longestStreak: number; streakContinued: boolean }> {
     // Call the database function that handles streak logic
