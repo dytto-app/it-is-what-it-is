@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Download, Calendar, Clock, DollarSign, History, Sparkles, TrendingUp, Filter, Search, Zap, Target } from 'lucide-react';
+import { Download, Calendar, Clock, DollarSign, History, Sparkles, TrendingUp, Filter, Search, Zap, Target, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Session } from '../types';
 import { CalculationUtils } from '../utils/calculations';
 
@@ -11,10 +11,13 @@ interface SessionHistoryProps {
 type SortOption = 'date' | 'duration' | 'earnings' | 'efficiency';
 type FilterOption = 'all' | 'today' | 'week' | 'month';
 
+const SESSIONS_PER_PAGE = 10;
+
 export const SessionHistory: React.FC<SessionHistoryProps> = ({ sessions, onExport }) => {
   const [filter, setFilter] = useState<FilterOption>('all');
   const [sortBy, setSortBy] = useState<SortOption>('date');
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
   const filterSessions = (sessions: Session[], filter: FilterOption): Session[] => {
     const now = new Date();
@@ -68,6 +71,14 @@ export const SessionHistory: React.FC<SessionHistoryProps> = ({ sessions, onExpo
     return sortSessions(result, sortBy);
   }, [sessions, filter, sortBy, searchTerm]);
 
+  // Reset to page 1 when filter/sort/search changes
+  const totalPages = Math.max(1, Math.ceil(filteredAndSortedSessions.length / SESSIONS_PER_PAGE));
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedSessions = filteredAndSortedSessions.slice(
+    (safePage - 1) * SESSIONS_PER_PAGE,
+    safePage * SESSIONS_PER_PAGE
+  );
+
   const stats = useMemo(() => {
     const totalEarnings = filteredAndSortedSessions.reduce((sum, s) => sum + s.earnings, 0);
     const totalTime = filteredAndSortedSessions.reduce((sum, s) => sum + s.duration, 0);
@@ -87,8 +98,10 @@ export const SessionHistory: React.FC<SessionHistoryProps> = ({ sessions, onExpo
     };
   }, [filteredAndSortedSessions]);
 
-  // Prepare data for recent sessions display
-  const recentSessions = filteredAndSortedSessions.slice(0, 6);
+  // Reset page when filters change
+  const handleFilterChange = (f: FilterOption) => { setFilter(f); setCurrentPage(1); };
+  const handleSortChange = (s: SortOption) => { setSortBy(s); setCurrentPage(1); };
+  const handleSearchChange = (s: string) => { setSearchTerm(s); setCurrentPage(1); };
 
   return (
     <div className="space-y-6">
@@ -226,7 +239,7 @@ export const SessionHistory: React.FC<SessionHistoryProps> = ({ sessions, onExpo
                 type="text"
                 placeholder="Search sessions..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => handleSearchChange(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 bg-black/40 backdrop-blur-xl rounded-2xl border border-slate-500/20 text-white placeholder-slate-400 focus:outline-none focus:border-emerald-400/50 transition-all duration-300"
               />
             </div>
@@ -241,7 +254,7 @@ export const SessionHistory: React.FC<SessionHistoryProps> = ({ sessions, onExpo
               ].map(({ key, label }) => (
                 <button
                   key={key}
-                  onClick={() => setFilter(key as FilterOption)}
+                  onClick={() => handleFilterChange(key as FilterOption)}
                   className={`flex items-center justify-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-300 ${
                     filter === key
                       ? 'bg-gradient-to-r from-emerald-500/30 to-teal-500/30 text-emerald-300 border border-emerald-400/40 shadow-lg shadow-emerald-500/20'
@@ -263,7 +276,7 @@ export const SessionHistory: React.FC<SessionHistoryProps> = ({ sessions, onExpo
               ].map(({ key, label, icon: Icon }) => (
                 <button
                   key={key}
-                  onClick={() => setSortBy(key as SortOption)}
+                  onClick={() => handleSortChange(key as SortOption)}
                   className={`flex items-center justify-center px-4 py-3 rounded-xl transition-all duration-300 ${
                     sortBy === key
                       ? 'bg-gradient-to-r from-teal-500/30 to-cyan-500/30 text-teal-300 border border-teal-400/40'
@@ -303,12 +316,19 @@ export const SessionHistory: React.FC<SessionHistoryProps> = ({ sessions, onExpo
           <div className="p-2 bg-emerald-500/20 rounded-xl mr-3">
             <History className="w-6 h-6 text-emerald-400" />
           </div>
-          <h3 className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
-            Recent Sessions
-          </h3>
+          <div className="flex-1">
+            <h3 className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+              Sessions
+            </h3>
+            {filteredAndSortedSessions.length > 0 && (
+              <p className="text-slate-400 text-sm mt-1">
+                Showing {(safePage - 1) * SESSIONS_PER_PAGE + 1}–{Math.min(safePage * SESSIONS_PER_PAGE, filteredAndSortedSessions.length)} of {filteredAndSortedSessions.length}
+              </p>
+            )}
+          </div>
         </div>
         
-        {recentSessions.length === 0 ? (
+        {paginatedSessions.length === 0 ? (
           <div className="text-center py-12">
             <Calendar className="w-16 h-16 text-slate-500 mx-auto mb-6" />
             <p className="text-slate-400 text-lg mb-2">No sessions found</p>
@@ -318,9 +338,10 @@ export const SessionHistory: React.FC<SessionHistoryProps> = ({ sessions, onExpo
           </div>
         ) : (
           <div className="space-y-4">
-            {recentSessions.map((session, index) => {
+            {paginatedSessions.map((session, index) => {
+              const globalIndex = (safePage - 1) * SESSIONS_PER_PAGE + index;
               const efficiency = session.duration > 0 ? session.earnings / (session.duration / 3600) : 0;
-              const isTopPerformer = index < 3;
+              const isTopPerformer = globalIndex < 3;
 
               return (
                 <div
@@ -350,7 +371,7 @@ export const SessionHistory: React.FC<SessionHistoryProps> = ({ sessions, onExpo
                     </div>
                     {isTopPerformer && (
                       <div className="text-xs text-emerald-400 font-bold">
-                        #{index + 1}
+                        #{globalIndex + 1}
                       </div>
                     )}
                   </div>
@@ -393,6 +414,31 @@ export const SessionHistory: React.FC<SessionHistoryProps> = ({ sessions, onExpo
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {/* Pagination controls */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-700/40">
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={safePage <= 1}
+              className="flex items-center gap-2 px-4 py-2 bg-black/30 rounded-xl border border-slate-600/30 text-slate-300 hover:text-white hover:border-emerald-400/40 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              Prev
+            </button>
+            <span className="text-slate-400 text-sm">
+              Page {safePage} of {totalPages}
+            </span>
+            <button
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={safePage >= totalPages}
+              className="flex items-center gap-2 px-4 py-2 bg-black/30 rounded-xl border border-slate-600/30 text-slate-300 hover:text-white hover:border-emerald-400/40 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            >
+              Next
+              <ChevronRight className="w-4 h-4" />
+            </button>
           </div>
         )}
       </div>
