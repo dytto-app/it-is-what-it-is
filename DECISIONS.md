@@ -2,6 +2,25 @@
 
 ## Approved (Do These)
 
+### ✅ First-Time User Tutorial (#34)
+- **Priority:** Medium (retention)
+- **Status:** Done — shipped in commit ad0aeb0 (2026-02-20)
+- **Details:**
+  - Created TutorialModal component with 3-step walkthrough
+  - Shows after salary onboarding completion
+  - Tracks completion in localStorage (shows once per user)
+  - Mobile-friendly carousel with progress dots
+  - Analytics event tracking for tutorial completion
+  - Reduces cold-start churn by setting clear expectations
+
+### ✅ Tech Debt: Remove Dead Leaderboard Prop (#35)
+- **Priority:** Low (cleanup)
+- **Status:** Done — shipped in commit 346e304 (2026-02-20)
+- **Details:**
+  - Removed unused `entries` prop from LeaderboardProps interface
+  - Cleaned up App.tsx to remove `entries={[]}` call
+  - Leaderboard fetches its own data; prop was never used
+
 ### ⏳ Deploy Supabase migration 025_recent_activity (#32)
 - **Priority:** Low (quick manual step)
 - **Status:** Migration written, needs `supabase db push` to prod
