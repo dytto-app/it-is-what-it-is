@@ -2,6 +2,57 @@
 
 ## Approved (Do These)
 
+### ✅ Streak Freeze (#92)
+- **Priority:** Medium (retention)
+- **Status:** Done — shipped in commit 2f5b0ff (2026-02-20)
+- **Details:**
+  - Migration 026_streak_freeze.sql: adds `streak_freezes` column to profiles
+  - SQL: `update_user_streak()` now consumes a freeze when user misses exactly 1 day
+  - Users earn a freeze at 7, 14, 30, 100-day streak milestones
+  - Returns `freeze_consumed` / `freeze_granted` flags from RPC
+  - SessionTracker: 🧊 badge shows freeze count next to 🔥 streak counter
+  - Achievements page: freeze count + milestone hints
+  - GA events for freeze earned/used
+  - **Pending:** `supabase db push` needed to activate (issue #41)
+
+### ✅ Fix: GA4 Placeholder (#7)
+- **Priority:** Low (analytics)
+- **Status:** Done — shipped in commit 2426323 (2026-02-20)
+- **Details:**
+  - index.html now uses `%VITE_GA_MEASUREMENT_ID%` (Vite HTML env injection)
+  - Loads GA dynamically only if env var is set; silently no-ops otherwise
+  - **Action needed:** Add `VITE_GA_MEASUREMENT_ID=G-XXXXXXXXXX` to Netlify env vars
+
+### ✅ Fix Lint Errors (#82)
+- **Priority:** Low (cleanup)
+- **Status:** Done — shipped in commit 2f5b0ff (2026-02-20)
+- **Details:**
+  - `prefer-const` error in calculations.ts fixed (`let weekBuckets` → `const`)
+  - `react-hooks/exhaustive-deps` warning suppressed with eslint-disable comment
+
+### ⏳ Deploy Supabase migrations 025 + 026 (#41)
+- **Priority:** High (activates features)
+- **Status:** Migrations written, needs `supabase db push` to prod
+- **Details:**
+  - 025: `get_recent_activity()` RPC — landing page social proof
+  - 026: `streak_freezes` column + updated streak function — activates streak freeze feature
+  - **Action needed:** Run `supabase db push` from the repo root
+
+### 🔲 Push Notifications (#8)
+- **Priority:** High (retention)
+- **Status:** Issue open, not started
+- **Details:** Web Push API, streak-at-risk alerts first. PWA service worker already in place.
+
+### 🔲 Weekly Earnings Summary (#42)
+- **Priority:** Medium (retention + shareability)
+- **Status:** Issue created (2026-02-20), not started
+- **Details:** Monday morning recap modal — total earned, best session, streak, shareable card
+
+### 🔲 Streak Freeze Celebration (#40)
+- **Priority:** Low (polish)
+- **Status:** Issue created (2026-02-20), not started
+- **Details:** Blue/cyan confetti burst + toast notification when freeze is earned at milestone
+
 ### ✅ First-Time User Tutorial (#34)
 - **Priority:** Medium (retention)
 - **Status:** Done — shipped in commit ad0aeb0 (2026-02-20)
@@ -21,9 +72,9 @@
   - Cleaned up App.tsx to remove `entries={[]}` call
   - Leaderboard fetches its own data; prop was never used
 
-### ⏳ Deploy Supabase migration 025_recent_activity (#32)
+### ⏳ Deploy Supabase migration 025_recent_activity (#32) — see #41
 - **Priority:** Low (quick manual step)
-- **Status:** Migration written, needs `supabase db push` to prod
+- **Status:** Migration written, needs `supabase db push` to prod — now combined with 026 in issue #41
 - **Details:** `get_recent_activity()` RPC. Landing page gracefully degrades until this is applied.
 
 ### 🔲 Session History Pagination (#94)
