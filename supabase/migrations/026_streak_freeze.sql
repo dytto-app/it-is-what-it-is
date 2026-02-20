@@ -5,8 +5,10 @@
 -- 1. Add streak_freezes column
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS streak_freezes INTEGER NOT NULL DEFAULT 0;
 
--- 2. Replace update_user_streak to support freeze mechanics
-CREATE OR REPLACE FUNCTION update_user_streak(p_user_id UUID)
+-- 2. Drop and recreate update_user_streak (return type is changing — new columns added)
+DROP FUNCTION IF EXISTS update_user_streak(UUID);
+
+CREATE FUNCTION update_user_streak(p_user_id UUID)
 RETURNS TABLE (
   current_streak INTEGER,
   longest_streak INTEGER,
