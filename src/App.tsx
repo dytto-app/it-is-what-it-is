@@ -618,7 +618,7 @@ function App() {
       case 'leaderboard':
         return (
           <Suspense fallback={<LeaderboardSkeleton />}>
-            <Leaderboard entries={[]} currentUserId={user.id} />
+            <Leaderboard currentUserId={user.id} />
           </Suspense>
         );
       case 'profile':

@@ -6,7 +6,6 @@ import { DatabaseUtils } from '../utils/database';
 import { supabase } from '../utils/supabase';
 
 interface LeaderboardProps {
-  entries: LeaderboardEntry[];
   currentUserId: string;
   onPurchaseCosmetic?: (cosmeticId: string) => Promise<void>;
   userOwnedCosmetics?: string[];
@@ -45,7 +44,7 @@ const COSMETICS = {
   ]
 };
 
-export const Leaderboard: React.FC<LeaderboardProps> = ({ entries: initialEntries, currentUserId }) => {
+export const Leaderboard: React.FC<LeaderboardProps> = ({ currentUserId }) => {
   const [sortBy, setSortBy] = useState<'earnings' | 'time' | 'sessions'>('earnings');
   const [timeFrame, setTimeFrame] = useState<'daily' | 'weekly' | 'alltime'>('weekly');
   const [showCosmetics, setShowCosmetics] = useState(false);
@@ -53,7 +52,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ entries: initialEntrie
   const [purchasingId, setPurchasingId] = useState<string | null>(null);
   const [userOwnedCosmetics, setUserOwnedCosmetics] = useState<string[]>([]);
   const [equippedCosmetics, setEquippedCosmetics] = useState<{ frame: string; badge: string; title: string }>({ frame: 'default', badge: 'none', title: 'none' });
-  const [entries, setEntries] = useState<LeaderboardEntry[]>(initialEntries);
+  const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [equipLoading, setEquipLoading] = useState(false);
 
   // Load user cosmetics on mount and handle payment success
