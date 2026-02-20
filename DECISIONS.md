@@ -13,7 +13,7 @@
   - SessionTracker: 🧊 badge shows freeze count next to 🔥 streak counter
   - Achievements page: freeze count + milestone hints
   - GA events for freeze earned/used
-  - **Pending:** `supabase db push` needed to activate (issue #41)
+  - Migration deployed to prod on 2026-02-20 ✅
 
 ### ✅ Fix: GA4 Placeholder (#7)
 - **Priority:** Low (analytics)
@@ -30,13 +30,12 @@
   - `prefer-const` error in calculations.ts fixed (`let weekBuckets` → `const`)
   - `react-hooks/exhaustive-deps` warning suppressed with eslint-disable comment
 
-### ⏳ Deploy Supabase migrations 025 + 026 (#41)
+### ✅ Deploy Supabase migrations 025 + 026 (#41)
 - **Priority:** High (activates features)
-- **Status:** Migrations written, needs `supabase db push` to prod
+- **Status:** Done — both pushed to prod (2026-02-20)
 - **Details:**
-  - 025: `get_recent_activity()` RPC — landing page social proof
-  - 026: `streak_freezes` column + updated streak function — activates streak freeze feature
-  - **Action needed:** Run `supabase db push` from the repo root
+  - 025: already applied — `get_recent_activity()` RPC live, landing page social proof works
+  - 026: pushed today — `streak_freezes` column + updated streak function — streak freeze fully live
 
 ### 🔲 Push Notifications (#8)
 - **Priority:** High (retention)
@@ -72,10 +71,10 @@
   - Cleaned up App.tsx to remove `entries={[]}` call
   - Leaderboard fetches its own data; prop was never used
 
-### ⏳ Deploy Supabase migration 025_recent_activity (#32) — see #41
+### ✅ Deploy Supabase migration 025_recent_activity (#32)
 - **Priority:** Low (quick manual step)
-- **Status:** Migration written, needs `supabase db push` to prod — now combined with 026 in issue #41
-- **Details:** `get_recent_activity()` RPC. Landing page gracefully degrades until this is applied.
+- **Status:** Done — was already deployed to prod (confirmed 2026-02-20)
+- **Details:** `get_recent_activity()` RPC is live. Landing page social proof stats are active.
 
 ### 🔲 Session History Pagination (#94)
 - **Priority:** Medium (data visibility)
