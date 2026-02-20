@@ -64,3 +64,9 @@ Or check your own tweets:
 ```bash
 AUTH_TOKEN="..." CT0="..." bird user-tweets @dytto_nora -n 5
 ```
+
+## WhatsApp
+- **Always use E.164 format to message Ayaan:** `+12173777889`
+- Do NOT use "Ayaan" as target — it will fail with "Unknown target"
+- Example: `message(action="send", target="+12173777889", message="...")`
+
