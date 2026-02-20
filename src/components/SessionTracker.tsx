@@ -64,14 +64,25 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
       </div>
 
       <div className="relative z-10 w-full max-w-sm mx-auto text-center">
-        {/* Streak indicator */}
-        {user.currentStreak > 0 && (
-          <div className="mb-4">
-            <div className="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold backdrop-blur-lg border bg-gradient-to-r from-orange-500/20 to-amber-500/20 border-orange-400/40 text-orange-300 shadow-lg shadow-orange-500/10">
-              <Flame className="w-4 h-4 mr-2 text-orange-400" />
-              {user.currentStreak} day streak
-              {user.currentStreak >= 7 && <span className="ml-1">🔥</span>}
-            </div>
+        {/* Streak + Freeze indicators */}
+        {(user.currentStreak > 0 || (user.streakFreezes || 0) > 0) && (
+          <div className="mb-4 flex items-center justify-center gap-2 flex-wrap">
+            {user.currentStreak > 0 && (
+              <div className="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold backdrop-blur-lg border bg-gradient-to-r from-orange-500/20 to-amber-500/20 border-orange-400/40 text-orange-300 shadow-lg shadow-orange-500/10">
+                <Flame className="w-4 h-4 mr-2 text-orange-400" />
+                {user.currentStreak} day streak
+                {user.currentStreak >= 7 && <span className="ml-1">🔥</span>}
+              </div>
+            )}
+            {(user.streakFreezes || 0) > 0 && (
+              <div
+                className="inline-flex items-center px-3 py-2 rounded-full text-sm font-semibold backdrop-blur-lg border bg-gradient-to-r from-cyan-500/20 to-sky-500/20 border-cyan-400/40 text-cyan-300 shadow-lg shadow-cyan-500/10"
+                title="Streak freeze — protects your streak if you miss a day"
+              >
+                <span className="mr-1.5">🧊</span>
+                {user.streakFreezes}
+              </div>
+            )}
           </div>
         )}
 

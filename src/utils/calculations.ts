@@ -146,7 +146,7 @@ export const CalculationUtils = {
     if (prevWeekSessions.length >= 2) {
       const prevWeekTotal = prevWeekSessions.reduce((s, x) => s + x.earnings, 0);
       // Check if it was the best week
-      let weekBuckets: Record<string, number> = {};
+      const weekBuckets: Record<string, number> = {};
       completedSessions.forEach(s => {
         const wk = new Date(s.startTime);
         wk.setDate(wk.getDate() - wk.getDay());

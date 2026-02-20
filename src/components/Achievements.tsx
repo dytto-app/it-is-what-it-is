@@ -20,11 +20,12 @@ interface AchievementsProps {
   achievements: Achievement[];
   sessions?: Session[];
   currentStreak?: number;
+  streakFreezes?: number;
 }
 
 type CategoryType = 'all' | 'beginner' | 'sessions' | 'earnings' | 'time' | 'special';
 
-export const Achievements: React.FC<AchievementsProps> = ({ achievements, sessions = [], currentStreak = 0 }) => {
+export const Achievements: React.FC<AchievementsProps> = ({ achievements, sessions = [], currentStreak = 0, streakFreezes = 0 }) => {
   const [selectedCategory, setSelectedCategory] = useState<CategoryType>('all');
 
   const unlockedCount = achievements.filter(a => a.unlockedAt).length;
@@ -280,6 +281,19 @@ export const Achievements: React.FC<AchievementsProps> = ({ achievements, sessio
               {Math.round((unlockedCount / totalCount) * 100)}% Complete
             </div>
           </div>
+
+          {/* Streak Freeze badge */}
+          {streakFreezes > 0 && (
+            <div className="mt-5 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-400/30 text-cyan-300 text-sm font-medium">
+              <span>🧊</span>
+              <span>{streakFreezes} streak freeze{streakFreezes !== 1 ? 's' : ''} — miss a day and keep your streak</span>
+            </div>
+          )}
+          {streakFreezes === 0 && (
+            <p className="mt-4 text-slate-500 text-xs">
+              🧊 Earn streak freezes at 7, 14, 30 &amp; 100-day milestones
+            </p>
+          )}
         </div>
       </div>
 

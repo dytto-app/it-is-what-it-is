@@ -11,6 +11,7 @@ export interface User {
   currentStreak: number;
   longestStreak: number;
   lastSessionDate?: Date;
+  streakFreezes: number;
 }
 
 export interface Session {

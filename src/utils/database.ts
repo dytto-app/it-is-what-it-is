@@ -32,7 +32,8 @@ export const DatabaseUtils = {
       recoveryEmail: data.recovery_email || undefined,
       currentStreak: data.current_streak || 0,
       longestStreak: data.longest_streak || 0,
-      lastSessionDate: data.last_session_date ? new Date(data.last_session_date) : undefined
+      lastSessionDate: data.last_session_date ? new Date(data.last_session_date) : undefined,
+      streakFreezes: data.streak_freezes || 0
     };
   },
 
@@ -376,6 +377,7 @@ export const DatabaseUtils = {
         current_streak: 0,
         longest_streak: 0,
         last_session_date: null,
+        streak_freezes: 0,
         recovery_email: null,
         updated_at: new Date().toISOString(),
       })
@@ -385,21 +387,44 @@ export const DatabaseUtils = {
   },
 
   // ===== STREAK OPERATIONS =====
-  async updateStreak(userId: string): Promise<{ currentStreak: number; longestStreak: number; streakContinued: boolean }> {
+  async updateStreak(userId: string): Promise<{
+    currentStreak: number;
+    longestStreak: number;
+    streakContinued: boolean;
+    freezeConsumed: boolean;
+    freezeGranted: boolean;
+    streakFreezes: number;
+  }> {
     // Call the database function that handles streak logic
     const { data, error } = await supabase.rpc('update_user_streak', { p_user_id: userId });
 
     if (error) {
       console.error('Failed to update streak:', error);
-      // Return default values on error
-      return { currentStreak: 0, longestStreak: 0, streakContinued: false };
+      return { currentStreak: 0, longestStreak: 0, streakContinued: false, freezeConsumed: false, freezeGranted: false, streakFreezes: 0 };
     }
 
-    const result = data?.[0] || { current_streak: 0, longest_streak: 0, streak_continued: false };
+    const result = data?.[0] || {
+      current_streak: 0,
+      longest_streak: 0,
+      streak_continued: false,
+      freeze_consumed: false,
+      freeze_granted: false
+    };
+
+    // Fetch updated freeze count from profile
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('streak_freezes')
+      .eq('id', userId)
+      .single();
+
     return {
       currentStreak: result.current_streak,
       longestStreak: result.longest_streak,
-      streakContinued: result.streak_continued
+      streakContinued: result.streak_continued,
+      freezeConsumed: result.freeze_consumed || false,
+      freezeGranted: result.freeze_granted || false,
+      streakFreezes: profileData?.streak_freezes || 0
     };
   }
 };

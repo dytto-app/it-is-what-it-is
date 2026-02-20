@@ -266,6 +266,7 @@ function App() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, activeTab, activeSession, completedSession, showShortcutsModal]);
 
   // Check achievements only after a session is completed (not on every render)
@@ -364,12 +365,13 @@ function App() {
       // Update streak after session ends
       const streakResult = await DatabaseUtils.updateStreak(user.id);
       
-      // Update user state with new streak values
+      // Update user state with new streak values (including freeze count)
       setUser(prevUser => prevUser ? {
         ...prevUser,
         currentStreak: streakResult.currentStreak,
         longestStreak: streakResult.longestStreak,
-        lastSessionDate: new Date()
+        lastSessionDate: new Date(),
+        streakFreezes: streakResult.streakFreezes
       } : null);
 
       const finishedSession: Session = {
@@ -394,6 +396,13 @@ function App() {
         earnings: finishedSession.earnings,
         streak: streakResult.currentStreak,
       });
+
+      if (streakResult.freezeGranted) {
+        GA.event('Streak Freeze Earned', { streak: streakResult.currentStreak });
+      }
+      if (streakResult.freezeConsumed) {
+        GA.event('Streak Freeze Used', { streak: streakResult.currentStreak });
+      }
 
       // Check achievements after session completion (including streak achievements)
       checkAndUpdateAchievements(updatedSessions, streakResult.currentStreak);
@@ -620,7 +629,7 @@ function App() {
       case 'achievements':
         return (
           <Suspense fallback={<AchievementsSkeleton />}>
-            <Achievements achievements={achievements} sessions={sessions} currentStreak={user.currentStreak} />
+            <Achievements achievements={achievements} sessions={sessions} currentStreak={user.currentStreak} streakFreezes={user.streakFreezes || 0} />
           </Suspense>
         );
       case 'leaderboard':
