@@ -26,6 +26,7 @@ import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { InstallPrompt } from './components/InstallPrompt';
 import { WelcomeBackModal } from './components/WelcomeBackModal';
+import { TutorialModal } from './components/TutorialModal';
 import { supabase } from './utils/supabase';
 import { Analytics as GA } from './utils/analytics';
 
@@ -60,6 +61,7 @@ function App() {
   const [resetPasswordToken, setResetPasswordToken] = useState<string | null>(null);
   const [completedSession, setCompletedSession] = useState<Session | null>(null);
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
   const handleSessionEndRef = useRef<(() => void) | null>(null);
 
@@ -570,6 +572,12 @@ function App() {
             await DatabaseUtils.updateUser(updatedUser);
             setUser(updatedUser);
             GA.event('Onboarding Completed', { salaryPeriod });
+            
+            // Show tutorial after onboarding (check if not shown before)
+            const tutorialShown = localStorage.getItem('tutorialShown');
+            if (!tutorialShown) {
+              setShowTutorial(true);
+            }
           } catch (error) {
             console.error('Failed to save onboarding:', error);
             throw error;
@@ -751,6 +759,17 @@ function App() {
           sessions={sessions}
           onDismiss={() => {}}
           onStartSession={() => setActiveTab('tracker')}
+        />
+      )}
+
+      {/* Tutorial modal for first-time users */}
+      {showTutorial && (
+        <TutorialModal
+          onClose={() => {
+            setShowTutorial(false);
+            localStorage.setItem('tutorialShown', 'true');
+            GA.event('Tutorial Completed', {});
+          }}
         />
       )}
     </div>
