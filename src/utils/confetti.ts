@@ -138,6 +138,47 @@ export function celebrateAchievement(rarity: Rarity = 'common') {
   }
 }
 
+// Streak freeze celebration — cyan/blue burst when freeze is earned at a milestone
+export function celebrateStreakFreeze() {
+  const colors = ['#22d3ee', '#67e8f9', '#38bdf8', '#818cf8', '#a5f3fc'];
+
+  // Main burst from center
+  void confetti({
+    particleCount: 60,
+    spread: 80,
+    origin: { y: 0.6 },
+    colors,
+    startVelocity: 35,
+    gravity: 0.9,
+    decay: 0.93,
+    disableForReducedMotion: true,
+  });
+
+  // Side icicles
+  setTimeout(() => {
+    void confetti({
+      particleCount: 30,
+      angle: 60,
+      spread: 50,
+      origin: { x: 0, y: 0.65 },
+      colors,
+      gravity: 0.8,
+      startVelocity: 28,
+      disableForReducedMotion: true,
+    });
+    void confetti({
+      particleCount: 30,
+      angle: 120,
+      spread: 50,
+      origin: { x: 1, y: 0.65 },
+      colors,
+      gravity: 0.8,
+      startVelocity: 28,
+      disableForReducedMotion: true,
+    });
+  }, 180);
+}
+
 // Multi-achievement celebration (when multiple unlock at once)
 export function celebrateMultipleAchievements(count: number) {
   // Stagger celebrations

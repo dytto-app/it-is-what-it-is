@@ -5,8 +5,9 @@ import { User, Session, Achievement } from './types';
 import { DatabaseUtils } from './utils/database';
 import { CalculationUtils } from './utils/calculations';
 import { AchievementUtils } from './utils/achievements';
-import { celebrateAchievement, celebrateMultipleAchievements, getAchievementRarity } from './utils/confetti';
+import { celebrateAchievement, celebrateMultipleAchievements, celebrateStreakFreeze, getAchievementRarity } from './utils/confetti';
 import { Haptics } from './utils/haptics';
+import { NotificationUtils } from './utils/notifications';
 import { SessionTracker } from './components/SessionTracker';
 import { Navigation } from './components/Navigation';
 import { Auth } from './components/Auth';
@@ -27,10 +28,20 @@ import { OfflineIndicator } from './components/OfflineIndicator';
 import { InstallPrompt } from './components/InstallPrompt';
 import { WelcomeBackModal } from './components/WelcomeBackModal';
 import { TutorialModal } from './components/TutorialModal';
+import { WeeklySummaryModal } from './components/WeeklySummaryModal';
 import { supabase } from './utils/supabase';
 import { Analytics as GA } from './utils/analytics';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+
+// ISO week number helper
+function getISOWeek(date: Date): number {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+}
 
 // Lazy load heavy components (Analytics uses recharts which is ~400KB)
 const Analytics = lazy(() => import('./components/Analytics').then(m => ({ default: m.Analytics })));
@@ -63,6 +74,7 @@ function App() {
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
+  const [showWeeklySummary, setShowWeeklySummary] = useState(false);
   const handleSessionEndRef = useRef<(() => void) | null>(null);
 
   // Check for password reset token in URL
@@ -177,6 +189,36 @@ function App() {
 
     initializeApp();
   }, [authUserId]);
+
+  // Weekly summary: show on Mondays (or any day) once per week if user has last-week sessions
+  useEffect(() => {
+    if (!user || sessions.length === 0) return;
+
+    const now = new Date();
+    const weekKey = `weeklySummaryShown_${now.getFullYear()}_W${getISOWeek(now)}`;
+    const alreadyShown = localStorage.getItem(weekKey);
+    if (alreadyShown) return;
+
+    // Show on Mondays (day 1), or if there are sessions from last week
+    const dayOfWeek = now.getDay(); // 0=Sun, 1=Mon
+    if (dayOfWeek !== 1) return; // only on Mondays
+
+    // Check if there are sessions from last week
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const daysSinceMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+    const thisMonday = new Date(today.getTime() - daysSinceMonday * 24 * 60 * 60 * 1000);
+    const lastMonday = new Date(thisMonday.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+    const lastWeekSessions = sessions.filter(s => {
+      const t = s.startTime instanceof Date ? s.startTime : new Date(s.startTime);
+      return t >= lastMonday && t < thisMonday;
+    });
+
+    if (lastWeekSessions.length === 0) return;
+
+    setShowWeeklySummary(true);
+    localStorage.setItem(weekKey, 'true');
+  }, [user, sessions]);
 
   // Timer for active session — uses ref to avoid stale closure
   useEffect(() => {
@@ -399,9 +441,16 @@ function App() {
 
       if (streakResult.freezeGranted) {
         GA.event('Streak Freeze Earned', { streak: streakResult.currentStreak });
+        celebrateStreakFreeze();
       }
       if (streakResult.freezeConsumed) {
         GA.event('Streak Freeze Used', { streak: streakResult.currentStreak });
+      }
+
+      // Session completed — cancel today's streak reminder (already done), schedule for tomorrow
+      NotificationUtils.cancelStreakReminder();
+      if (streakResult.currentStreak > 0) {
+        NotificationUtils.scheduleStreakReminder(streakResult.currentStreak);
       }
 
       // Check achievements after session completion (including streak achievements)
@@ -778,6 +827,18 @@ function App() {
             setShowTutorial(false);
             localStorage.setItem('tutorialShown', 'true');
             GA.event('Tutorial Completed', {});
+          }}
+        />
+      )}
+
+      {/* Weekly earnings summary — Monday morning recap */}
+      {showWeeklySummary && user && (
+        <WeeklySummaryModal
+          user={user}
+          sessions={sessions}
+          onClose={() => {
+            setShowWeeklySummary(false);
+            GA.event('Weekly Summary Dismissed', {});
           }}
         />
       )}
