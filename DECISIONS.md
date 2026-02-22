@@ -255,7 +255,24 @@
 
 ## Pending (Need Ayaan's Input)
 
-*None*
+*None currently.*
+
+## Up Next (Approved for Future Sessions)
+
+### 🔲 Referral System (#99 / #96 / #76)
+- **Priority:** Medium (growth)
+- **Status:** Detailed spec filed as #99
+- **Details:** Unique referral codes, share link, cosmetic reward for both sides. DB schema ready to design.
+
+### 🔲 Daily Challenge (#101 / #93 / #77)
+- **Priority:** Medium-High (retention)
+- **Status:** Spec filed as #101, not started
+- **Details:** 3 rotating daily challenges (seeded by date), completion → confetti + cosmetic drop
+
+### 🔲 Sentry Error Monitoring (#100 / #58)
+- **Priority:** Medium (infrastructure)
+- **Status:** Spec filed as #100, not started
+- **Details:** @sentry/react, wrap in ErrorBoundary, free tier plenty for early stage
 
 ## Completed
 
