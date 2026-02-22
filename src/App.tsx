@@ -29,6 +29,7 @@ import { InstallPrompt } from './components/InstallPrompt';
 import { WelcomeBackModal } from './components/WelcomeBackModal';
 import { TutorialModal } from './components/TutorialModal';
 import { WeeklySummaryModal } from './components/WeeklySummaryModal';
+import { NotificationPrompt } from './components/NotificationPrompt';
 import { supabase } from './utils/supabase';
 import { Analytics as GA } from './utils/analytics';
 
@@ -75,7 +76,10 @@ function App() {
   const [showTutorial, setShowTutorial] = useState(false);
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
   const [showWeeklySummary, setShowWeeklySummary] = useState(false);
+  const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
   const handleSessionEndRef = useRef<(() => void) | null>(null);
+
+  const NOTIF_PROMPT_KEY = 'notifPromptShown';
 
   // Check for password reset token in URL
   useEffect(() => {
@@ -169,6 +173,18 @@ function App() {
         }
         
         setAchievements(checkedAchievements);
+
+        // Schedule streak reminder on app load if user has a streak but no session today yet
+        if (userProfile.currentStreak > 0 && NotificationUtils.isEnabled() && NotificationUtils.getPermission() === 'granted') {
+          const todayStr = new Date().toDateString();
+          const hasTodaySession = userSessions.some(s => {
+            const d = s.startTime instanceof Date ? s.startTime : new Date(s.startTime);
+            return d.toDateString() === todayStr;
+          });
+          if (!hasTodaySession) {
+            NotificationUtils.scheduleStreakReminder(userProfile.currentStreak);
+          }
+        }
 
         // Restore active session if any — close if stale (>30 min)
         const foundActiveSession = userSessions.find(s => s.isActive);
@@ -797,7 +813,19 @@ function App() {
         <ShareSessionModal
           session={completedSession}
           currentStreak={user.currentStreak}
-          onClose={() => setCompletedSession(null)}
+          onClose={() => {
+            setCompletedSession(null);
+            // After share modal — offer notification opt-in if:
+            //   • never asked before
+            //   • not already enabled
+            //   • permission not denied
+            const alreadyAsked = localStorage.getItem(NOTIF_PROMPT_KEY);
+            const alreadyEnabled = NotificationUtils.isEnabled();
+            const permission = NotificationUtils.getPermission();
+            if (!alreadyAsked && !alreadyEnabled && permission !== 'denied' && permission !== 'unsupported') {
+              setShowNotificationPrompt(true);
+            }
+          }}
         />
       )}
 
@@ -827,6 +855,23 @@ function App() {
             setShowTutorial(false);
             localStorage.setItem('tutorialShown', 'true');
             GA.event('Tutorial Completed', {});
+          }}
+        />
+      )}
+
+      {/* Notification opt-in prompt — shown once after first session if not already enabled */}
+      {showNotificationPrompt && user && (
+        <NotificationPrompt
+          streakDays={user.currentStreak || 1}
+          onAccept={() => {
+            localStorage.setItem(NOTIF_PROMPT_KEY, 'true');
+            setShowNotificationPrompt(false);
+            GA.event('Notifications Enabled via Prompt', { streak: user.currentStreak });
+          }}
+          onDismiss={() => {
+            localStorage.setItem(NOTIF_PROMPT_KEY, 'true');
+            setShowNotificationPrompt(false);
+            GA.event('Notifications Prompt Dismissed', { streak: user.currentStreak });
           }}
         />
       )}
