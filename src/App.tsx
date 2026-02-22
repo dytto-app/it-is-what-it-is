@@ -215,9 +215,10 @@ function App() {
     const alreadyShown = localStorage.getItem(weekKey);
     if (alreadyShown) return;
 
-    // Show on Mondays (day 1), or if there are sessions from last week
-    const dayOfWeek = now.getDay(); // 0=Sun, 1=Mon
-    if (dayOfWeek !== 1) return; // only on Mondays
+    // Show any day Mon–Sat (not Sunday — week boundary is ambiguous)
+    // The ISO week key prevents double-showing within the same week
+    const dayOfWeek = now.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+    if (dayOfWeek === 0) return; // skip Sunday
 
     // Check if there are sessions from last week
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { User, Settings, Trash2, Download, Eye, EyeOff, LogOut, Mail, Shield } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { User, Settings, Trash2, Download, Eye, EyeOff, LogOut, Mail, Shield, Bell, BellOff } from 'lucide-react';
 import { User as UserType } from '../types';
+import { NotificationUtils } from '../utils/notifications';
 
 interface ProfileProps {
   user: UserType;
@@ -19,6 +20,42 @@ export const Profile: React.FC<ProfileProps> = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [nickname, setNickname] = useState(user.nickname || '');
+  const [notifPermission, setNotifPermission] = useState<NotificationPermission | 'unsupported'>(() => NotificationUtils.getPermission());
+  const [notifEnabled, setNotifEnabled] = useState(() => NotificationUtils.isEnabled());
+
+  // Sync permission state if user changes it in browser settings
+  useEffect(() => {
+    const id = setInterval(() => {
+      setNotifPermission(NotificationUtils.getPermission());
+    }, 2000);
+    return () => clearInterval(id);
+  }, []);
+
+  const handleNotifToggle = async () => {
+    if (notifPermission === 'unsupported') return;
+
+    if (!notifEnabled) {
+      // Turning on — request permission if needed
+      const granted = await NotificationUtils.requestPermission();
+      if (!granted) {
+        setNotifPermission('denied');
+        return;
+      }
+      setNotifPermission('granted');
+      NotificationUtils.setEnabled(true);
+      setNotifEnabled(true);
+      // Test notification
+      NotificationUtils.show('Notifications enabled! 🎉', {
+        body: "You'll get a nudge if your streak is at risk.",
+        tag: 'backlog-test',
+      });
+    } else {
+      // Turning off
+      NotificationUtils.setEnabled(false);
+      setNotifEnabled(false);
+      NotificationUtils.cancelStreakReminder();
+    }
+  };
   const [salary, setSalary] = useState(user.salary.toString());
   const [salaryPeriod, setSalaryPeriod] = useState(user.salaryPeriod);
   const [showOnLeaderboard, setShowOnLeaderboard] = useState(user.showOnLeaderboard);
@@ -292,6 +329,41 @@ export const Profile: React.FC<ProfileProps> = ({
                 </div>
               )}
             </label>
+          </div>
+
+          {/* Notification settings */}
+          <div className="bg-black/30 backdrop-blur-lg rounded-2xl p-4 border border-slate-600/30 shadow-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-sm font-semibold text-slate-300">Streak Reminders</span>
+                <p className="text-xs text-slate-500 mt-1">
+                  {notifPermission === 'denied'
+                    ? 'Blocked — enable in browser settings'
+                    : notifPermission === 'unsupported'
+                    ? 'Not supported in this browser'
+                    : 'Daily nudge if you haven\'t taken a break yet'}
+                </p>
+              </div>
+              <button
+                onClick={handleNotifToggle}
+                disabled={notifPermission === 'denied' || notifPermission === 'unsupported'}
+                className={`relative w-14 h-7 rounded-full transition-all duration-300 shadow-lg disabled:opacity-40 disabled:cursor-not-allowed ${
+                  notifEnabled && notifPermission === 'granted'
+                    ? 'bg-gradient-to-r from-blue-500 to-cyan-500 shadow-blue-500/30'
+                    : 'bg-gradient-to-r from-slate-600 to-slate-700 shadow-slate-500/30'
+                }`}
+                aria-label="Toggle streak reminders"
+              >
+                <div className={`absolute top-0.5 w-6 h-6 bg-white rounded-full transition-all duration-300 shadow-lg flex items-center justify-center ${
+                  notifEnabled && notifPermission === 'granted' ? 'left-7' : 'left-0.5'
+                }`}>
+                  {notifEnabled && notifPermission === 'granted'
+                    ? <Bell className="w-3 h-3 text-blue-500" />
+                    : <BellOff className="w-3 h-3 text-slate-400" />
+                  }
+                </div>
+              </button>
+            </div>
           </div>
 
           {/* Save button */}

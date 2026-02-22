@@ -37,20 +37,35 @@
   - 025: already applied — `get_recent_activity()` RPC live, landing page social proof works
   - 026: pushed today — `streak_freezes` column + updated streak function — streak freeze fully live
 
-### 🔲 Push Notifications (#8)
+### ✅ Push Notifications (#8 / #74 / #95)
 - **Priority:** High (retention)
-- **Status:** Issue open, not started
-- **Details:** Web Push API, streak-at-risk alerts first. PWA service worker already in place.
+- **Status:** Done — shipped in commit 25c02c6 (2026-02-22)
+- **Details:**
+  - Contextual NotificationPrompt component: appears after share modal, once per user, streak-aware copy
+  - Shows only if: not asked before, permission not denied, not already enabled
+  - On accept: requests permission → enables → schedules tomorrow's streak reminder
+  - On dismiss: marked as seen, suppressed permanently
+  - On app init: schedules reminder if user has streak but no session yet today
+  - Profile settings toggle already existed; this closes the discovery gap
+  - All events tracked via GA (Notifications Enabled via Prompt, Prompt Dismissed)
 
-### 🔲 Weekly Earnings Summary (#42)
+### ✅ Weekly Earnings Summary (#42)
 - **Priority:** Medium (retention + shareability)
-- **Status:** Issue created (2026-02-20), not started
-- **Details:** Monday morning recap modal — total earned, best session, streak, shareable card
+- **Status:** Done — shipped in commit f978c3a (2026-02-22)
+- **Details:**
+  - WeeklySummaryModal: last week's total earnings, time, sessions, streak
+  - Best break highlight, peak day stat, fun commentary line
+  - Shows on Mondays when user has last-week sessions (once per week via localStorage)
+  - Share button uses Web Share API with clipboard fallback
+  - getISOWeek helper to key the seen-state per calendar week
 
-### 🔲 Streak Freeze Celebration (#40)
+### ✅ Streak Freeze Celebration (#40)
 - **Priority:** Low (polish)
-- **Status:** Issue created (2026-02-20), not started
-- **Details:** Blue/cyan confetti burst + toast notification when freeze is earned at milestone
+- **Status:** Done — shipped in commit a9db842 (2026-02-22)
+- **Details:**
+  - Added celebrateStreakFreeze() to confetti.ts — cyan/blue color scheme, side icicle effect
+  - Fires from handleSessionEnd when streakResult.freezeGranted is true
+  - Visual metaphor matches the 🧊 freeze badge
 
 ### ✅ First-Time User Tutorial (#34)
 - **Priority:** Medium (retention)
