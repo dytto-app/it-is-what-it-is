@@ -30,6 +30,7 @@ import { WelcomeBackModal } from './components/WelcomeBackModal';
 import { TutorialModal } from './components/TutorialModal';
 import { WeeklySummaryModal } from './components/WeeklySummaryModal';
 import { NotificationPrompt } from './components/NotificationPrompt';
+import { DailyChallenges } from './components/DailyChallenges';
 import { supabase } from './utils/supabase';
 import { Analytics as GA } from './utils/analytics';
 
@@ -666,15 +667,21 @@ function App() {
     switch (activeTab) {
       case 'tracker':
         return (
-          <SessionTracker
-            user={user}
-            activeSession={activeSession}
-            onSessionStart={handleSessionStart}
-            onSessionEnd={handleSessionEnd}
-            currentEarnings={currentEarnings}
-            currentDuration={currentDuration}
-            cooldownRemaining={cooldownRemaining}
-          />
+          <>
+            <SessionTracker
+              user={user}
+              activeSession={activeSession}
+              onSessionStart={handleSessionStart}
+              onSessionEnd={handleSessionEnd}
+              currentEarnings={currentEarnings}
+              currentDuration={currentDuration}
+              cooldownRemaining={cooldownRemaining}
+            />
+            <DailyChallenges
+              sessions={sessions}
+              currentStreak={user.currentStreak}
+            />
+          </>
         );
       case 'analytics':
         return (
