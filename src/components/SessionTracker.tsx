@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Play, Square, DollarSign, Clock, Sparkles, Flame } from 'lucide-react';
 import { Session, User } from '../types';
 import { CalculationUtils } from '../utils/calculations';
+import confetti from 'canvas-confetti';
 
 const MAX_SESSION_DURATION = 30 * 60; // 30 minutes in seconds
 
@@ -13,7 +14,56 @@ interface SessionTrackerProps {
   currentEarnings: number;
   currentDuration: number;
   cooldownRemaining?: number;
+  /** Today's completed session earnings (not including current active session) */
+  todayEarnings?: number;
 }
+
+/** Circular progress ring for daily goal */
+const GoalRing: React.FC<{ progress: number; goalCents: number; earnedCents: number }> = ({ progress, goalCents, earnedCents }) => {
+  const r = 30;
+  const circumference = 2 * Math.PI * r;
+  const dashOffset = circumference * (1 - Math.min(1, progress));
+  const complete = progress >= 1;
+
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <div className="relative w-20 h-20">
+        <svg className="w-full h-full -rotate-90" viewBox="0 0 72 72">
+          {/* Track */}
+          <circle
+            cx="36" cy="36" r={r}
+            fill="none"
+            stroke="rgba(255,255,255,0.08)"
+            strokeWidth="6"
+          />
+          {/* Progress */}
+          <circle
+            cx="36" cy="36" r={r}
+            fill="none"
+            stroke={complete ? '#34d399' : '#818cf8'}
+            strokeWidth="6"
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={dashOffset}
+            style={{ transition: 'stroke-dashoffset 0.8s ease' }}
+          />
+        </svg>
+        {/* Center label */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className={`text-xs font-bold tabular-nums ${complete ? 'text-emerald-400' : 'text-slate-300'}`}>
+            {complete ? '✓' : `${Math.round(progress * 100)}%`}
+          </span>
+        </div>
+      </div>
+      <div className="text-center">
+        <div className="text-xs text-slate-500">daily goal</div>
+        <div className={`text-xs font-semibold tabular-nums ${complete ? 'text-emerald-400' : 'text-slate-400'}`}>
+          ${(earnedCents / 100).toFixed(2)} / ${(goalCents / 100).toFixed(2)}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export const SessionTracker: React.FC<SessionTrackerProps> = ({
   user,
@@ -22,10 +72,12 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
   onSessionEnd,
   currentEarnings,
   currentDuration,
-  cooldownRemaining = 0
+  cooldownRemaining = 0,
+  todayEarnings = 0,
 }) => {
   const [animate, setAnimate] = useState(false);
   const [ripples, setRipples] = useState<Array<{ id: number; x: number; y: number }>>([]);
+  const goalCelebrated = useRef(false);
 
   useEffect(() => {
     if (activeSession) {
@@ -34,6 +86,23 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
       return () => clearInterval(interval);
     }
   }, [activeSession]);
+
+  // Celebrate when daily goal is first reached
+  const goalCents = user.dailyGoalCents ?? null;
+  const totalTodayCents = Math.round((todayEarnings + currentEarnings) * 100);
+  const goalProgress = goalCents ? totalTodayCents / goalCents : 0;
+
+  useEffect(() => {
+    if (!goalCents || goalCelebrated.current) return;
+    if (totalTodayCents >= goalCents) {
+      goalCelebrated.current = true;
+      // Goal reached — green confetti burst
+      confetti({ particleCount: 80, spread: 80, origin: { y: 0.6 }, colors: ['#34d399', '#6ee7b7', '#a7f3d0'] });
+      setTimeout(() => {
+        confetti({ particleCount: 50, spread: 60, origin: { y: 0.5 }, colors: ['#34d399', '#10b981', '#6ee7b7'] });
+      }, 300);
+    }
+  }, [totalTodayCents, goalCents]);
 
   const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -83,6 +152,17 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
                 {user.streakFreezes}
               </div>
             )}
+          </div>
+        )}
+
+        {/* Daily goal ring — shown only if user set a goal */}
+        {goalCents && (
+          <div className="mb-4 flex justify-center">
+            <GoalRing
+              progress={goalProgress}
+              goalCents={goalCents}
+              earnedCents={totalTodayCents}
+            />
           </div>
         )}
 

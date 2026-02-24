@@ -60,6 +60,9 @@ export const Profile: React.FC<ProfileProps> = ({
   const [salaryPeriod, setSalaryPeriod] = useState(user.salaryPeriod);
   const [showOnLeaderboard, setShowOnLeaderboard] = useState(user.showOnLeaderboard);
   const [recoveryEmail, setRecoveryEmail] = useState(user.recoveryEmail || '');
+  const [dailyGoal, setDailyGoal] = useState(
+    user.dailyGoalCents ? (user.dailyGoalCents / 100).toFixed(2) : ''
+  );
 
   const calculateHourlyRate = (salaryAmount: number, freq: string): number => {
     switch (freq) {
@@ -103,6 +106,11 @@ export const Profile: React.FC<ProfileProps> = ({
       return;
     }
 
+    const parsedGoal = parseFloat(dailyGoal);
+    const dailyGoalCents = !isNaN(parsedGoal) && parsedGoal > 0
+      ? Math.round(parsedGoal * 100)
+      : null;
+
     onUpdateUser({
       ...user,
       nickname: sanitizedNickname || undefined,
@@ -110,7 +118,8 @@ export const Profile: React.FC<ProfileProps> = ({
       salaryPeriod: salaryPeriod as 'hourly' | 'weekly' | 'monthly' | 'annually',
       hourlyWage: calculatedHourlyWage,
       showOnLeaderboard,
-      recoveryEmail: trimmedEmail || undefined
+      recoveryEmail: trimmedEmail || undefined,
+      dailyGoalCents,
     });
     setIsEditing(false);
   };
@@ -290,6 +299,37 @@ export const Profile: React.FC<ProfileProps> = ({
               </p>
             </div>
           )}
+
+          {/* Daily Earnings Goal */}
+          <div>
+            <label className="block text-sm font-semibold text-slate-300 mb-2">
+              🎯 Daily Earnings Goal
+            </label>
+            <p className="text-xs text-slate-500 mb-3">
+              Optional — see your progress toward a daily target on the tracker
+            </p>
+            {isEditing ? (
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 font-semibold">$</span>
+                <input
+                  type="number"
+                  value={dailyGoal}
+                  onChange={(e) => setDailyGoal(e.target.value)}
+                  placeholder="e.g. 2.50"
+                  step="0.01"
+                  min="0"
+                  className="w-full pl-8 pr-4 py-4 bg-black/50 backdrop-blur-lg rounded-2xl border border-slate-600/50 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-400/50 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300 shadow-lg"
+                />
+              </div>
+            ) : (
+              <div className="px-4 py-4 bg-black/30 backdrop-blur-lg rounded-2xl border border-slate-600/30 text-white shadow-lg">
+                {user.dailyGoalCents
+                  ? <span className="text-xl font-bold text-emerald-400">${(user.dailyGoalCents / 100).toFixed(2)}</span>
+                  : <span className="text-slate-500">Not set</span>
+                }
+              </div>
+            )}
+          </div>
 
           {/* Leaderboard visibility */}
           <div className="bg-black/30 backdrop-blur-lg rounded-2xl p-4 border border-slate-600/30 shadow-lg">

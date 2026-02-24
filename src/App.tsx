@@ -665,7 +665,11 @@ function App() {
 
   const renderActiveTab = () => {
     switch (activeTab) {
-      case 'tracker':
+      case 'tracker': {
+        const todayStr = new Date().toDateString();
+        const todayEarnings = sessions
+          .filter(s => !s.isActive && s.endTime && (s.startTime instanceof Date ? s.startTime : new Date(s.startTime)).toDateString() === todayStr)
+          .reduce((sum, s) => sum + s.earnings, 0);
         return (
           <>
             <SessionTracker
@@ -676,6 +680,7 @@ function App() {
               currentEarnings={currentEarnings}
               currentDuration={currentDuration}
               cooldownRemaining={cooldownRemaining}
+              todayEarnings={todayEarnings}
             />
             <DailyChallenges
               sessions={sessions}
@@ -683,6 +688,7 @@ function App() {
             />
           </>
         );
+      }
       case 'analytics':
         return (
           <Suspense fallback={<AnalyticsSkeleton />}>

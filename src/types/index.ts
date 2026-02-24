@@ -12,6 +12,8 @@ export interface User {
   longestStreak: number;
   lastSessionDate?: Date;
   streakFreezes: number;
+  /** Optional daily earnings goal in cents (e.g. 200 = $2.00). Null = no goal set. */
+  dailyGoalCents?: number | null;
 }
 
 export interface Session {

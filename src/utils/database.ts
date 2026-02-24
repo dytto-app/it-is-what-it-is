@@ -33,7 +33,8 @@ export const DatabaseUtils = {
       currentStreak: data.current_streak || 0,
       longestStreak: data.longest_streak || 0,
       lastSessionDate: data.last_session_date ? new Date(data.last_session_date) : undefined,
-      streakFreezes: data.streak_freezes || 0
+      streakFreezes: data.streak_freezes || 0,
+      dailyGoalCents: data.daily_goal_cents ?? null,
     };
   },
 
@@ -48,6 +49,7 @@ export const DatabaseUtils = {
         salary_period: user.salaryPeriod,
         onboarded: user.onboarded,
         recovery_email: user.recoveryEmail || null,
+        daily_goal_cents: user.dailyGoalCents ?? null,
         updated_at: new Date().toISOString()
       })
       .eq('id', user.id);
