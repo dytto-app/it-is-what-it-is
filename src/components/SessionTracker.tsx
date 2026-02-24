@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Play, Square, DollarSign, Clock, Sparkles, Flame } from 'lucide-react';
 import { Session, User } from '../types';
 import { CalculationUtils } from '../utils/calculations';
@@ -77,8 +77,6 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
 }) => {
   const [animate, setAnimate] = useState(false);
   const [ripples, setRipples] = useState<Array<{ id: number; x: number; y: number }>>([]);
-  const goalCelebrated = useRef(false);
-
   useEffect(() => {
     if (activeSession) {
       setAnimate(true);
@@ -92,17 +90,24 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
   const totalTodayCents = Math.round((todayEarnings + currentEarnings) * 100);
   const goalProgress = goalCents ? totalTodayCents / goalCents : 0;
 
+  // Persist goal-celebration flag in localStorage so it survives tab switches
+  const goalCelebrationKey = (() => {
+    const d = new Date();
+    return `goalCelebrated_${d.getFullYear()}_${d.getMonth() + 1}_${d.getDate()}`;
+  })();
+
   useEffect(() => {
-    if (!goalCents || goalCelebrated.current) return;
+    if (!goalCents) return;
+    if (localStorage.getItem(goalCelebrationKey)) return;
     if (totalTodayCents >= goalCents) {
-      goalCelebrated.current = true;
+      localStorage.setItem(goalCelebrationKey, '1');
       // Goal reached — green confetti burst
       confetti({ particleCount: 80, spread: 80, origin: { y: 0.6 }, colors: ['#34d399', '#6ee7b7', '#a7f3d0'] });
       setTimeout(() => {
         confetti({ particleCount: 50, spread: 60, origin: { y: 0.5 }, colors: ['#34d399', '#10b981', '#6ee7b7'] });
       }, 300);
     }
-  }, [totalTodayCents, goalCents]);
+  }, [totalTodayCents, goalCents, goalCelebrationKey]);
 
   const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
