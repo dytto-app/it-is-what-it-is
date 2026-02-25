@@ -259,20 +259,36 @@
 
 ## Up Next (Approved for Future Sessions)
 
-### 🔲 Referral System (#99 / #96 / #76)
-- **Priority:** Medium (growth)
-- **Status:** Detailed spec filed as #99
-- **Details:** Unique referral codes, share link, cosmetic reward for both sides. DB schema ready to design.
+### 🔲 Referral Cosmetic Rewards (#50)
+- **Priority:** Medium (closes the referral incentive loop)
+- **Status:** Filed 2026-02-25, not started
+- **Details:** referral system is live but cosmetics aren't granted yet. Need DB trigger or function to grant exclusive cosmetic when apply_referral() succeeds.
 
-### 🔲 Daily Challenge (#101 / #93 / #77)
-- **Priority:** Medium-High (retention)
-- **Status:** Spec filed as #101, not started
-- **Details:** 3 rotating daily challenges (seeded by date), completion → confetti + cosmetic drop
+### 🔲 Manual Referral Code Input (#51)
+- **Priority:** Low (fallback for non-link referrals)
+- **Status:** Filed 2026-02-25, not started
+- **Details:** "Have a referral code?" optional field at end of onboarding.
 
-### 🔲 Sentry Error Monitoring (#100 / #58)
-- **Priority:** Medium (infrastructure)
-- **Status:** Spec filed as #100, not started
-- **Details:** @sentry/react, wrap in ErrorBoundary, free tier plenty for early stage
+### 🔲 Sentry DSN: Add to Netlify (#49)
+- **Priority:** Medium (infrastructure — need production visibility)
+- **Status:** Filed 2026-02-25, action on Ayaan
+- **Details:** Code is wired, just needs VITE_SENTRY_DSN env var set in Netlify. Create Sentry project → copy DSN → add to Netlify → redeploy.
+
+### ✅ Referral System (#9 / #96 / #76)
+- **Status:** Done — shipped in commit 8a2ef18 (2026-02-25)
+- **Details:** Migration 028 live (referrals table + apply_referral + get_user_by_referral_code RPCs). Profile shows code + copy + share. URL ?ref= capture → apply on onboarding. ensureReferralCode auto-generates for existing users.
+
+### ✅ Session Completion Celebration (#37)
+- **Status:** Done — shipped in commit 8a2ef18 (2026-02-25)
+- **Details:** celebrateSessionEnd() — 4-tier scaled confetti. Personal record: gold side cannons. $10+/30min: large green burst. $5+/15min: medium. $1+/5min: subtle. Skips if streak freeze fires.
+
+### ✅ Challenge History — 7-day grid (#47)
+- **Status:** Done — shipped in commit 8a2ef18 (2026-02-25)
+- **Details:** Collapsible in DailyChallenges. Reads from localStorage (no DB). 3 dots per day (filled = completed), perfect week badge, today highlighted in violet.
+
+### ✅ Monthly Earnings Calendar (#29 / #52)
+- **Status:** Done — shipped in commit d443b19 (2026-02-25)
+- **Details:** GitHub contribution-style heatmap in Analytics. Quintile color scaling per user's data. Hover tooltips (earnings + count). Month navigation. Monthly total in header.
 
 ## Completed
 
