@@ -35,6 +35,8 @@ export const DatabaseUtils = {
       lastSessionDate: data.last_session_date ? new Date(data.last_session_date) : undefined,
       streakFreezes: data.streak_freezes || 0,
       dailyGoalCents: data.daily_goal_cents ?? null,
+      referralCode: data.referral_code ?? null,
+      referralCount: data.referral_count ?? 0,
     };
   },
 
@@ -55,6 +57,58 @@ export const DatabaseUtils = {
       .eq('id', user.id);
 
     if (error) throw new Error(`Failed to update profile: ${error.message}`);
+  },
+
+  /** Generate and persist a referral code for a user who doesn't have one yet */
+  async ensureReferralCode(userId: string): Promise<string> {
+    // Generate: "BL-" + 6 random uppercase alphanumeric chars
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no 0/O/1/I confusion
+    let code = 'BL-';
+    for (let i = 0; i < 6; i++) {
+      code += chars[Math.floor(Math.random() * chars.length)];
+    }
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({ referral_code: code })
+      .eq('id', userId)
+      .is('referral_code', null) // only if not already set
+      .select('referral_code')
+      .single();
+
+    if (error || !data) {
+      // Already had a code — fetch it
+      const { data: existing } = await supabase
+        .from('profiles')
+        .select('referral_code')
+        .eq('id', userId)
+        .single();
+      return existing?.referral_code ?? code;
+    }
+    return data.referral_code;
+  },
+
+  /** Apply a referral code during/after onboarding. Returns true if applied. */
+  async applyReferral(newUserId: string, referralCode: string): Promise<boolean> {
+    const { data, error } = await supabase.rpc('apply_referral', {
+      p_new_user_id: newUserId,
+      p_referral_code: referralCode,
+    });
+    if (error) {
+      console.error('Failed to apply referral:', error);
+      return false;
+    }
+    return data === true;
+  },
+
+  /** Fetch how many referrals this user has made */
+  async getReferralCount(userId: string): Promise<number> {
+    const { data } = await supabase
+      .from('profiles')
+      .select('referral_count')
+      .eq('id', userId)
+      .single();
+    return data?.referral_count ?? 0;
   },
 
   // ===== SESSION OPERATIONS =====

@@ -14,6 +14,10 @@ export interface User {
   streakFreezes: number;
   /** Optional daily earnings goal in cents (e.g. 200 = $2.00). Null = no goal set. */
   dailyGoalCents?: number | null;
+  /** Unique referral code for sharing (auto-generated, uppercase alphanum) */
+  referralCode?: string | null;
+  /** Number of successful referrals this user has made */
+  referralCount?: number;
 }
 
 export interface Session {

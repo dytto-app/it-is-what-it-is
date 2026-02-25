@@ -5,7 +5,7 @@ import { User, Session, Achievement } from './types';
 import { DatabaseUtils } from './utils/database';
 import { CalculationUtils } from './utils/calculations';
 import { AchievementUtils } from './utils/achievements';
-import { celebrateAchievement, celebrateMultipleAchievements, celebrateStreakFreeze, getAchievementRarity } from './utils/confetti';
+import { celebrateAchievement, celebrateMultipleAchievements, celebrateStreakFreeze, celebrateSessionEnd, getAchievementRarity } from './utils/confetti';
 import { Haptics } from './utils/haptics';
 import { NotificationUtils } from './utils/notifications';
 import { SessionTracker } from './components/SessionTracker';
@@ -89,6 +89,15 @@ function App() {
     if (token && window.location.pathname === '/reset-password') {
       setResetPasswordToken(token);
     }
+    // Capture referral code from URL (?ref=BL-XXXXXX) and persist through auth flow
+    const refCode = params.get('ref');
+    if (refCode) {
+      sessionStorage.setItem('pendingReferralCode', refCode.toUpperCase());
+      // Clean the URL without reloading
+      const clean = new URL(window.location.href);
+      clean.searchParams.delete('ref');
+      window.history.replaceState({}, '', clean.toString());
+    }
   }, []);
 
   // Check if user is logged in
@@ -136,7 +145,14 @@ function App() {
     const initializeApp = async () => {
       try {
         // Get user profile from Supabase (already exists from auth signup)
-        const userProfile = await DatabaseUtils.getUserProfile(authUserId);
+        let userProfile = await DatabaseUtils.getUserProfile(authUserId);
+
+        // Ensure referral code exists (idempotent — only writes if null in DB)
+        if (!userProfile.referralCode) {
+          const code = await DatabaseUtils.ensureReferralCode(authUserId);
+          userProfile = { ...userProfile, referralCode: code };
+        }
+
         setUser(userProfile);
 
         // Load sessions and achievements in parallel
@@ -419,6 +435,10 @@ function App() {
     const duration = Math.floor((endTime.getTime() - activeSession.startTime.getTime()) / 1000);
     const earnings = CalculationUtils.calculateEarnings(user.hourlyWage, duration);
 
+    // Determine if this is a personal earnings record (before updating sessions list)
+    const prevMaxEarnings = sessions.length > 0 ? Math.max(...sessions.map(s => s.earnings)) : 0;
+    const isPersonalRecord = earnings > 0 && earnings > prevMaxEarnings;
+
     try {
       await DatabaseUtils.endSession(activeSession.id, endTime, duration, earnings);
 
@@ -460,6 +480,9 @@ function App() {
       if (streakResult.freezeGranted) {
         GA.event('Streak Freeze Earned', { streak: streakResult.currentStreak });
         celebrateStreakFreeze();
+      } else {
+        // Session quality celebration (skip if freeze fires — that's the main event)
+        celebrateSessionEnd(earnings, duration, isPersonalRecord);
       }
       if (streakResult.freezeConsumed) {
         GA.event('Streak Freeze Used', { streak: streakResult.currentStreak });
@@ -648,6 +671,16 @@ function App() {
             await DatabaseUtils.updateUser(updatedUser);
             setUser(updatedUser);
             GA.event('Onboarding Completed', { salaryPeriod });
+
+            // Apply referral code if one was captured from URL
+            const pendingRef = sessionStorage.getItem('pendingReferralCode');
+            if (pendingRef) {
+              sessionStorage.removeItem('pendingReferralCode');
+              const applied = await DatabaseUtils.applyReferral(user.id, pendingRef);
+              if (applied) {
+                GA.event('Referral Applied', { code: pendingRef });
+              }
+            }
             
             // Show tutorial after onboarding (check if not shown before)
             const tutorialShown = localStorage.getItem('tutorialShown');

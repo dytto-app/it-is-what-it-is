@@ -168,11 +168,11 @@ function dateToSeed(date: Date): number {
 }
 
 /**
- * Generate today's 3 daily challenges deterministically.
+ * Generate daily challenges for a specific date deterministically.
  * Same date → same challenges for all users.
  */
-export function getDailyChallenges(): DailyChallenge[] {
-  const seed = dateToSeed(new Date());
+export function getDailyChallengesForDate(date: Date): DailyChallenge[] {
+  const seed = dateToSeed(date);
   const picked: DailyChallenge[] = [];
   const usedIds = new Set<string>();
 
@@ -205,10 +205,21 @@ export function getDailyChallenges(): DailyChallenge[] {
   return picked;
 }
 
+/**
+ * Generate today's 3 daily challenges deterministically.
+ */
+export function getDailyChallenges(): DailyChallenge[] {
+  return getDailyChallengesForDate(new Date());
+}
+
+/** Returns the localStorage key for a given date's completions */
+export function completionsKeyForDate(date: Date): string {
+  return `dailyChallengesDone_${date.getFullYear()}_${date.getMonth() + 1}_${date.getDate()}`;
+}
+
 /** Returns the localStorage key for today's completions */
 export function todayCompletionsKey(): string {
-  const d = new Date();
-  return `dailyChallengesDone_${d.getFullYear()}_${d.getMonth() + 1}_${d.getDate()}`;
+  return completionsKeyForDate(new Date());
 }
 
 /** Mark a challenge as having fired confetti (so we don't fire twice) */
@@ -226,4 +237,47 @@ export function hasConfettiFired(challengeId: string): boolean {
   const key = todayCompletionsKey();
   const existing = JSON.parse(localStorage.getItem(key) || '[]') as string[];
   return existing.includes(challengeId);
+}
+
+export interface DayHistory {
+  date: Date;
+  challenges: Array<{ id: string; emoji: string; title: string; completed: boolean }>;
+  completedCount: number;
+  isToday: boolean;
+}
+
+/**
+ * Get challenge history for the last N days (including today).
+ * Reads from localStorage — no DB needed.
+ * Returns array ordered oldest → newest (today last).
+ */
+export function getChallengeHistory(days: number = 7): DayHistory[] {
+  const history: DayHistory[] = [];
+  const now = new Date();
+
+  for (let i = days - 1; i >= 0; i--) {
+    const date = new Date(now);
+    date.setDate(now.getDate() - i);
+    date.setHours(0, 0, 0, 0);
+
+    const challenges = getDailyChallengesForDate(date);
+    const key = completionsKeyForDate(date);
+    const completedIds = JSON.parse(localStorage.getItem(key) || '[]') as string[];
+
+    const challengeDetails = challenges.map(c => ({
+      id: c.id,
+      emoji: c.emoji,
+      title: c.title,
+      completed: completedIds.includes(c.id),
+    }));
+
+    history.push({
+      date,
+      challenges: challengeDetails,
+      completedCount: challengeDetails.filter(c => c.completed).length,
+      isToday: i === 0,
+    });
+  }
+
+  return history;
 }

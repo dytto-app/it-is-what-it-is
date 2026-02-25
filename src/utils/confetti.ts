@@ -194,3 +194,88 @@ export function celebrateMultipleAchievements(count: number) {
     }, i * 300);
   }
 }
+
+// Session completion celebration — scaled by quality
+// earnings: dollars (float), durationSec: seconds, isPersonalRecord: new high earnings
+export function celebrateSessionEnd(earnings: number, durationSec: number, isPersonalRecord: boolean) {
+  // Personal record — gold side cannon burst
+  if (isPersonalRecord) {
+    const goldColors = ['#fbbf24', '#f59e0b', '#fde68a', '#fcd34d'];
+    void confetti({
+      particleCount: 50,
+      angle: 60,
+      spread: 55,
+      origin: { x: 0, y: 0.65 },
+      colors: goldColors,
+      startVelocity: 32,
+      decay: 0.92,
+      disableForReducedMotion: true,
+    });
+    void confetti({
+      particleCount: 50,
+      angle: 120,
+      spread: 55,
+      origin: { x: 1, y: 0.65 },
+      colors: goldColors,
+      startVelocity: 32,
+      decay: 0.92,
+      disableForReducedMotion: true,
+    });
+    return;
+  }
+
+  // Great session: $10+ or 30+ minutes
+  if (earnings >= 10 || durationSec >= 30 * 60) {
+    const greatColors = ['#34d399', '#6ee7b7', '#a7f3d0', '#10b981'];
+    void confetti({
+      particleCount: 70,
+      spread: 80,
+      origin: { y: 0.65 },
+      colors: greatColors,
+      startVelocity: 35,
+      decay: 0.93,
+      gravity: 0.85,
+      disableForReducedMotion: true,
+    });
+    setTimeout(() => {
+      void confetti({
+        particleCount: 35,
+        spread: 60,
+        origin: { y: 0.6 },
+        colors: greatColors,
+        startVelocity: 28,
+        disableForReducedMotion: true,
+      });
+    }, 250);
+    return;
+  }
+
+  // Good session: $5+ or 15+ minutes
+  if (earnings >= 5 || durationSec >= 15 * 60) {
+    void confetti({
+      particleCount: 45,
+      spread: 65,
+      origin: { y: 0.65 },
+      colors: ['#34d399', '#6ee7b7', '#a7f3d0'],
+      startVelocity: 30,
+      decay: 0.93,
+      disableForReducedMotion: true,
+    });
+    return;
+  }
+
+  // Decent session: $1+ or 5+ minutes — subtle little burst
+  if (earnings >= 1 || durationSec >= 5 * 60) {
+    void confetti({
+      particleCount: 22,
+      spread: 50,
+      origin: { y: 0.68 },
+      colors: ['#34d399', '#a7f3d0', '#6ee7b7'],
+      startVelocity: 25,
+      decay: 0.92,
+      ticks: 60,
+      disableForReducedMotion: true,
+    });
+  }
+  // Below threshold — no celebration (too short/small)
+}

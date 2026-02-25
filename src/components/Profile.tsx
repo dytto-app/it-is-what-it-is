@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Settings, Trash2, Download, Eye, EyeOff, LogOut, Mail, Shield, Bell, BellOff } from 'lucide-react';
+import { User, Settings, Trash2, Download, Eye, EyeOff, LogOut, Mail, Shield, Bell, BellOff, Copy, Share2, Users } from 'lucide-react';
 import { User as UserType } from '../types';
 import { NotificationUtils } from '../utils/notifications';
 
@@ -63,6 +63,7 @@ export const Profile: React.FC<ProfileProps> = ({
   const [dailyGoal, setDailyGoal] = useState(
     user.dailyGoalCents ? (user.dailyGoalCents / 100).toFixed(2) : ''
   );
+  const [copiedCode, setCopiedCode] = useState(false);
 
   const calculateHourlyRate = (salaryAmount: number, freq: string): number => {
     switch (freq) {
@@ -330,6 +331,60 @@ export const Profile: React.FC<ProfileProps> = ({
               </div>
             )}
           </div>
+
+          {/* Referral section */}
+          {user.referralCode && (
+            <div className="bg-black/30 backdrop-blur-lg rounded-2xl p-4 border border-slate-600/30 shadow-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <Users className="w-4 h-4 text-indigo-400" />
+                <span className="text-sm font-semibold text-slate-300">Invite Friends</span>
+                {(user.referralCount ?? 0) > 0 && (
+                  <span className="ml-auto text-xs font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-400/20 px-2 py-0.5 rounded-full">
+                    {user.referralCount} referred
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-slate-500 mb-3">
+                Share your code — when someone signs up with it, you both unlock an exclusive cosmetic.
+              </p>
+              <div className="flex items-center gap-2">
+                <div className="flex-1 px-4 py-3 bg-black/50 rounded-xl border border-slate-600/40 font-mono text-sm font-bold tracking-wider text-indigo-300">
+                  {user.referralCode}
+                </div>
+                <button
+                  onClick={async () => {
+                    const link = `${window.location.origin}?ref=${user.referralCode}`;
+                    await navigator.clipboard.writeText(link);
+                    setCopiedCode(true);
+                    setTimeout(() => setCopiedCode(false), 2000);
+                  }}
+                  className="p-3 rounded-xl bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 hover:bg-indigo-500/30 transition-all duration-200"
+                  title="Copy invite link"
+                >
+                  {copiedCode ? (
+                    <span className="text-emerald-400 text-xs font-semibold">✓</span>
+                  ) : (
+                    <Copy className="w-4 h-4" />
+                  )}
+                </button>
+                <button
+                  onClick={() => {
+                    const link = `${window.location.origin}?ref=${user.referralCode}`;
+                    const text = `Track your break earnings with Back-log 💸 Use my code ${user.referralCode} to start: ${link}`;
+                    if (navigator.share) {
+                      void navigator.share({ title: 'Join Back-log', text, url: link });
+                    } else {
+                      void navigator.clipboard.writeText(text);
+                    }
+                  }}
+                  className="p-3 rounded-xl bg-slate-700/40 border border-slate-600/30 text-slate-400 hover:bg-slate-700/60 transition-all duration-200"
+                  title="Share invite"
+                >
+                  <Share2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Leaderboard visibility */}
           <div className="bg-black/30 backdrop-blur-lg rounded-2xl p-4 border border-slate-600/30 shadow-lg">

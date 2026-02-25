@@ -1,6 +1,7 @@
-import React, { useMemo, useEffect, useRef } from 'react';
+import React, { useMemo, useEffect, useRef, useState } from 'react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Session } from '../types';
-import { getDailyChallenges, hasConfettiFired, markChallengeConfettiFired } from '../utils/challenges';
+import { getDailyChallenges, hasConfettiFired, markChallengeConfettiFired, getChallengeHistory } from '../utils/challenges';
 import confetti from 'canvas-confetti';
 
 interface DailyChallengesProps {
@@ -31,9 +32,13 @@ function fireChallengeConfetti() {
   }, 250);
 }
 
+const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const DAY_SHORT = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+
 export const DailyChallenges: React.FC<DailyChallengesProps> = ({ sessions, currentStreak }) => {
   const challenges = useMemo(() => getDailyChallenges(), []);
   const firedRef = useRef<Set<string>>(new Set());
+  const [showHistory, setShowHistory] = useState(false);
 
   // Fire confetti on first completion — but only once per challenge per day
   useEffect(() => {
@@ -50,6 +55,11 @@ export const DailyChallenges: React.FC<DailyChallengesProps> = ({ sessions, curr
   }, [sessions, currentStreak, challenges]);
 
   const completedCount = challenges.filter(c => c.isCompleted(sessions, currentStreak)).length;
+
+  // Challenge history — read from localStorage (no DB needed)
+  const history = useMemo(() => getChallengeHistory(7), []);
+  const perfectDays = history.filter(d => d.completedCount === 3).length;
+  const isPerfectWeek = history.filter(d => !d.isToday).every(d => d.completedCount === 3) && completedCount === 3;
 
   return (
     <div className="mt-6 w-full">
@@ -137,6 +147,96 @@ export const DailyChallenges: React.FC<DailyChallengesProps> = ({ sessions, curr
       {completedCount === 3 && (
         <div className="mt-3 text-center py-2 rounded-xl bg-gradient-to-r from-amber-500/10 via-yellow-500/10 to-amber-500/10 border border-amber-400/20 text-amber-300 text-xs font-semibold">
           🏆 All challenges cleared! See you tomorrow.
+        </div>
+      )}
+
+      {/* 7-Day History Toggle */}
+      <button
+        onClick={() => setShowHistory(v => !v)}
+        className="mt-4 w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs text-slate-400 hover:text-slate-300 hover:bg-slate-800/40 transition-all duration-200"
+        aria-label="Toggle challenge history"
+      >
+        <span className="flex items-center gap-1.5">
+          <span>📅</span>
+          <span>7-day history</span>
+          {perfectDays > 0 && (
+            <span className="text-violet-400 font-semibold">· {perfectDays} perfect day{perfectDays !== 1 ? 's' : ''}</span>
+          )}
+        </span>
+        {showHistory ? (
+          <ChevronUp className="w-3.5 h-3.5" />
+        ) : (
+          <ChevronDown className="w-3.5 h-3.5" />
+        )}
+      </button>
+
+      {/* History grid */}
+      {showHistory && (
+        <div className="mt-2 px-1">
+          {/* Perfect week badge */}
+          {isPerfectWeek && (
+            <div className="mb-3 text-center py-1.5 rounded-xl bg-gradient-to-r from-violet-500/15 via-indigo-500/10 to-violet-500/15 border border-violet-400/25 text-violet-300 text-xs font-semibold">
+              🎯 Perfect Week!
+            </div>
+          )}
+
+          {/* 7-day dot grid */}
+          <div className="grid grid-cols-7 gap-1">
+            {history.map((day, i) => {
+              const dayOfWeek = day.date.getDay();
+              const label = DAY_SHORT[dayOfWeek];
+              const isToday = day.isToday;
+
+              return (
+                <div
+                  key={i}
+                  className={`flex flex-col items-center gap-1.5 py-2 rounded-xl transition-colors ${
+                    isToday
+                      ? 'bg-violet-500/10 border border-violet-400/20'
+                      : 'bg-slate-800/30'
+                  }`}
+                  title={`${DAY_LABELS[dayOfWeek]} — ${day.completedCount}/3 challenges`}
+                >
+                  {/* Day label */}
+                  <span className={`text-[10px] font-semibold ${isToday ? 'text-violet-300' : 'text-slate-500'}`}>
+                    {label}
+                  </span>
+
+                  {/* 3 dots — one per challenge */}
+                  <div className="flex flex-col gap-0.5 items-center">
+                    {day.challenges.map((c, j) => (
+                      <div
+                        key={j}
+                        className={`w-1.5 h-1.5 rounded-full transition-colors ${
+                          c.completed
+                            ? isToday
+                              ? 'bg-violet-400'
+                              : 'bg-emerald-400'
+                            : 'bg-slate-700'
+                        }`}
+                        title={c.completed ? `✅ ${c.title}` : `○ ${c.title}`}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Count */}
+                  <span className={`text-[9px] tabular-nums font-medium ${
+                    day.completedCount === 3
+                      ? 'text-emerald-400'
+                      : day.completedCount > 0
+                      ? 'text-slate-400'
+                      : 'text-slate-600'
+                  }`}>
+                    {day.completedCount}/3
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+
+          <p className="mt-2 text-center text-[10px] text-slate-600">
+            Dots = challenges completed each day
+          </p>
         </div>
       )}
     </div>
