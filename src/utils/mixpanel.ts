@@ -13,8 +13,11 @@ let initialized = false;
 /**
  * Initialize Mixpanel analytics
  */
+const BOT_PATTERN = /bot|crawler|spider|googlebot|bingbot|semrush|ahrefs/i
+
 export function initAnalytics() {
   if (typeof window === 'undefined' || initialized) return;
+  if (BOT_PATTERN.test(navigator.userAgent)) return // Bot filter
   
   mixpanel.init(MIXPANEL_TOKEN, {
     debug: import.meta.env.DEV,
