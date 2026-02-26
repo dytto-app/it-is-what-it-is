@@ -51,8 +51,8 @@ const CHALLENGE_POOL: Array<{
   {
     id: 'long_session',
     emoji: '⏱️',
-    titleFn: (n) => `Slow Down`,
-    descFn: (n) => `Take a break longer than ${n} minutes`,
+    titleFn: () => `Slow Down`,
+    descFn: (n) => `Take a break longer than ${Math.floor(n / 60)} minutes`,
     type: 'duration',
     variants: [5 * 60, 8 * 60, 10 * 60], // seconds
     progressFn: (sessions, target) => {

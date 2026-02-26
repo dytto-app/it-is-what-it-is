@@ -663,22 +663,26 @@ function App() {
 
   // Show onboarding if user hasn't completed it
   if (!user.onboarded) {
+    // Get any captured referral code from URL (sessionStorage) for pre-fill
+    const capturedRefCode = sessionStorage.getItem('pendingReferralCode') || undefined;
+    
     return (
       <Onboarding
-        onComplete={async (salary, salaryPeriod, hourlyWage) => {
+        initialReferralCode={capturedRefCode}
+        onComplete={async (salary, salaryPeriod, hourlyWage, manualRefCode) => {
           try {
             const updatedUser = { ...user, salary, salaryPeriod, hourlyWage, onboarded: true };
             await DatabaseUtils.updateUser(updatedUser);
             setUser(updatedUser);
             GA.event('Onboarding Completed', { salaryPeriod });
 
-            // Apply referral code if one was captured from URL
-            const pendingRef = sessionStorage.getItem('pendingReferralCode');
-            if (pendingRef) {
+            // Apply referral code: prefer manual input, fall back to URL-captured code
+            const refCode = manualRefCode || sessionStorage.getItem('pendingReferralCode');
+            if (refCode) {
               sessionStorage.removeItem('pendingReferralCode');
-              const applied = await DatabaseUtils.applyReferral(user.id, pendingRef);
+              const applied = await DatabaseUtils.applyReferral(user.id, refCode);
               if (applied) {
-                GA.event('Referral Applied', { code: pendingRef });
+                GA.event('Referral Applied', { code: refCode, source: manualRefCode ? 'manual' : 'url' });
               }
             }
             

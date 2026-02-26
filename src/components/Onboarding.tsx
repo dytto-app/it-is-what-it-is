@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
-import { CheckCircle, Scale, Clock, Calendar, BarChart3, TrendingUp } from 'lucide-react';
+import { CheckCircle, Scale, Clock, Calendar, BarChart3, TrendingUp, Gift, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface OnboardingProps {
-  onComplete: (salary: number, frequency: 'hourly' | 'weekly' | 'monthly' | 'annually', hourlyWage: number) => Promise<void>;
+  onComplete: (salary: number, frequency: 'hourly' | 'weekly' | 'monthly' | 'annually', hourlyWage: number, referralCode?: string) => Promise<void>;
+  /** Pre-filled referral code from URL (?ref=...) */
+  initialReferralCode?: string;
 }
 
-export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
+export const Onboarding: React.FC<OnboardingProps> = ({ onComplete, initialReferralCode }) => {
   const [salary, setSalary] = useState('');
   const [frequency, setFrequency] = useState<'hourly' | 'weekly' | 'monthly' | 'annually'>('weekly');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [referralCode, setReferralCode] = useState(initialReferralCode || '');
+  const [showReferralInput, setShowReferralInput] = useState(!!initialReferralCode);
 
   const calculateHourlyRate = (salaryAmount: number, freq: string): number => {
     switch (freq) {
@@ -39,7 +43,9 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
     try {
       const salaryAmount = parseFloat(salary);
       const hourlyWage = calculateHourlyRate(salaryAmount, frequency);
-      await onComplete(salaryAmount, frequency, hourlyWage);
+      // Pass referral code (trimmed, uppercased) if provided
+      const trimmedCode = referralCode.trim().toUpperCase() || undefined;
+      await onComplete(salaryAmount, frequency, hourlyWage, trimmedCode);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save preferences');
       setLoading(false);
@@ -141,6 +147,39 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
             <p className="text-slate-400 text-xs mt-3">
               Is your salary an hourly rate, weekly pay, monthly paycheck, or annual salary?
             </p>
+          </div>
+
+          {/* Referral Code (Optional) */}
+          <div className="border-t border-slate-700 pt-6">
+            <button
+              type="button"
+              onClick={() => setShowReferralInput(!showReferralInput)}
+              className="flex items-center gap-2 text-slate-400 hover:text-purple-300 transition-colors text-sm"
+            >
+              <Gift className="w-4 h-4" />
+              <span>Have a referral code?</span>
+              {showReferralInput ? (
+                <ChevronUp className="w-4 h-4" />
+              ) : (
+                <ChevronDown className="w-4 h-4" />
+              )}
+            </button>
+            
+            {showReferralInput && (
+              <div className="mt-3">
+                <input
+                  type="text"
+                  value={referralCode}
+                  onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                  placeholder="e.g., BL-ABC123"
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 uppercase"
+                  maxLength={12}
+                />
+                <p className="text-slate-400 text-xs mt-2">
+                  Enter a friend's code to unlock exclusive cosmetics for both of you 🎁
+                </p>
+              </div>
+            )}
           </div>
 
           {error && (
