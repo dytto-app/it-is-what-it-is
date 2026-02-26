@@ -1,5 +1,30 @@
 # DECISIONS.md — Back-log
 
+## Shipped (2026-02-26)
+
+### ✅ Referral Cosmetic Rewards (#50)
+- **Priority:** Medium (closes the referral incentive loop)
+- **Status:** Done — shipped in commit 817c904 (2026-02-26)
+- **Details:**
+  - Migration 029_referral_cosmetics.sql: exclusive cosmetics auto-granted on referral
+  - Referrer gets: 👥 Recruiter badge + "The Connector" title
+  - Referred gets: 🎁 Welcome Gift badge + "Fresh Recruit" title
+  - Updated `apply_referral()` to call `grant_referral_cosmetics()` automatically
+  - Migration deployed to prod
+
+### ✅ Manual Referral Code Input (#51)
+- **Priority:** Low (fallback for non-link referrals)
+- **Status:** Done — shipped in commit 817c904 (2026-02-26)
+- **Details:**
+  - Onboarding: collapsible "Have a referral code?" section
+  - Pre-fills if URL ?ref= was captured
+  - Manual entry accepted, applied during onboarding completion
+  - GA tracks source: "manual" vs "url"
+
+### ✅ Lint Fix + Bug Fix
+- Fixed unused `n` parameter in challenges.ts `long_session` titleFn
+- Fixed `descFn` displaying wrong minutes (was showing raw seconds, now `Math.floor(n / 60)`)
+
 ## Approved (Do These)
 
 ### ✅ Streak Freeze (#92)
@@ -258,16 +283,6 @@
 *None currently.*
 
 ## Up Next (Approved for Future Sessions)
-
-### 🔲 Referral Cosmetic Rewards (#50)
-- **Priority:** Medium (closes the referral incentive loop)
-- **Status:** Filed 2026-02-25, not started
-- **Details:** referral system is live but cosmetics aren't granted yet. Need DB trigger or function to grant exclusive cosmetic when apply_referral() succeeds.
-
-### 🔲 Manual Referral Code Input (#51)
-- **Priority:** Low (fallback for non-link referrals)
-- **Status:** Filed 2026-02-25, not started
-- **Details:** "Have a referral code?" optional field at end of onboarding.
 
 ### 🔲 Sentry DSN: Add to Netlify (#49)
 - **Priority:** Medium (infrastructure — need production visibility)
