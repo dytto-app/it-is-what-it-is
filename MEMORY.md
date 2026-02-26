@@ -14,17 +14,27 @@ I'm Nora. PM for Back-log — a bathroom break social game. Not a productivity t
 
 ---
 
-## Current State (as of 2026-02-20)
+## Current State (as of 2026-02-26)
 
 ### Recently Shipped
-- **Streak Freeze** — users earn freezes at 7/14/30/100-day milestones, consumed automatically when they miss one day. 🧊 badge in SessionTracker.
-- **GA4 fix** — analytics now loads from env var, no more hardcoded placeholder. (Action needed: add VITE_GA_MEASUREMENT_ID to Netlify env)
-- **Lint cleanup** — prefer-const and hooks deps warnings resolved
-- **Migrations 025 + 026** — both live in prod
+- **Referral Cosmetics** (2026-02-26) — exclusive cosmetics auto-granted on referral: Recruiter/Connector for referrer, Welcome Gift/Fresh Recruit for referred. Migration 029 live.
+- **Manual Referral Input** (2026-02-26) — "Have a referral code?" in onboarding, pre-fills from URL ?ref=
+- **Bug fix** — challenges.ts duration display fixed (was showing seconds as minutes)
+- **Monthly Calendar Heatmap** (2026-02-25) — GitHub contribution-style calendar in Analytics
+- **Daily Challenges** (2026-02-23) — 3 rotating challenges per day with confetti
+- **Session Celebration Effects** (2026-02-25) — tiered confetti based on session earnings
+- **Daily Earnings Goal** (2026-02-24) — circular progress ring on tracker
 
-### Next Up (from DECISIONS.md)
-- Push Notifications (#8)
-- Review the full backlog for what to tackle next
+### Pending Actions for Ayaan
+- **#49 Sentry DSN** — add VITE_SENTRY_DSN to Netlify env vars to activate error monitoring
+- **GA4** — add VITE_GA_MEASUREMENT_ID to Netlify env vars if not done
+
+### Next Up
+- #48 Customizable streak reminder time
+- #33 Shareable weekly recap card (iteration)
+- #20 Dark/light mode toggle
+- #14 Session notes/memo field
+- #13 Session categories/tags
 
 ---
 
