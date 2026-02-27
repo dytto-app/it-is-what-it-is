@@ -1,5 +1,16 @@
 # DECISIONS.md — Back-log
 
+## Shipped (2026-02-27)
+
+### ✅ Customizable Streak Reminder Time (#48)
+- **Priority:** Medium (retention — user control)
+- **Status:** Done — shipped in commit 1daaace (2026-02-27)
+- **Details:**
+  - Added getReminderTime/setReminderTime to NotificationUtils (default 7pm)
+  - Updated scheduleStreakReminder to use user's preferred time
+  - Profile: time picker shown when notifications are enabled
+  - Reschedules automatically when time changes
+
 ## Shipped (2026-02-26)
 
 ### ✅ Referral Cosmetic Rewards (#50)
