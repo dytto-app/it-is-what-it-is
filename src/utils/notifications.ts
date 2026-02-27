@@ -9,6 +9,8 @@
 
 const NOTIFICATION_PREF_KEY = 'notificationsEnabled';
 const STREAK_REMINDER_ALARM_KEY = 'streakReminderScheduledFor';
+const STREAK_REMINDER_TIME_KEY = 'streakReminderTime';
+const DEFAULT_REMINDER_TIME = '19:00'; // 7pm
 
 export const NotificationUtils = {
   /** Is the Notification API supported? */
@@ -29,6 +31,18 @@ export const NotificationUtils = {
 
   setEnabled(enabled: boolean): void {
     localStorage.setItem(NOTIFICATION_PREF_KEY, enabled ? 'true' : 'false');
+  },
+
+  /** Get the user's preferred reminder time (HH:MM format, default 19:00) */
+  getReminderTime(): string {
+    return localStorage.getItem(STREAK_REMINDER_TIME_KEY) || DEFAULT_REMINDER_TIME;
+  },
+
+  /** Set the user's preferred reminder time (HH:MM format) */
+  setReminderTime(time: string): void {
+    localStorage.setItem(STREAK_REMINDER_TIME_KEY, time);
+    // Clear scheduled reminder so it reschedules with new time
+    localStorage.removeItem(STREAK_REMINDER_ALARM_KEY);
   },
 
   /** Request notification permission from the browser */
@@ -62,7 +76,7 @@ export const NotificationUtils = {
   },
 
   /**
-   * Schedule a streak reminder for tomorrow at 7pm if user hasn't had a session today.
+   * Schedule a streak reminder for the user's preferred time if they haven't had a session today.
    * Uses service worker postMessage to persist the schedule.
    *
    * Call this at the end of each session, or when the app loads with an active streak.
@@ -71,11 +85,15 @@ export const NotificationUtils = {
     if (!this.isEnabled() || Notification.permission !== 'granted') return;
     if (!('serviceWorker' in navigator)) return;
 
-    // Schedule for 7pm today if it's before 7pm, otherwise 7pm tomorrow
+    // Parse user's preferred reminder time (HH:MM)
+    const reminderTime = this.getReminderTime();
+    const [hours, minutes] = reminderTime.split(':').map(Number);
+
+    // Schedule for today if it's before the reminder time, otherwise tomorrow
     const now = new Date();
-    const target = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 19, 0, 0);
+    const target = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, 0);
     if (target.getTime() <= now.getTime()) {
-      // Past 7pm — schedule for tomorrow
+      // Past the reminder time — schedule for tomorrow
       target.setDate(target.getDate() + 1);
     }
 

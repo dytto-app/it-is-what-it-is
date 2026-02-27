@@ -22,6 +22,7 @@ export const Profile: React.FC<ProfileProps> = ({
   const [nickname, setNickname] = useState(user.nickname || '');
   const [notifPermission, setNotifPermission] = useState<NotificationPermission | 'unsupported'>(() => NotificationUtils.getPermission());
   const [notifEnabled, setNotifEnabled] = useState(() => NotificationUtils.isEnabled());
+  const [reminderTime, setReminderTime] = useState(() => NotificationUtils.getReminderTime());
 
   // Sync permission state if user changes it in browser settings
   useEffect(() => {
@@ -55,6 +56,11 @@ export const Profile: React.FC<ProfileProps> = ({
       setNotifEnabled(false);
       NotificationUtils.cancelStreakReminder();
     }
+  };
+
+  const handleReminderTimeChange = (time: string) => {
+    setReminderTime(time);
+    NotificationUtils.setReminderTime(time);
   };
   const [salary, setSalary] = useState(user.salary.toString());
   const [salaryPeriod, setSalaryPeriod] = useState(user.salaryPeriod);
@@ -459,6 +465,25 @@ export const Profile: React.FC<ProfileProps> = ({
                 </div>
               </button>
             </div>
+            
+            {/* Reminder time picker — only shown when notifications are enabled */}
+            {notifEnabled && notifPermission === 'granted' && (
+              <div className="mt-4 pt-4 border-t border-slate-600/30">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-sm font-medium text-slate-400">Reminder Time</span>
+                    <p className="text-xs text-slate-500 mt-0.5">When to nudge you</p>
+                  </div>
+                  <input
+                    type="time"
+                    value={reminderTime}
+                    onChange={(e) => handleReminderTimeChange(e.target.value)}
+                    className="bg-slate-800 border border-slate-600 rounded-lg px-3 py-1.5 text-slate-200 text-sm focus:outline-none focus:border-blue-500 [color-scheme:dark]"
+                    aria-label="Reminder time"
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Save button */}
