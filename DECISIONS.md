@@ -1,5 +1,18 @@
 # DECISIONS.md — Back-log
 
+## Shipped (2026-02-28)
+
+### ✅ Session Notes — Thoughts from the Throne (#14)
+- **Priority:** Medium (engagement + content)
+- **Status:** Done — shipped in commit 1de668e (2026-02-28)
+- **Details:**
+  - Migration 030_session_notes.sql: adds `notes` text column to sessions
+  - SessionTracker: textarea input visible during active sessions ("Jot down an idea...")
+  - SessionHistory: displays notes with violet pen icon, searchable
+  - CSV export includes notes column (properly escaped)
+  - 500 character limit with counter
+  - New issue #53 created for future "notes journal view"
+
 ## Shipped (2026-02-27)
 
 ### ✅ Customizable Streak Reminder Time (#48)
