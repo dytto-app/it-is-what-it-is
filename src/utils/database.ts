@@ -128,7 +128,8 @@ export const DatabaseUtils = {
       endTime: s.end_time ? new Date(s.end_time) : null,
       duration: s.duration,
       earnings: Number(s.earnings),
-      isActive: s.is_active
+      isActive: s.is_active,
+      notes: s.notes || undefined
     }));
   },
 
@@ -157,22 +158,33 @@ export const DatabaseUtils = {
       endTime: null,
       duration: data.duration,
       earnings: Number(data.earnings),
-      isActive: data.is_active
+      isActive: data.is_active,
+      notes: data.notes || undefined
     };
   },
 
-  async endSession(sessionId: string, endTime: Date, duration: number, earnings: number): Promise<void> {
+  async endSession(sessionId: string, endTime: Date, duration: number, earnings: number, notes?: string): Promise<void> {
     const { error } = await supabase
       .from('sessions')
       .update({
         end_time: endTime.toISOString(),
         duration,
         earnings: earnings,
-        is_active: false
+        is_active: false,
+        notes: notes?.trim() || null
       })
       .eq('id', sessionId);
 
     if (error) throw new Error(`Failed to end session: ${error.message}`);
+  },
+
+  async updateSessionNotes(sessionId: string, notes: string): Promise<void> {
+    const { error } = await supabase
+      .from('sessions')
+      .update({ notes: notes?.trim() || null })
+      .eq('id', sessionId);
+
+    if (error) throw new Error(`Failed to update session notes: ${error.message}`);
   },
 
   async closeStaleSession(session: Session, hourlyWage: number): Promise<Session> {

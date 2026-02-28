@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Square, DollarSign, Clock, Sparkles, Flame } from 'lucide-react';
+import { Play, Square, DollarSign, Clock, Sparkles, Flame, PenLine } from 'lucide-react';
 import { Session, User } from '../types';
 import { CalculationUtils } from '../utils/calculations';
 import confetti from 'canvas-confetti';
@@ -10,7 +10,7 @@ interface SessionTrackerProps {
   user: User;
   activeSession: Session | null;
   onSessionStart: () => void;
-  onSessionEnd: () => void;
+  onSessionEnd: (notes?: string) => void;
   currentEarnings: number;
   currentDuration: number;
   cooldownRemaining?: number;
@@ -77,11 +77,16 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
 }) => {
   const [animate, setAnimate] = useState(false);
   const [ripples, setRipples] = useState<Array<{ id: number; x: number; y: number }>>([]);
+  const [sessionNotes, setSessionNotes] = useState('');
+  
   useEffect(() => {
     if (activeSession) {
       setAnimate(true);
       const interval = setInterval(() => setAnimate(a => !a), 3000);
       return () => clearInterval(interval);
+    } else {
+      // Clear notes when session ends
+      setSessionNotes('');
     }
   }, [activeSession]);
 
@@ -122,7 +127,7 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
     }, 1000);
 
     if (activeSession) {
-      onSessionEnd();
+      onSessionEnd(sessionNotes.trim() || undefined);
     } else {
       onSessionStart();
     }
@@ -304,6 +309,27 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
                   {CalculationUtils.formatDuration(Math.max(0, currentDuration))}
                 </div>
               </div>
+            </div>
+
+            {/* Session notes input */}
+            <div className="bg-gradient-to-br from-black/60 via-black/50 to-black/60 backdrop-blur-xl rounded-2xl p-4 border border-violet-500/20">
+              <div className="flex items-center mb-2">
+                <PenLine className="w-4 h-4 text-violet-400 mr-2" />
+                <span className="text-slate-400 text-xs font-medium">Thoughts from the throne</span>
+              </div>
+              <textarea
+                value={sessionNotes}
+                onChange={(e) => setSessionNotes(e.target.value)}
+                placeholder="Jot down an idea..."
+                maxLength={500}
+                rows={2}
+                className="w-full bg-black/40 backdrop-blur-xl rounded-xl border border-slate-600/30 text-white placeholder-slate-500 text-sm p-3 focus:outline-none focus:border-violet-400/50 resize-none transition-all duration-300"
+              />
+              {sessionNotes.length > 0 && (
+                <div className="text-right text-xs text-slate-500 mt-1">
+                  {sessionNotes.length}/500
+                </div>
+              )}
             </div>
           </div>
         )}

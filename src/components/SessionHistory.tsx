@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Download, Calendar, Clock, DollarSign, History, Sparkles, TrendingUp, Filter, Search, Zap, Target, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Download, Calendar, Clock, DollarSign, History, Sparkles, TrendingUp, Filter, Search, Zap, Target, ChevronLeft, ChevronRight, PenLine } from 'lucide-react';
 import { Session } from '../types';
 import { CalculationUtils } from '../utils/calculations';
 
@@ -61,10 +61,12 @@ export const SessionHistory: React.FC<SessionHistoryProps> = ({ sessions, onExpo
     let result = filterSessions(sessions, filter);
     
     if (searchTerm) {
+      const term = searchTerm.toLowerCase();
       result = result.filter(session => {
-        const dateString = session.startTime.toLocaleDateString();
-        const timeString = session.startTime.toLocaleTimeString();
-        return dateString.includes(searchTerm) || timeString.includes(searchTerm);
+        const dateString = session.startTime.toLocaleDateString().toLowerCase();
+        const timeString = session.startTime.toLocaleTimeString().toLowerCase();
+        const notes = (session.notes || '').toLowerCase();
+        return dateString.includes(term) || timeString.includes(term) || notes.includes(term);
       });
     }
     
@@ -411,6 +413,18 @@ export const SessionHistory: React.FC<SessionHistoryProps> = ({ sessions, onExpo
                       </span>
                     </div>
                   </div>
+
+                  {/* Session notes */}
+                  {session.notes && (
+                    <div className="mt-3 pt-3 border-t border-slate-600/30">
+                      <div className="flex items-start gap-2">
+                        <PenLine className="w-3.5 h-3.5 text-violet-400 mt-0.5 flex-shrink-0" />
+                        <p className="text-sm text-slate-300 leading-relaxed italic">
+                          "{session.notes}"
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })}

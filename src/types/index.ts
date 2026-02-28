@@ -28,6 +28,8 @@ export interface Session {
   duration: number; // in seconds
   earnings: number;
   isActive: boolean;
+  /** Optional notes/ideas captured during the session */
+  notes?: string;
 }
 
 export interface Achievement {

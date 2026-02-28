@@ -78,7 +78,7 @@ function App() {
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
   const [showWeeklySummary, setShowWeeklySummary] = useState(false);
   const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
-  const handleSessionEndRef = useRef<(() => void) | null>(null);
+  const handleSessionEndRef = useRef<((notes?: string) => void) | null>(null);
 
   const NOTIF_PROMPT_KEY = 'notifPromptShown';
 
@@ -428,7 +428,7 @@ function App() {
     }
   };
 
-  const handleSessionEnd = useCallback(async () => {
+  const handleSessionEnd = useCallback(async (notes?: string) => {
     if (!activeSession || !user) return;
 
     const endTime = new Date();
@@ -440,7 +440,7 @@ function App() {
     const isPersonalRecord = earnings > 0 && earnings > prevMaxEarnings;
 
     try {
-      await DatabaseUtils.endSession(activeSession.id, endTime, duration, earnings);
+      await DatabaseUtils.endSession(activeSession.id, endTime, duration, earnings, notes);
 
       // Update streak after session ends
       const streakResult = await DatabaseUtils.updateStreak(user.id);
@@ -459,7 +459,8 @@ function App() {
         endTime,
         duration,
         earnings,
-        isActive: false
+        isActive: false,
+        notes: notes?.trim() || undefined
       };
 
       const updatedSessions = [...sessions, finishedSession];
@@ -520,7 +521,7 @@ function App() {
     
     if (format === 'csv') {
       // CSV export for sessions only
-      const headers = ['date', 'start_time', 'end_time', 'duration_seconds', 'earnings'];
+      const headers = ['date', 'start_time', 'end_time', 'duration_seconds', 'earnings', 'notes'];
       const rows = sessions
         .filter(s => !s.isActive && s.endTime)
         .map(s => [
@@ -528,7 +529,9 @@ function App() {
           s.startTime.toISOString(),
           s.endTime?.toISOString() || '',
           s.duration.toString(),
-          s.earnings.toFixed(2)
+          s.earnings.toFixed(2),
+          // Escape quotes in notes for CSV
+          s.notes ? `"${s.notes.replace(/"/g, '""')}"` : ''
         ]);
       
       const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
