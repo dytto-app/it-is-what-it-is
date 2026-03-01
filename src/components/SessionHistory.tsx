@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react';
-import { Download, Calendar, Clock, DollarSign, History, Sparkles, TrendingUp, Filter, Search, Zap, Target, ChevronLeft, ChevronRight, PenLine } from 'lucide-react';
+import { Download, Calendar, Clock, DollarSign, History, TrendingUp, Filter, Search, Zap, Target, ChevronLeft, ChevronRight, PenLine, BookOpen } from 'lucide-react';
 import { Session } from '../types';
 import { CalculationUtils } from '../utils/calculations';
+import { NotesJournal } from './NotesJournal';
 
 interface SessionHistoryProps {
   sessions: Session[];
@@ -10,14 +11,19 @@ interface SessionHistoryProps {
 
 type SortOption = 'date' | 'duration' | 'earnings' | 'efficiency';
 type FilterOption = 'all' | 'today' | 'week' | 'month';
+type ViewMode = 'sessions' | 'journal';
 
 const SESSIONS_PER_PAGE = 10;
 
 export const SessionHistory: React.FC<SessionHistoryProps> = ({ sessions, onExport }) => {
+  const [viewMode, setViewMode] = useState<ViewMode>('sessions');
   const [filter, setFilter] = useState<FilterOption>('all');
   const [sortBy, setSortBy] = useState<SortOption>('date');
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Count sessions with notes for the badge
+  const notesCount = useMemo(() => sessions.filter(s => s.notes?.trim()).length, [sessions]);
 
   const filterSessions = (sessions: Session[], filter: FilterOption): Session[] => {
     const now = new Date();
@@ -120,14 +126,44 @@ export const SessionHistory: React.FC<SessionHistoryProps> = ({ sessions, onExpo
           {/* <p className="text-slate-300 text-lg">
             Spotless record of your productivity
           </p> */}
-          <div className="flex items-center justify-center mt-4 space-x-2">
-            <Sparkles className="w-4 h-4 text-emerald-400 animate-pulse" />
-            <span className="text-emerald-300 text-sm font-medium">Live Analytics</span>
-            <Sparkles className="w-4 h-4 text-emerald-400 animate-pulse" />
+          {/* View mode toggle */}
+          <div className="flex items-center justify-center mt-6 gap-2">
+            <button
+              onClick={() => setViewMode('sessions')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300 ${
+                viewMode === 'sessions'
+                  ? 'bg-gradient-to-r from-emerald-500/30 to-teal-500/30 text-emerald-300 border border-emerald-400/40'
+                  : 'bg-black/30 text-slate-400 hover:text-slate-200 border border-slate-600/30'
+              }`}
+            >
+              <History className="w-4 h-4" />
+              Sessions
+            </button>
+            <button
+              onClick={() => setViewMode('journal')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300 ${
+                viewMode === 'journal'
+                  ? 'bg-gradient-to-r from-violet-500/30 to-purple-500/30 text-violet-300 border border-violet-400/40'
+                  : 'bg-black/30 text-slate-400 hover:text-slate-200 border border-slate-600/30'
+              }`}
+            >
+              <BookOpen className="w-4 h-4" />
+              Journal
+              {notesCount > 0 && (
+                <span className="text-xs bg-violet-500/30 text-violet-300 px-1.5 py-0.5 rounded-full">
+                  {notesCount}
+                </span>
+              )}
+            </button>
           </div>
         </div>
       </div>
 
+      {/* Journal View */}
+      {viewMode === 'journal' ? (
+        <NotesJournal sessions={sessions} />
+      ) : (
+        <>
       {/* Enhanced Summary cards */}
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-gradient-to-br from-emerald-500/20 to-green-500/20 backdrop-blur-xl rounded-3xl p-6 border border-emerald-400/30 shadow-xl shadow-emerald-500/10">
@@ -456,6 +492,8 @@ export const SessionHistory: React.FC<SessionHistoryProps> = ({ sessions, onExpo
           </div>
         )}
       </div>
+        </>
+      )}
     </div>
   );
 };
