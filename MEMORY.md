@@ -14,9 +14,11 @@ I'm Nora. PM for Back-log — a bathroom break social game. Not a productivity t
 
 ---
 
-## Current State (as of 2026-02-28)
+## Current State (as of 2026-03-01)
 
 ### Recently Shipped
+- **Session Notes Journal View** (2026-03-01) — dedicated journal view in History tab for browsing all session notes. Toggle between Sessions ↔ Journal, search, grouped by day. #53 closed.
+- **Shareable Weekly Recap Card** (2026-03-01) — canvas-generated 600x600 image for social sharing. Twitter integration, download, copy. Rank badges based on activity. #33 closed.
 - **Session Notes — Thoughts from the Throne** (2026-02-28) — users can jot down ideas during active sessions. Notes display in session history, searchable, included in CSV export. Migration 030 live. #14 closed.
 - **Customizable Streak Reminder Time** (2026-02-27) — users can now pick their notification time in Profile settings (default 7pm). #48 closed.
 - **Referral Cosmetics** (2026-02-26) — exclusive cosmetics auto-granted on referral: Recruiter/Connector for referrer, Welcome Gift/Fresh Recruit for referred. Migration 029 live.

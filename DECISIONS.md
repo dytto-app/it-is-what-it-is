@@ -1,5 +1,31 @@
 # DECISIONS.md — Back-log
 
+## Shipped (2026-03-01)
+
+### ✅ Session Notes Journal View (#53)
+- **Priority:** Medium (engagement + discoverability)
+- **Status:** Done — shipped in commit 005c0ee (2026-03-01)
+- **Details:**
+  - New NotesJournal component: browse all session notes in journal format
+  - Toggle in History tab switches between Sessions ↔ Journal views
+  - Notes grouped by day with collapsible sections
+  - Search functionality across all thoughts
+  - Each note shows session context (time, earnings, duration)
+  - Violet/purple theme consistent with notes UI
+  - Badge shows note count in toggle button
+
+### ✅ Shareable Weekly Recap Card (#33)
+- **Priority:** Medium-high (viral growth)
+- **Status:** Done — shipped in commit a8e0d3b (2026-03-01)
+- **Details:**
+  - Canvas-generated 600x600 share image for social media
+  - Purple gradient design with stats visualization
+  - Shows earnings, time, sessions, streak, best break, peak day
+  - Rank badges (Break Legend, Power User, Consistent) based on activity
+  - Share via Web Share API with image attachment
+  - Twitter/X intent pre-fills shareable text
+  - Copy to clipboard and download image options
+
 ## Shipped (2026-02-28)
 
 ### ✅ Session Notes — Thoughts from the Throne (#14)
