@@ -299,6 +299,61 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
         </div>
       </section>
 
+      {/* Testimonials */}
+      <section className="py-24 px-4">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+              <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
+                What People Say
+              </span>
+            </h2>
+            <p className="text-slate-400 text-lg">Real users. Real bathroom breaks. Real earnings.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* NOTE: Replace with real testimonials as they come in */}
+            {[
+              {
+                quote: "I earned $147 last month just from bathroom breaks. My manager thinks I have a medical condition.",
+                name: "Jake",
+                role: "Software Engineer",
+                emoji: "💀",
+              },
+              {
+                quote: "Finally achieved Toilet Emperor status. Put it on my LinkedIn.",
+                name: "Sarah",
+                role: "Product Manager",
+                emoji: "👑",
+              },
+              {
+                quote: "The daily streak feature got me more consistent than any habit app. 32 days and counting.",
+                name: "Marcus",
+                role: "Data Analyst",
+                emoji: "🔥",
+              },
+            ].map(({ quote, name, role, emoji }, i) => (
+              <div
+                key={i}
+                className="bg-gradient-to-br from-black/60 to-black/40 backdrop-blur-xl rounded-2xl p-6 border border-slate-500/20 shadow-lg hover:border-amber-400/30 transition-all duration-300"
+              >
+                <div className="text-3xl mb-4">{emoji}</div>
+                <p className="text-slate-300 italic mb-4 leading-relaxed">"{quote}"</p>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-gradient-to-br from-amber-500/30 to-orange-500/30 rounded-full flex items-center justify-center text-amber-400 font-bold text-sm">
+                    {name[0]}
+                  </div>
+                  <div>
+                    <div className="text-white font-semibold text-sm">{name}</div>
+                    <div className="text-slate-500 text-xs">{role}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Social Proof / Stats */}
       <section className="py-24 px-4">
         <div className="max-w-4xl mx-auto">
