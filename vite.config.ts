@@ -56,6 +56,10 @@ export default defineConfig({
           'vendor-supabase': ['@supabase/supabase-js'],
           // recharts is heavy - keep it separate and lazy-loaded with Analytics
           'vendor-recharts': ['recharts', 'd3-scale', 'd3-shape', 'd3-array', 'd3-interpolate'],
+          // canvas-confetti for celebrations (~10KB)
+          'vendor-confetti': ['canvas-confetti'],
+          // uuid for session ids
+          'vendor-uuid': ['uuid'],
         },
       },
     },

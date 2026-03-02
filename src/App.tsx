@@ -5,14 +5,10 @@ import { User, Session, Achievement } from './types';
 import { DatabaseUtils } from './utils/database';
 import { CalculationUtils } from './utils/calculations';
 import { AchievementUtils } from './utils/achievements';
-import { celebrateAchievement, celebrateMultipleAchievements, celebrateStreakFreeze, celebrateSessionEnd, getAchievementRarity } from './utils/confetti';
 import { Haptics } from './utils/haptics';
 import { NotificationUtils } from './utils/notifications';
 import { SessionTracker } from './components/SessionTracker';
 import { Navigation } from './components/Navigation';
-import { Auth } from './components/Auth';
-import { Onboarding } from './components/Onboarding';
-import { LandingPage } from './components/LandingPage';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { 
   AnalyticsSkeleton, 
@@ -21,18 +17,28 @@ import {
   LeaderboardSkeleton, 
   ProfileSkeleton 
 } from './components/Skeleton';
-import { ResetPassword } from './components/ResetPassword';
-import { ShareSessionModal } from './components/ShareSessionModal';
-import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
 import { OfflineIndicator } from './components/OfflineIndicator';
-import { InstallPrompt } from './components/InstallPrompt';
-import { WelcomeBackModal } from './components/WelcomeBackModal';
-import { TutorialModal } from './components/TutorialModal';
-import { WeeklySummaryModal } from './components/WeeklySummaryModal';
-import { NotificationPrompt } from './components/NotificationPrompt';
-import { DailyChallenges } from './components/DailyChallenges';
+
+// Lazy-load auth/onboarding/landing flows (only one shown at a time)
+const Auth = lazy(() => import('./components/Auth').then(m => ({ default: m.Auth })));
+const Onboarding = lazy(() => import('./components/Onboarding').then(m => ({ default: m.Onboarding })));
+const LandingPage = lazy(() => import('./components/LandingPage').then(m => ({ default: m.LandingPage })));
+const ResetPassword = lazy(() => import('./components/ResetPassword').then(m => ({ default: m.ResetPassword })));
 import { supabase } from './utils/supabase';
 import { Analytics as GA } from './utils/analytics';
+
+// Lazy-load confetti utilities (canvas-confetti is ~10KB)
+const confettiUtils = () => import('./utils/confetti');
+
+// Lazy-load modal components (only shown conditionally)
+const ShareSessionModal = lazy(() => import('./components/ShareSessionModal').then(m => ({ default: m.ShareSessionModal })));
+const KeyboardShortcutsModal = lazy(() => import('./components/KeyboardShortcutsModal').then(m => ({ default: m.KeyboardShortcutsModal })));
+const InstallPrompt = lazy(() => import('./components/InstallPrompt').then(m => ({ default: m.InstallPrompt })));
+const WelcomeBackModal = lazy(() => import('./components/WelcomeBackModal').then(m => ({ default: m.WelcomeBackModal })));
+const TutorialModal = lazy(() => import('./components/TutorialModal').then(m => ({ default: m.TutorialModal })));
+const WeeklySummaryModal = lazy(() => import('./components/WeeklySummaryModal').then(m => ({ default: m.WeeklySummaryModal })));
+const NotificationPrompt = lazy(() => import('./components/NotificationPrompt').then(m => ({ default: m.NotificationPrompt })));
+const DailyChallenges = lazy(() => import('./components/DailyChallenges').then(m => ({ default: m.DailyChallenges })));
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 
@@ -376,11 +382,15 @@ function App() {
       if (newlyUnlocked.length === 1) {
         // Single achievement - use rarity-based celebration
         const achievement = newlyUnlocked[0];
-        const rarity = getAchievementRarity(achievement.threshold, achievement.id);
-        celebrateAchievement(rarity);
+        confettiUtils().then(({ getAchievementRarity, celebrateAchievement }) => {
+          const rarity = getAchievementRarity(achievement.threshold, achievement.id);
+          celebrateAchievement(rarity);
+        });
       } else {
         // Multiple achievements at once - special multi celebration
-        celebrateMultipleAchievements(newlyUnlocked.length);
+        confettiUtils().then(({ celebrateMultipleAchievements }) => {
+          celebrateMultipleAchievements(newlyUnlocked.length);
+        });
       }
     }
   }, [user, achievements]);
@@ -480,10 +490,10 @@ function App() {
 
       if (streakResult.freezeGranted) {
         GA.event('Streak Freeze Earned', { streak: streakResult.currentStreak });
-        celebrateStreakFreeze();
+        confettiUtils().then(({ celebrateStreakFreeze }) => celebrateStreakFreeze());
       } else {
         // Session quality celebration (skip if freeze fires — that's the main event)
-        celebrateSessionEnd(earnings, duration, isPersonalRecord);
+        confettiUtils().then(({ celebrateSessionEnd }) => celebrateSessionEnd(earnings, duration, isPersonalRecord));
       }
       if (streakResult.freezeConsumed) {
         GA.event('Streak Freeze Used', { streak: streakResult.currentStreak });
@@ -602,21 +612,23 @@ function App() {
   // Show password reset page if token is present
   if (resetPasswordToken) {
     return (
-      <ResetPassword
-        token={resetPasswordToken}
-        supabaseUrl={supabaseUrl}
-        onSuccess={() => {
-          setResetPasswordToken(null);
-          // Clear URL params
-          window.history.replaceState({}, '', '/');
-          setShowAuth(true);
-          setAuthDefaultLogin(true);
-        }}
-        onBack={() => {
-          setResetPasswordToken(null);
-          window.history.replaceState({}, '', '/');
-        }}
-      />
+      <Suspense fallback={<div className="min-h-screen bg-black flex items-center justify-center"><LoadingSpinner /></div>}>
+        <ResetPassword
+          token={resetPasswordToken}
+          supabaseUrl={supabaseUrl}
+          onSuccess={() => {
+            setResetPasswordToken(null);
+            // Clear URL params
+            window.history.replaceState({}, '', '/');
+            setShowAuth(true);
+            setAuthDefaultLogin(true);
+          }}
+          onBack={() => {
+            setResetPasswordToken(null);
+            window.history.replaceState({}, '', '/');
+          }}
+        />
+      </Suspense>
     );
   }
 
@@ -633,26 +645,30 @@ function App() {
   if (!authUserId) {
     if (showAuth) {
       return (
-        <div className="min-h-screen bg-black">
-          <div className="container mx-auto px-4 pt-6">
-            <button
-              onClick={() => setShowAuth(false)}
-              className="text-slate-400 hover:text-slate-200 transition-colors text-sm mb-4 flex items-center gap-1"
-            >
-              ← Back to home
-            </button>
+        <Suspense fallback={<div className="min-h-screen bg-black flex items-center justify-center"><LoadingSpinner /></div>}>
+          <div className="min-h-screen bg-black">
+            <div className="container mx-auto px-4 pt-6">
+              <button
+                onClick={() => setShowAuth(false)}
+                className="text-slate-400 hover:text-slate-200 transition-colors text-sm mb-4 flex items-center gap-1"
+              >
+                ← Back to home
+              </button>
+            </div>
+            <Auth onAuthSuccess={(userId) => setAuthUserId(userId)} defaultIsLogin={authDefaultLogin} />
           </div>
-          <Auth onAuthSuccess={(userId) => setAuthUserId(userId)} defaultIsLogin={authDefaultLogin} />
-        </div>
+        </Suspense>
       );
     }
     return (
-      <LandingPage
-        onGetStarted={(mode) => {
-          setAuthDefaultLogin(mode === 'login');
-          setShowAuth(true);
-        }}
-      />
+      <Suspense fallback={<div className="min-h-screen bg-black flex items-center justify-center"><LoadingSpinner /></div>}>
+        <LandingPage
+          onGetStarted={(mode) => {
+            setAuthDefaultLogin(mode === 'login');
+            setShowAuth(true);
+          }}
+        />
+      </Suspense>
     );
   }
 
@@ -670,36 +686,38 @@ function App() {
     const capturedRefCode = sessionStorage.getItem('pendingReferralCode') || undefined;
     
     return (
-      <Onboarding
-        initialReferralCode={capturedRefCode}
-        onComplete={async (salary, salaryPeriod, hourlyWage, manualRefCode) => {
-          try {
-            const updatedUser = { ...user, salary, salaryPeriod, hourlyWage, onboarded: true };
-            await DatabaseUtils.updateUser(updatedUser);
-            setUser(updatedUser);
-            GA.event('Onboarding Completed', { salaryPeriod });
+      <Suspense fallback={<div className="min-h-screen bg-black flex items-center justify-center"><LoadingSpinner /></div>}>
+        <Onboarding
+          initialReferralCode={capturedRefCode}
+          onComplete={async (salary, salaryPeriod, hourlyWage, manualRefCode) => {
+            try {
+              const updatedUser = { ...user, salary, salaryPeriod, hourlyWage, onboarded: true };
+              await DatabaseUtils.updateUser(updatedUser);
+              setUser(updatedUser);
+              GA.event('Onboarding Completed', { salaryPeriod });
 
-            // Apply referral code: prefer manual input, fall back to URL-captured code
-            const refCode = manualRefCode || sessionStorage.getItem('pendingReferralCode');
-            if (refCode) {
-              sessionStorage.removeItem('pendingReferralCode');
-              const applied = await DatabaseUtils.applyReferral(user.id, refCode);
-              if (applied) {
-                GA.event('Referral Applied', { code: refCode, source: manualRefCode ? 'manual' : 'url' });
+              // Apply referral code: prefer manual input, fall back to URL-captured code
+              const refCode = manualRefCode || sessionStorage.getItem('pendingReferralCode');
+              if (refCode) {
+                sessionStorage.removeItem('pendingReferralCode');
+                const applied = await DatabaseUtils.applyReferral(user.id, refCode);
+                if (applied) {
+                  GA.event('Referral Applied', { code: refCode, source: manualRefCode ? 'manual' : 'url' });
+                }
               }
+              
+              // Show tutorial after onboarding (check if not shown before)
+              const tutorialShown = localStorage.getItem('tutorialShown');
+              if (!tutorialShown) {
+                setShowTutorial(true);
+              }
+            } catch (error) {
+              console.error('Failed to save onboarding:', error);
+              throw error;
             }
-            
-            // Show tutorial after onboarding (check if not shown before)
-            const tutorialShown = localStorage.getItem('tutorialShown');
-            if (!tutorialShown) {
-              setShowTutorial(true);
-            }
-          } catch (error) {
-            console.error('Failed to save onboarding:', error);
-            throw error;
-          }
-        }}
-      />
+          }}
+        />
+      </Suspense>
     );
   }
 
@@ -722,10 +740,12 @@ function App() {
               cooldownRemaining={cooldownRemaining}
               todayEarnings={todayEarnings}
             />
-            <DailyChallenges
-              sessions={sessions}
-              currentStreak={user.currentStreak}
-            />
+            <Suspense fallback={null}>
+              <DailyChallenges
+                sessions={sessions}
+                currentStreak={user.currentStreak}
+              />
+            </Suspense>
           </>
         );
       }
@@ -862,85 +882,90 @@ function App() {
         </div>
       </div>
 
-      {/* Share session modal */}
-      {completedSession && (
-        <ShareSessionModal
-          session={completedSession}
-          currentStreak={user.currentStreak}
-          onClose={() => {
-            setCompletedSession(null);
-            // After share modal — offer notification opt-in if:
-            //   • never asked before
-            //   • not already enabled
-            //   • permission not denied
-            const alreadyAsked = localStorage.getItem(NOTIF_PROMPT_KEY);
-            const alreadyEnabled = NotificationUtils.isEnabled();
-            const permission = NotificationUtils.getPermission();
-            if (!alreadyAsked && !alreadyEnabled && permission !== 'denied' && permission !== 'unsupported') {
-              setShowNotificationPrompt(true);
-            }
-          }}
-        />
-      )}
+      {/* Lazy-loaded modals — wrapped in Suspense */}
+      <Suspense fallback={null}>
+        {/* Share session modal */}
+        {completedSession && (
+          <ShareSessionModal
+            session={completedSession}
+            currentStreak={user.currentStreak}
+            onClose={() => {
+              setCompletedSession(null);
+              // After share modal — offer notification opt-in if:
+              //   • never asked before
+              //   • not already enabled
+              //   • permission not denied
+              const alreadyAsked = localStorage.getItem(NOTIF_PROMPT_KEY);
+              const alreadyEnabled = NotificationUtils.isEnabled();
+              const permission = NotificationUtils.getPermission();
+              if (!alreadyAsked && !alreadyEnabled && permission !== 'denied' && permission !== 'unsupported') {
+                setShowNotificationPrompt(true);
+              }
+            }}
+          />
+        )}
 
-      {/* Keyboard shortcuts modal */}
-      <KeyboardShortcutsModal
-        isOpen={showShortcutsModal}
-        onClose={() => setShowShortcutsModal(false)}
-      />
+        {/* Keyboard shortcuts modal */}
+        {showShortcutsModal && (
+          <KeyboardShortcutsModal
+            isOpen={showShortcutsModal}
+            onClose={() => setShowShortcutsModal(false)}
+          />
+        )}
 
-      {/* PWA install prompt */}
-      <InstallPrompt sessionCount={sessions.filter(s => !s.isActive).length} />
+        {/* PWA install prompt */}
+        <InstallPrompt sessionCount={sessions.filter(s => !s.isActive).length} />
 
-      {/* Welcome back modal for dormant users */}
-      {user && (
-        <WelcomeBackModal
-          user={user}
-          sessions={sessions}
-          onDismiss={() => {}}
-          onStartSession={() => setActiveTab('tracker')}
-        />
-      )}
+        {/* Welcome back modal for dormant users */}
+        {user && (
+          <WelcomeBackModal
+            user={user}
+            sessions={sessions}
+            onDismiss={() => {}}
+            onStartSession={() => setActiveTab('tracker')}
+          />
+        )}
 
-      {/* Tutorial modal for first-time users */}
-      {showTutorial && (
-        <TutorialModal
-          onClose={() => {
-            setShowTutorial(false);
-            localStorage.setItem('tutorialShown', 'true');
-            GA.event('Tutorial Completed', {});
-          }}
-        />
-      )}
+        {/* Tutorial modal for first-time users */}
+        {showTutorial && (
+          <TutorialModal
+            onClose={() => {
+              setShowTutorial(false);
+              localStorage.setItem('tutorialShown', 'true');
+              GA.event('Tutorial Completed', {});
+            }}
+          />
+        )}
 
-      {/* Notification opt-in prompt — shown once after first session if not already enabled */}
-      {showNotificationPrompt && user && (
-        <NotificationPrompt
-          streakDays={user.currentStreak || 1}
-          onAccept={() => {
-            localStorage.setItem(NOTIF_PROMPT_KEY, 'true');
-            setShowNotificationPrompt(false);
-            GA.event('Notifications Enabled via Prompt', { streak: user.currentStreak });
-          }}
-          onDismiss={() => {
-            localStorage.setItem(NOTIF_PROMPT_KEY, 'true');
-            setShowNotificationPrompt(false);
-            GA.event('Notifications Prompt Dismissed', { streak: user.currentStreak });
-          }}
-        />
-      )}
+        {/* Notification opt-in prompt — shown once after first session if not already enabled */}
+        {showNotificationPrompt && user && (
+          <NotificationPrompt
+            streakDays={user.currentStreak || 1}
+            onAccept={() => {
+              localStorage.setItem(NOTIF_PROMPT_KEY, 'true');
+              setShowNotificationPrompt(false);
+              GA.event('Notifications Enabled via Prompt', { streak: user.currentStreak });
+            }}
+            onDismiss={() => {
+              localStorage.setItem(NOTIF_PROMPT_KEY, 'true');
+              setShowNotificationPrompt(false);
+              GA.event('Notifications Prompt Dismissed', { streak: user.currentStreak });
+            }}
+          />
+        )}
 
-      {/* Weekly earnings summary — Monday morning recap */}
-      {showWeeklySummary && user && (
-        <WeeklySummaryModal
-          user={user}
-          sessions={sessions}
-          onClose={() => {
-            setShowWeeklySummary(false);
-            GA.event('Weekly Summary Dismissed', {});
-          }}
-        />
-      )}
+        {/* Weekly earnings summary — Monday morning recap */}
+        {showWeeklySummary && user && (
+          <WeeklySummaryModal
+            user={user}
+            sessions={sessions}
+            onClose={() => {
+              setShowWeeklySummary(false);
+              GA.event('Weekly Summary Dismissed', {});
+            }}
+          />
+        )}
+      </Suspense>
     </div>
   );
 }
