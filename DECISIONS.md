@@ -1,5 +1,39 @@
 # DECISIONS.md — Back-log
 
+## Shipped (2026-03-02)
+
+### ✅ Code-Split Large Chunks (#54)
+- **Priority:** Medium (performance)
+- **Status:** Done — shipped in commit 67bdd69 (2026-03-02)
+- **Details:**
+  - Main bundle reduced from 561KB to 473KB (15.7% reduction)
+  - Lazy-loaded modal components (ShareSessionModal, TutorialModal, etc.)
+  - Lazy-loaded auth flow components (Auth, Onboarding, LandingPage, ResetPassword)
+  - Lazy-loaded DailyChallenges component
+  - Dynamic import for confetti utilities (canvas-confetti)
+  - Split vendor chunks for canvas-confetti and uuid
+  - Now under 500KB warning threshold
+
+### ✅ Session Categories/Tags (#13)
+- **Priority:** Medium (engagement + virality)
+- **Status:** Done — shipped in commit 04e2a52 (2026-03-02)
+- **Details:**
+  - Migration 031_session_categories.sql: adds `category` column to sessions
+  - 6 categories: bathroom 🚽, coffee ☕, lunch 🍔, walk 🚶, chat 💬, other ✨
+  - Quick-select during active sessions (optional, don't force)
+  - Category badge displayed in session history
+  - CSV export includes category column
+  - **Action needed:** Run `supabase db push` to deploy migration 031
+
+### ✅ Landing Page Testimonials (#39)
+- **Priority:** Medium (growth)
+- **Status:** Done — shipped in commit 73f158a (2026-03-02)
+- **Details:**
+  - 3 testimonial cards between Features and Join the Movement sections
+  - Placeholder testimonials with humor (replace with real ones as collected)
+  - Amber/orange gradient theme matching brand
+  - Initial text includes roles and fun quotes
+
 ## Shipped (2026-03-01)
 
 ### ✅ Session Notes Journal View (#53)

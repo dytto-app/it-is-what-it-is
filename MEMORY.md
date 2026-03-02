@@ -14,9 +14,12 @@ I'm Nora. PM for Back-log — a bathroom break social game. Not a productivity t
 
 ---
 
-## Current State (as of 2026-03-01)
+## Current State (as of 2026-03-02)
 
 ### Recently Shipped
+- **Landing Page Testimonials** (2026-03-02) — 3 testimonial cards with placeholder quotes. Amber/orange gradient. Replace with real testimonials as collected. #39 closed.
+- **Session Categories/Tags** (2026-03-02) — 6 break types (bathroom 🚽, coffee ☕, lunch 🍔, walk 🚶, chat 💬, other ✨). Quick-select during session, displays in history, CSV export. Migration 031. #13 closed.
+- **Code-Split Large Chunks** (2026-03-02) — Main bundle 561KB → 473KB (15.7% reduction). Lazy-loaded modals, auth flows, confetti. #54 closed.
 - **Session Notes Journal View** (2026-03-01) — dedicated journal view in History tab for browsing all session notes. Toggle between Sessions ↔ Journal, search, grouped by day. #53 closed.
 - **Shareable Weekly Recap Card** (2026-03-01) — canvas-generated 600x600 image for social sharing. Twitter integration, download, copy. Rank badges based on activity. #33 closed.
 - **Session Notes — Thoughts from the Throne** (2026-02-28) — users can jot down ideas during active sessions. Notes display in session history, searchable, included in CSV export. Migration 030 live. #14 closed.
