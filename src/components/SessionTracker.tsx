@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Play, Square, DollarSign, Clock, Sparkles, Flame, PenLine } from 'lucide-react';
-import { Session, User } from '../types';
+import { Session, User, SessionCategory, SESSION_CATEGORIES } from '../types';
 import { CalculationUtils } from '../utils/calculations';
 import confetti from 'canvas-confetti';
 
@@ -10,7 +10,7 @@ interface SessionTrackerProps {
   user: User;
   activeSession: Session | null;
   onSessionStart: () => void;
-  onSessionEnd: (notes?: string) => void;
+  onSessionEnd: (notes?: string, category?: SessionCategory | null) => void;
   currentEarnings: number;
   currentDuration: number;
   cooldownRemaining?: number;
@@ -78,6 +78,7 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
   const [animate, setAnimate] = useState(false);
   const [ripples, setRipples] = useState<Array<{ id: number; x: number; y: number }>>([]);
   const [sessionNotes, setSessionNotes] = useState('');
+  const [sessionCategory, setSessionCategory] = useState<SessionCategory | null>(null);
   
   useEffect(() => {
     if (activeSession) {
@@ -85,8 +86,9 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
       const interval = setInterval(() => setAnimate(a => !a), 3000);
       return () => clearInterval(interval);
     } else {
-      // Clear notes when session ends
+      // Clear notes and category when session ends
       setSessionNotes('');
+      setSessionCategory(null);
     }
   }, [activeSession]);
 
@@ -127,7 +129,7 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
     }, 1000);
 
     if (activeSession) {
-      onSessionEnd(sessionNotes.trim() || undefined);
+      onSessionEnd(sessionNotes.trim() || undefined, sessionCategory);
     } else {
       onSessionStart();
     }
@@ -330,6 +332,34 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
                   {sessionNotes.length}/500
                 </div>
               )}
+            </div>
+
+            {/* Category quick-select */}
+            <div className="bg-gradient-to-br from-black/60 via-black/50 to-black/60 backdrop-blur-xl rounded-2xl p-4 border border-slate-500/20">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-slate-400 text-xs font-medium">Break type</span>
+                <span className="text-slate-600 text-xs">(optional)</span>
+              </div>
+              <div className="flex flex-wrap gap-2 justify-center">
+                {(Object.keys(SESSION_CATEGORIES) as SessionCategory[]).map(cat => {
+                  const { emoji, label } = SESSION_CATEGORIES[cat];
+                  const isSelected = sessionCategory === cat;
+                  return (
+                    <button
+                      key={cat}
+                      onClick={() => setSessionCategory(isSelected ? null : cat)}
+                      className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                        isSelected
+                          ? 'bg-indigo-500/30 border border-indigo-400/50 text-indigo-300 scale-105'
+                          : 'bg-black/30 border border-slate-600/30 text-slate-400 hover:bg-slate-800/50 hover:text-slate-300'
+                      }`}
+                    >
+                      <span className="mr-1.5">{emoji}</span>
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
         )}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { User as UserIcon, LogOut, HelpCircle } from 'lucide-react';
-import { User, Session, Achievement } from './types';
+import { User, Session, Achievement, SessionCategory } from './types';
 import { DatabaseUtils } from './utils/database';
 import { CalculationUtils } from './utils/calculations';
 import { AchievementUtils } from './utils/achievements';
@@ -84,7 +84,7 @@ function App() {
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
   const [showWeeklySummary, setShowWeeklySummary] = useState(false);
   const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
-  const handleSessionEndRef = useRef<((notes?: string) => void) | null>(null);
+  const handleSessionEndRef = useRef<((notes?: string, category?: SessionCategory | null) => void) | null>(null);
 
   const NOTIF_PROMPT_KEY = 'notifPromptShown';
 
@@ -438,7 +438,7 @@ function App() {
     }
   };
 
-  const handleSessionEnd = useCallback(async (notes?: string) => {
+  const handleSessionEnd = useCallback(async (notes?: string, category?: SessionCategory | null) => {
     if (!activeSession || !user) return;
 
     const endTime = new Date();
@@ -450,7 +450,7 @@ function App() {
     const isPersonalRecord = earnings > 0 && earnings > prevMaxEarnings;
 
     try {
-      await DatabaseUtils.endSession(activeSession.id, endTime, duration, earnings, notes);
+      await DatabaseUtils.endSession(activeSession.id, endTime, duration, earnings, notes, category);
 
       // Update streak after session ends
       const streakResult = await DatabaseUtils.updateStreak(user.id);
@@ -470,7 +470,8 @@ function App() {
         duration,
         earnings,
         isActive: false,
-        notes: notes?.trim() || undefined
+        notes: notes?.trim() || undefined,
+        category: category || undefined
       };
 
       const updatedSessions = [...sessions, finishedSession];
@@ -531,7 +532,7 @@ function App() {
     
     if (format === 'csv') {
       // CSV export for sessions only
-      const headers = ['date', 'start_time', 'end_time', 'duration_seconds', 'earnings', 'notes'];
+      const headers = ['date', 'start_time', 'end_time', 'duration_seconds', 'earnings', 'category', 'notes'];
       const rows = sessions
         .filter(s => !s.isActive && s.endTime)
         .map(s => [
@@ -540,6 +541,7 @@ function App() {
           s.endTime?.toISOString() || '',
           s.duration.toString(),
           s.earnings.toFixed(2),
+          s.category || '',
           // Escape quotes in notes for CSV
           s.notes ? `"${s.notes.replace(/"/g, '""')}"` : ''
         ]);

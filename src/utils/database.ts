@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { User, Session, Achievement } from '../types';
+import { User, Session, Achievement, SessionCategory } from '../types';
 
 // Database row type for session data in leaderboard queries
 interface DbSession {
@@ -129,7 +129,8 @@ export const DatabaseUtils = {
       duration: s.duration,
       earnings: Number(s.earnings),
       isActive: s.is_active,
-      notes: s.notes || undefined
+      notes: s.notes || undefined,
+      category: (s.category as SessionCategory) || undefined
     }));
   },
 
@@ -159,11 +160,12 @@ export const DatabaseUtils = {
       duration: data.duration,
       earnings: Number(data.earnings),
       isActive: data.is_active,
-      notes: data.notes || undefined
+      notes: data.notes || undefined,
+      category: (data.category as SessionCategory) || undefined
     };
   },
 
-  async endSession(sessionId: string, endTime: Date, duration: number, earnings: number, notes?: string): Promise<void> {
+  async endSession(sessionId: string, endTime: Date, duration: number, earnings: number, notes?: string, category?: SessionCategory | null): Promise<void> {
     const { error } = await supabase
       .from('sessions')
       .update({
@@ -171,11 +173,21 @@ export const DatabaseUtils = {
         duration,
         earnings: earnings,
         is_active: false,
-        notes: notes?.trim() || null
+        notes: notes?.trim() || null,
+        category: category || null
       })
       .eq('id', sessionId);
 
     if (error) throw new Error(`Failed to end session: ${error.message}`);
+  },
+
+  async updateSessionCategory(sessionId: string, category: SessionCategory | null): Promise<void> {
+    const { error } = await supabase
+      .from('sessions')
+      .update({ category: category || null })
+      .eq('id', sessionId);
+
+    if (error) throw new Error(`Failed to update session category: ${error.message}`);
   },
 
   async updateSessionNotes(sessionId: string, notes: string): Promise<void> {

@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Download, Calendar, Clock, DollarSign, History, TrendingUp, Filter, Search, Zap, Target, ChevronLeft, ChevronRight, PenLine, BookOpen } from 'lucide-react';
-import { Session } from '../types';
+import { Session, SESSION_CATEGORIES } from '../types';
 import { CalculationUtils } from '../utils/calculations';
 import { NotesJournal } from './NotesJournal';
 
@@ -406,6 +406,12 @@ export const SessionHistory: React.FC<SessionHistoryProps> = ({ sessions, onExpo
                           day: 'numeric'
                         })}
                       </span>
+                      {/* Category badge */}
+                      {session.category && SESSION_CATEGORIES[session.category] && (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-black/30 border border-slate-600/30 text-slate-400">
+                          {SESSION_CATEGORIES[session.category].emoji} {SESSION_CATEGORIES[session.category].label}
+                        </span>
+                      )}
                     </div>
                     {isTopPerformer && (
                       <div className="text-xs text-emerald-400 font-bold">

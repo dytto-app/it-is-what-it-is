@@ -20,6 +20,19 @@ export interface User {
   referralCount?: number;
 }
 
+/** Valid session category values */
+export type SessionCategory = 'bathroom' | 'coffee' | 'lunch' | 'walk' | 'chat' | 'other';
+
+/** Category display info */
+export const SESSION_CATEGORIES: Record<SessionCategory, { emoji: string; label: string; color: string }> = {
+  bathroom: { emoji: '🚽', label: 'Bathroom', color: 'indigo' },
+  coffee: { emoji: '☕', label: 'Coffee', color: 'amber' },
+  lunch: { emoji: '🍔', label: 'Lunch', color: 'orange' },
+  walk: { emoji: '🚶', label: 'Walk', color: 'emerald' },
+  chat: { emoji: '💬', label: 'Chat', color: 'blue' },
+  other: { emoji: '✨', label: 'Other', color: 'slate' },
+};
+
 export interface Session {
   id: string;
   userId: string;
@@ -30,6 +43,8 @@ export interface Session {
   isActive: boolean;
   /** Optional notes/ideas captured during the session */
   notes?: string;
+  /** Optional break category (bathroom, coffee, lunch, walk, chat, other) */
+  category?: SessionCategory | null;
 }
 
 export interface Achievement {
