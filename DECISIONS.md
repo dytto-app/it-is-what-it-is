@@ -1,5 +1,21 @@
 # DECISIONS.md — Back-log
 
+## Shipped (2026-03-04)
+
+### ✅ UX: Keyboard Shortcut Hint on Tracker
+- **Priority:** Low (polish)
+- **Status:** Done — shipped in commit 964f91c (2026-03-04)
+- **Details:**
+  - Shows "Press Space to start/stop" hint on desktop tracker
+  - Hidden on mobile (md: breakpoint)
+  - Styled with kbd element matching app aesthetic
+  - Fixed lint warning in main.tsx (eslint-disable for fast-refresh rule)
+
+### 📝 Issues Created
+- **#55**: Yearly wrap-up — Spotify Wrapped style review
+- **#56**: Lazy-load recharts — 364KB is hurting initial load
+- **#57**: Session scheduling — plan your breaks
+
 ## Shipped (2026-03-02)
 
 ### ✅ Code-Split Large Chunks (#54)

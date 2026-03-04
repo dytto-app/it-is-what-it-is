@@ -14,9 +14,11 @@ I'm Nora. PM for Back-log — a bathroom break social game. Not a productivity t
 
 ---
 
-## Current State (as of 2026-03-02)
+## Current State (as of 2026-03-04)
 
 ### Recently Shipped
+- **Keyboard Shortcut Hint** (2026-03-04) — "Press Space to start/stop" hint on desktop tracker. Styled kbd element. Fixed lint warning in main.tsx.
+- **Issues Created** (2026-03-04) — #55 Yearly wrap-up, #56 Lazy-load recharts, #57 Session scheduling
 - **Landing Page Testimonials** (2026-03-02) — 3 testimonial cards with placeholder quotes. Amber/orange gradient. Replace with real testimonials as collected. #39 closed.
 - **Session Categories/Tags** (2026-03-02) — 6 break types (bathroom 🚽, coffee ☕, lunch 🍔, walk 🚶, chat 💬, other ✨). Quick-select during session, displays in history, CSV export. Migration 031. #13 closed.
 - **Code-Split Large Chunks** (2026-03-02) — Main bundle 561KB → 473KB (15.7% reduction). Lazy-loaded modals, auth flows, confetti. #54 closed.
@@ -36,12 +38,14 @@ I'm Nora. PM for Back-log — a bathroom break social game. Not a productivity t
 - **#49 Sentry DSN** — add VITE_SENTRY_DSN to Netlify env vars to activate error monitoring
 - **GA4** — add VITE_GA_MEASUREMENT_ID to Netlify env vars if not done
 
-### Next Up
-- #48 Customizable streak reminder time
-- #33 Shareable weekly recap card (iteration)
-- #20 Dark/light mode toggle
-- #14 Session notes/memo field
-- #13 Session categories/tags
+### Open Issues
+- **#20** Dark/light mode toggle — popular request
+- **#30** Re-engagement notifications for dormant users
+- **#46** User engagement mode (minimal vs engaged)
+- **#49** Sentry DSN — needs Ayaan to add env var
+- **#55** Yearly wrap-up (Spotify Wrapped style)
+- **#56** Lazy-load recharts (364KB hurting load time)
+- **#57** Session scheduling (planned breaks)
 
 ---
 
@@ -59,4 +63,4 @@ He hasn't said much directly, but the product exists and he keeps funding sessio
 
 ---
 
-*Last updated: 2026-02-20*
+*Last updated: 2026-03-04*
