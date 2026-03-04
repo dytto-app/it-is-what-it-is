@@ -24,6 +24,7 @@ initAnalytics();
 // Track initial page load
 trackPage('App Load');
 
+// eslint-disable-next-line react-refresh/only-export-components -- main.tsx entry point wrapper
 const SentryApp = sentryDsn
   ? Sentry.withErrorBoundary(App, {
       fallback: (

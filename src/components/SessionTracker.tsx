@@ -364,6 +364,11 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
           </div>
         )}
 
+        {/* Keyboard hint for desktop */}
+        <div className="hidden md:block mb-4 text-slate-600 text-xs font-medium">
+          Press <kbd className="px-1.5 py-0.5 bg-slate-800 border border-slate-700 rounded text-slate-400 font-mono">Space</kbd> to {activeSession ? 'stop' : 'start'}
+        </div>
+
         {/* Enhanced hourly rate display */}
         <div className="bg-gradient-to-br from-black/40 via-black/30 to-black/40 backdrop-blur-xl rounded-2xl p-6 border border-slate-500/20 shadow-lg">
           <div className="text-sm text-slate-400 mb-2 font-medium">Rate</div>
