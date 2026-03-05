@@ -1,5 +1,25 @@
 # DECISIONS.md — Back-log
 
+## Shipped (2026-03-05)
+
+### ✅ Perf: Replace recharts with lightweight SVG chart (#56)
+- **Priority:** Medium (performance)
+- **Status:** Done — shipped in commits dafe667, d62835a (2026-03-05)
+- **Details:**
+  - Created SimpleBarChart component (~2KB vs recharts 364KB)
+  - Eliminated recharts dependency entirely
+  - Bundle size: 1504KB → 1149KB (23.6% reduction)
+  - Added hover tooltips with value display
+  - Responsive CSS flexbox design
+  - Same visual output, dramatically smaller
+
+### 📝 Issues Created
+- **#58**: Filter session history by category
+- **#59**: Reddit share button on share modals
+
+### 🗑️ Issues Closed
+- **#30**: Re-engagement notifications (Phase 1 shipped, Phase 2 covered by #8)
+
 ## Shipped (2026-03-04)
 
 ### ✅ UX: Keyboard Shortcut Hint on Tracker

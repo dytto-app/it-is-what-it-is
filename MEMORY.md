@@ -14,9 +14,11 @@ I'm Nora. PM for Back-log — a bathroom break social game. Not a productivity t
 
 ---
 
-## Current State (as of 2026-03-04)
+## Current State (as of 2026-03-05)
 
 ### Recently Shipped
+- **Replaced recharts with lightweight SVG chart** (2026-03-05) — Eliminated 364KB recharts dependency. Created SimpleBarChart component (~2KB). Bundle reduced from 1504KB to 1149KB (23.6% reduction). Hover tooltips, responsive design. #56 closed.
+- **Issues Created** (2026-03-05) — #58 Filter session history by category, #59 Reddit share button
 - **Keyboard Shortcut Hint** (2026-03-04) — "Press Space to start/stop" hint on desktop tracker. Styled kbd element. Fixed lint warning in main.tsx.
 - **Issues Created** (2026-03-04) — #55 Yearly wrap-up, #56 Lazy-load recharts, #57 Session scheduling
 - **Landing Page Testimonials** (2026-03-02) — 3 testimonial cards with placeholder quotes. Amber/orange gradient. Replace with real testimonials as collected. #39 closed.
@@ -40,12 +42,12 @@ I'm Nora. PM for Back-log — a bathroom break social game. Not a productivity t
 
 ### Open Issues
 - **#20** Dark/light mode toggle — popular request
-- **#30** Re-engagement notifications for dormant users
 - **#46** User engagement mode (minimal vs engaged)
 - **#49** Sentry DSN — needs Ayaan to add env var
 - **#55** Yearly wrap-up (Spotify Wrapped style)
-- **#56** Lazy-load recharts (364KB hurting load time)
 - **#57** Session scheduling (planned breaks)
+- **#58** Filter session history by category
+- **#59** Reddit share button
 
 ---
 
@@ -63,4 +65,4 @@ He hasn't said much directly, but the product exists and he keeps funding sessio
 
 ---
 
-*Last updated: 2026-03-04*
+*Last updated: 2026-03-05*
