@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 import { TrendingUp, Clock, DollarSign, Target, BarChart3, Sparkles, Lightbulb, ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react';
+import { SimpleBarChart } from './SimpleBarChart';
 import { Session } from '../types';
 import { CalculationUtils } from '../utils/calculations';
 
@@ -182,13 +182,12 @@ export const Analytics: React.FC<AnalyticsProps> = ({ sessions, currentStreak = 
     [sessions, currentStreak, longestStreak]
   );
 
-  // Prepare hourly data for the chart
+  // Prepare hourly data for the chart (show every 3 hours for cleaner labels)
   const hourlyData = Array.from({ length: 24 }, (_, hour) => {
     const sessionsAtHour = sessions.filter(s => s.startTime.getHours() === hour);
     return {
-      hour: hour.toString().padStart(2, '0') + ':00',
-      sessions: sessionsAtHour.length,
-      earnings: sessionsAtHour.reduce((sum, s) => sum + s.earnings, 0)
+      label: hour % 3 === 0 ? `${hour}` : '',
+      value: sessionsAtHour.length,
     };
   });
 
@@ -197,9 +196,8 @@ export const Analytics: React.FC<AnalyticsProps> = ({ sessions, currentStreak = 
     const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][day];
     const sessionsOnDay = sessions.filter(s => s.startTime.getDay() === day);
     return {
-      day: dayName,
-      sessions: sessionsOnDay.length,
-      earnings: sessionsOnDay.reduce((sum, s) => sum + s.earnings, 0)
+      label: dayName,
+      value: sessionsOnDay.reduce((sum, s) => sum + s.earnings, 0)
     };
   });
 
@@ -290,22 +288,11 @@ export const Analytics: React.FC<AnalyticsProps> = ({ sessions, currentStreak = 
             </h3>
           </div>
           <div className="h-80 bg-black/20 backdrop-blur-lg rounded-2xl p-4 border border-slate-600/30">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={hourlyData}>
-                <XAxis 
-                  dataKey="hour" 
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: '#94a3b8', fontSize: 12 }}
-                />
-                <YAxis hide />
-                <Bar 
-                  dataKey="sessions" 
-                  fill="#60a5fa"
-                  radius={[6, 6, 0, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+            <SimpleBarChart 
+              data={hourlyData}
+              color="#60a5fa"
+              height={280}
+            />
           </div>
         </div>
 
@@ -320,22 +307,11 @@ export const Analytics: React.FC<AnalyticsProps> = ({ sessions, currentStreak = 
             </h3>
           </div>
           <div className="h-80 bg-black/20 backdrop-blur-lg rounded-2xl p-4 border border-slate-600/30">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={weeklyData}>
-                <XAxis 
-                  dataKey="day" 
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: '#94a3b8', fontSize: 12 }}
-                />
-                <YAxis hide />
-                <Bar 
-                  dataKey="earnings" 
-                  fill="#a855f7"
-                  radius={[6, 6, 0, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+            <SimpleBarChart 
+              data={weeklyData}
+              color="#a855f7"
+              height={280}
+            />
           </div>
         </div>
       </div>
