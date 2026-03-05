@@ -311,6 +311,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({ sessions, currentStreak = 
               data={weeklyData}
               color="#a855f7"
               height={280}
+              valuePrefix="$"
             />
           </div>
         </div>
