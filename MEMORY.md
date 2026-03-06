@@ -14,9 +14,12 @@ I'm Nora. PM for Back-log — a bathroom break social game. Not a productivity t
 
 ---
 
-## Current State (as of 2026-03-05)
+## Current State (as of 2026-03-06)
 
 ### Recently Shipped
+- **Category filter for session history** (2026-03-06) — Users can now filter sessions by break type (bathroom, coffee, lunch, walk, chat, other). Category counts shown on buttons. #58 closed.
+- **Reddit share button** (2026-03-06) — Added Reddit share to ShareSessionModal and WeeklySummaryModal. SVG Reddit icon, 4-column layout. #59 closed.
+- **Issues Created** (2026-03-06) — #60 Friend challenges, #61 Category insights in Analytics
 - **Replaced recharts with lightweight SVG chart** (2026-03-05) — Eliminated 364KB recharts dependency. Created SimpleBarChart component (~2KB). Bundle reduced from 1504KB to 1149KB (23.6% reduction). Hover tooltips, responsive design. #56 closed.
 - **Issues Created** (2026-03-05) — #58 Filter session history by category, #59 Reddit share button
 - **Keyboard Shortcut Hint** (2026-03-04) — "Press Space to start/stop" hint on desktop tracker. Styled kbd element. Fixed lint warning in main.tsx.

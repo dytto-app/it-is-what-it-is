@@ -1,5 +1,29 @@
 # DECISIONS.md — Back-log
 
+## Shipped (2026-03-06)
+
+### ✅ UX: Filter Session History by Category (#58)
+- **Priority:** Medium (usability)
+- **Status:** Done — shipped in commit be312c9 (2026-03-06)
+- **Details:**
+  - Added category filter to session history (bathroom, coffee, lunch, walk, chat, other)
+  - Category counts shown on filter buttons
+  - Filters combine with existing time period filters and search
+  - Styled with violet/purple theme to match category badge styling
+
+### ✅ UX: Reddit Share Button (#59)
+- **Priority:** Low (growth)
+- **Status:** Done — shipped in commit 2952561 (2026-03-06)
+- **Details:**
+  - Added Reddit share button to ShareSessionModal and WeeklySummaryModal
+  - Uses Reddit submit URL with pre-filled title containing earnings and streak
+  - SVG Reddit icon inline (Lucide doesn't have Reddit)
+  - 4-column grid layout for share buttons (Twitter, Reddit, Copy, Save)
+
+### 📝 Issues Created
+- **#60**: Friend challenges — compete on breaks
+- **#61**: Category insights in Analytics
+
 ## Shipped (2026-03-05)
 
 ### ✅ Perf: Replace recharts with lightweight SVG chart (#56)
