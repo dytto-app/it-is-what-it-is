@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { Download, Calendar, Clock, DollarSign, History, TrendingUp, Filter, Search, Zap, Target, ChevronLeft, ChevronRight, PenLine, BookOpen } from 'lucide-react';
-import { Session, SESSION_CATEGORIES } from '../types';
+import { Download, Calendar, Clock, DollarSign, History, TrendingUp, Filter, Search, Zap, Target, ChevronLeft, ChevronRight, PenLine, BookOpen, Tag } from 'lucide-react';
+import { Session, SESSION_CATEGORIES, SessionCategory } from '../types';
 import { CalculationUtils } from '../utils/calculations';
 import { NotesJournal } from './NotesJournal';
 
@@ -11,6 +11,7 @@ interface SessionHistoryProps {
 
 type SortOption = 'date' | 'duration' | 'earnings' | 'efficiency';
 type FilterOption = 'all' | 'today' | 'week' | 'month';
+type CategoryFilter = SessionCategory | 'all';
 type ViewMode = 'sessions' | 'journal';
 
 const SESSIONS_PER_PAGE = 10;
@@ -18,6 +19,7 @@ const SESSIONS_PER_PAGE = 10;
 export const SessionHistory: React.FC<SessionHistoryProps> = ({ sessions, onExport }) => {
   const [viewMode, setViewMode] = useState<ViewMode>('sessions');
   const [filter, setFilter] = useState<FilterOption>('all');
+  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
   const [sortBy, setSortBy] = useState<SortOption>('date');
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -66,6 +68,11 @@ export const SessionHistory: React.FC<SessionHistoryProps> = ({ sessions, onExpo
   const filteredAndSortedSessions = useMemo(() => {
     let result = filterSessions(sessions, filter);
     
+    // Apply category filter
+    if (categoryFilter !== 'all') {
+      result = result.filter(session => session.category === categoryFilter);
+    }
+    
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       result = result.filter(session => {
@@ -77,7 +84,7 @@ export const SessionHistory: React.FC<SessionHistoryProps> = ({ sessions, onExpo
     }
     
     return sortSessions(result, sortBy);
-  }, [sessions, filter, sortBy, searchTerm]);
+  }, [sessions, filter, categoryFilter, sortBy, searchTerm]);
 
   // Reset to page 1 when filter/sort/search changes
   const totalPages = Math.max(1, Math.ceil(filteredAndSortedSessions.length / SESSIONS_PER_PAGE));
@@ -108,8 +115,20 @@ export const SessionHistory: React.FC<SessionHistoryProps> = ({ sessions, onExpo
 
   // Reset page when filters change
   const handleFilterChange = (f: FilterOption) => { setFilter(f); setCurrentPage(1); };
+  const handleCategoryChange = (c: CategoryFilter) => { setCategoryFilter(c); setCurrentPage(1); };
   const handleSortChange = (s: SortOption) => { setSortBy(s); setCurrentPage(1); };
   const handleSearchChange = (s: string) => { setSearchTerm(s); setCurrentPage(1); };
+
+  // Count sessions per category for badges
+  const categoryCounts = useMemo(() => {
+    const counts: Partial<Record<SessionCategory, number>> = {};
+    sessions.forEach(s => {
+      if (s.category) {
+        counts[s.category] = (counts[s.category] || 0) + 1;
+      }
+    });
+    return counts;
+  }, [sessions]);
 
   return (
     <div className="space-y-6">
@@ -282,7 +301,7 @@ export const SessionHistory: React.FC<SessionHistoryProps> = ({ sessions, onExpo
               />
             </div>
 
-            {/* Filter buttons */}
+            {/* Time filter buttons */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {[
                 { key: 'all', label: 'All Time' },
@@ -302,6 +321,49 @@ export const SessionHistory: React.FC<SessionHistoryProps> = ({ sessions, onExpo
                   {label}
                 </button>
               ))}
+            </div>
+
+            {/* Category filter */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-slate-400 text-sm">
+                <Tag className="w-4 h-4" />
+                <span>Category</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => handleCategoryChange('all')}
+                  className={`px-3 py-2 text-sm font-semibold rounded-xl transition-all duration-300 ${
+                    categoryFilter === 'all'
+                      ? 'bg-gradient-to-r from-violet-500/30 to-purple-500/30 text-violet-300 border border-violet-400/40'
+                      : 'bg-black/30 text-slate-300 hover:text-white hover:bg-slate-700/50 border border-slate-600/30'
+                  }`}
+                >
+                  All
+                </button>
+                {(Object.keys(SESSION_CATEGORIES) as SessionCategory[]).map((cat) => {
+                  const { emoji, label } = SESSION_CATEGORIES[cat];
+                  const count = categoryCounts[cat] || 0;
+                  return (
+                    <button
+                      key={cat}
+                      onClick={() => handleCategoryChange(cat)}
+                      className={`flex items-center gap-1.5 px-3 py-2 text-sm font-semibold rounded-xl transition-all duration-300 ${
+                        categoryFilter === cat
+                          ? 'bg-gradient-to-r from-violet-500/30 to-purple-500/30 text-violet-300 border border-violet-400/40'
+                          : 'bg-black/30 text-slate-300 hover:text-white hover:bg-slate-700/50 border border-slate-600/30'
+                      }`}
+                    >
+                      <span>{emoji}</span>
+                      <span>{label}</span>
+                      {count > 0 && (
+                        <span className="text-xs bg-black/30 px-1.5 py-0.5 rounded-full">
+                          {count}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Sort options */}
