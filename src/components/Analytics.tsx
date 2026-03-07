@@ -1,8 +1,192 @@
 import React, { useMemo, useState } from 'react';
-import { TrendingUp, Clock, DollarSign, Target, BarChart3, Sparkles, Lightbulb, ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react';
+import { TrendingUp, Clock, DollarSign, Target, BarChart3, Sparkles, Lightbulb, ChevronLeft, ChevronRight, CalendarDays, Tags } from 'lucide-react';
 import { SimpleBarChart } from './SimpleBarChart';
-import { Session } from '../types';
+import { Session, SessionCategory, SESSION_CATEGORIES } from '../types';
 import { CalculationUtils } from '../utils/calculations';
+
+// ── Category Insights ─────────────────────────────────────────────────────────
+
+interface CategoryBreakdownProps {
+  sessions: Session[];
+}
+
+const CATEGORY_COLORS: Record<SessionCategory, string> = {
+  bathroom: 'from-indigo-500/30 to-violet-500/30 border-indigo-400/40',
+  coffee: 'from-amber-500/30 to-yellow-500/30 border-amber-400/40',
+  lunch: 'from-orange-500/30 to-red-500/30 border-orange-400/40',
+  walk: 'from-emerald-500/30 to-green-500/30 border-emerald-400/40',
+  chat: 'from-blue-500/30 to-cyan-500/30 border-blue-400/40',
+  other: 'from-slate-500/30 to-gray-500/30 border-slate-400/40',
+};
+
+const CATEGORY_TEXT_COLORS: Record<SessionCategory, string> = {
+  bathroom: 'text-indigo-400',
+  coffee: 'text-amber-400',
+  lunch: 'text-orange-400',
+  walk: 'text-emerald-400',
+  chat: 'text-blue-400',
+  other: 'text-slate-400',
+};
+
+const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({ sessions }) => {
+  // Aggregate stats by category
+  const categoryStats = useMemo(() => {
+    const stats: Record<SessionCategory, { count: number; earnings: number; duration: number }> = {
+      bathroom: { count: 0, earnings: 0, duration: 0 },
+      coffee: { count: 0, earnings: 0, duration: 0 },
+      lunch: { count: 0, earnings: 0, duration: 0 },
+      walk: { count: 0, earnings: 0, duration: 0 },
+      chat: { count: 0, earnings: 0, duration: 0 },
+      other: { count: 0, earnings: 0, duration: 0 },
+    };
+
+    for (const s of sessions) {
+      const cat = s.category || 'other';
+      stats[cat].count++;
+      stats[cat].earnings += s.earnings;
+      stats[cat].duration += s.duration;
+    }
+
+    return stats;
+  }, [sessions]);
+
+  // Get categories with at least one session, sorted by earnings
+  const activeCategories = useMemo(() => {
+    return (Object.keys(categoryStats) as SessionCategory[])
+      .filter(cat => categoryStats[cat].count > 0)
+      .sort((a, b) => categoryStats[b].earnings - categoryStats[a].earnings);
+  }, [categoryStats]);
+
+  // Generate category-specific insights
+  const categoryInsights = useMemo(() => {
+    const insights: { emoji: string; text: string }[] = [];
+
+    if (activeCategories.length === 0) return insights;
+
+    // Top earning category
+    const topEarner = activeCategories[0];
+    if (categoryStats[topEarner].count >= 2) {
+      const info = SESSION_CATEGORIES[topEarner];
+      insights.push({
+        emoji: info.emoji,
+        text: `${info.label} breaks are your top earner (${CalculationUtils.formatCurrency(categoryStats[topEarner].earnings)})`,
+      });
+    }
+
+    // Most frequent category
+    const mostFrequent = [...activeCategories].sort((a, b) => categoryStats[b].count - categoryStats[a].count)[0];
+    if (mostFrequent !== topEarner && categoryStats[mostFrequent].count >= 3) {
+      const info = SESSION_CATEGORIES[mostFrequent];
+      insights.push({
+        emoji: info.emoji,
+        text: `${info.label} is your most common break type (${categoryStats[mostFrequent].count} sessions)`,
+      });
+    }
+
+    // Longest average duration category
+    const withDuration = activeCategories.filter(c => categoryStats[c].count >= 2);
+    if (withDuration.length >= 2) {
+      const longestAvg = [...withDuration].sort((a, b) => {
+        const avgA = categoryStats[a].duration / categoryStats[a].count;
+        const avgB = categoryStats[b].duration / categoryStats[b].count;
+        return avgB - avgA;
+      })[0];
+      const avgDuration = categoryStats[longestAvg].duration / categoryStats[longestAvg].count;
+      if (avgDuration > 120) { // More than 2 minutes average
+        const info = SESSION_CATEGORIES[longestAvg];
+        insights.push({
+          emoji: '⏱️',
+          text: `${info.label} breaks average ${CalculationUtils.formatDuration(Math.round(avgDuration))}`,
+        });
+      }
+    }
+
+    // Variety badge
+    if (activeCategories.length >= 4) {
+      insights.push({
+        emoji: '🌈',
+        text: `You're a variety breaker — ${activeCategories.length} different break types tracked!`,
+      });
+    }
+
+    return insights.slice(0, 2); // Max 2 insights
+  }, [activeCategories, categoryStats]);
+
+  const totalEarnings = Object.values(categoryStats).reduce((sum, s) => sum + s.earnings, 0);
+
+  if (activeCategories.length === 0) {
+    return null; // Don't show if no categorized sessions
+  }
+
+  return (
+    <div className="bg-gradient-to-br from-black/60 to-black/40 backdrop-blur-xl rounded-3xl p-6 border border-violet-500/20 shadow-2xl">
+      <div className="flex items-center mb-5">
+        <div className="p-2 bg-violet-500/20 rounded-xl mr-3">
+          <Tags className="w-5 h-5 text-violet-400" />
+        </div>
+        <h3 className="text-xl font-bold bg-gradient-to-r from-violet-400 to-purple-300 bg-clip-text text-transparent">
+          Break Categories
+        </h3>
+      </div>
+
+      {/* Category cards */}
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        {activeCategories.map(cat => {
+          const info = SESSION_CATEGORIES[cat];
+          const stats = categoryStats[cat];
+          const percentage = totalEarnings > 0 ? (stats.earnings / totalEarnings) * 100 : 0;
+
+          return (
+            <div
+              key={cat}
+              className={`bg-gradient-to-br ${CATEGORY_COLORS[cat]} backdrop-blur-lg rounded-2xl p-4 border transition-all hover:scale-[1.02]`}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xl">{info.emoji}</span>
+                <span className={`font-semibold ${CATEGORY_TEXT_COLORS[cat]}`}>{info.label}</span>
+              </div>
+              <div className={`text-lg font-bold ${CATEGORY_TEXT_COLORS[cat]}`}>
+                {CalculationUtils.formatCurrency(stats.earnings)}
+              </div>
+              <div className="flex items-center justify-between mt-1">
+                <span className="text-xs text-slate-400">
+                  {stats.count} session{stats.count !== 1 ? 's' : ''}
+                </span>
+                <span className="text-xs text-slate-500">
+                  {percentage.toFixed(0)}%
+                </span>
+              </div>
+              {/* Mini progress bar */}
+              <div className="mt-2 h-1 bg-black/30 rounded-full overflow-hidden">
+                <div
+                  className={`h-full bg-gradient-to-r ${CATEGORY_COLORS[cat].replace('/30', '/60').replace('/40', '/70')} rounded-full transition-all`}
+                  style={{ width: `${percentage}%` }}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Category insights */}
+      {categoryInsights.length > 0 && (
+        <div className="space-y-2">
+          {categoryInsights.map((insight, i) => (
+            <div
+              key={i}
+              className="bg-black/30 backdrop-blur-lg rounded-xl p-3 border border-violet-500/10"
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-lg flex-shrink-0">{insight.emoji}</span>
+                <span className="text-slate-300 text-sm">{insight.text}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 // ── Monthly Earnings Heatmap ──────────────────────────────────────────────────
 
@@ -319,6 +503,9 @@ export const Analytics: React.FC<AnalyticsProps> = ({ sessions, currentStreak = 
 
       {/* Monthly Calendar Heatmap */}
       <MonthlyCalendar sessions={sessions} />
+
+      {/* Category Breakdown */}
+      <CategoryBreakdown sessions={sessions} />
 
       {/* Smart Insights section */}
       <div className="bg-gradient-to-br from-black/60 to-black/40 backdrop-blur-xl rounded-3xl p-8 border border-yellow-500/20 shadow-2xl">

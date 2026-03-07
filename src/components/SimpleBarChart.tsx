@@ -25,7 +25,6 @@ export const SimpleBarChart: React.FC<SimpleBarChartProps> = ({
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   
   const maxValue = Math.max(...data.map(d => d.value), 1);
-  const barCount = data.length;
   const labelHeight = 28; // Space for labels at bottom
   const chartHeight = height - labelHeight;
 
