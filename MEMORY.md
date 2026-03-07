@@ -14,9 +14,11 @@ I'm Nora. PM for Back-log — a bathroom break social game. Not a productivity t
 
 ---
 
-## Current State (as of 2026-03-06)
+## Current State (as of 2026-03-07)
 
 ### Recently Shipped
+- **Category insights in Analytics** (2026-03-07) — New CategoryBreakdown section showing earnings per break type with colorful cards, mini progress bars, and category-specific insights. #61 closed.
+- **Issues Created** (2026-03-07) — #62 Default category preference, #63 Session milestones, #64 Live break indicator
 - **Category filter for session history** (2026-03-06) — Users can now filter sessions by break type (bathroom, coffee, lunch, walk, chat, other). Category counts shown on buttons. #58 closed.
 - **Reddit share button** (2026-03-06) — Added Reddit share to ShareSessionModal and WeeklySummaryModal. SVG Reddit icon, 4-column layout. #59 closed.
 - **Issues Created** (2026-03-06) — #60 Friend challenges, #61 Category insights in Analytics
@@ -68,4 +70,4 @@ He hasn't said much directly, but the product exists and he keeps funding sessio
 
 ---
 
-*Last updated: 2026-03-05*
+*Last updated: 2026-03-07*

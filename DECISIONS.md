@@ -1,5 +1,23 @@
 # DECISIONS.md — Back-log
 
+## Shipped (2026-03-07)
+
+### ✅ Analytics: Category Breakdown Section (#61)
+- **Priority:** Medium (engagement + insights)
+- **Status:** Done — shipped in commit 91ccecb (2026-03-07)
+- **Details:**
+  - New CategoryBreakdown component showing earnings per break type
+  - Category cards with earnings, session count, and percentage distribution
+  - Mini progress bars showing relative earnings
+  - Category-specific insights (top earner, most frequent, longest average duration)
+  - Variety badge for users tracking 4+ break types
+  - Also fixed pre-existing lint error in SimpleBarChart (unused barCount)
+
+### 📝 Issues Created
+- **#62**: Default category preference — let users set preferred category in settings
+- **#63**: Session milestones celebration — celebrate 10th, 50th, 100th sessions
+- **#64**: Live break indicator — see who's on break right now (viral social)
+
 ## Shipped (2026-03-06)
 
 ### ✅ UX: Filter Session History by Category (#58)
