@@ -242,7 +242,7 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
             </div>
 
             {/* Rotating border effect */}
-            <div className={`absolute inset-0 rounded-full border-2 border-transparent bg-gradient-to-r ${
+            <div className={`absolute inset-0 rounded-full border-2 border-transparent bg-gradient-to-r pointer-events-none ${
               activeSession 
                 ? 'from-red-400/50 via-pink-400/50 to-red-400/50' 
                 : 'from-indigo-400/50 via-purple-400/50 to-indigo-400/50'
