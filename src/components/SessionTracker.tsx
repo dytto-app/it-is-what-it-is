@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Play, Square, DollarSign, Clock, Sparkles, Flame, PenLine } from 'lucide-react';
 import { Session, User, SessionCategory, SESSION_CATEGORIES } from '../types';
 import { CalculationUtils } from '../utils/calculations';
+import { PreferenceUtils } from '../utils/preferences';
 import confetti from 'canvas-confetti';
 
 const MAX_SESSION_DURATION = 30 * 60; // 30 minutes in seconds
@@ -78,7 +79,7 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
   const [animate, setAnimate] = useState(false);
   const [ripples, setRipples] = useState<Array<{ id: number; x: number; y: number }>>([]);
   const [sessionNotes, setSessionNotes] = useState('');
-  const [sessionCategory, setSessionCategory] = useState<SessionCategory | null>(null);
+  const [sessionCategory, setSessionCategory] = useState<SessionCategory | null>(() => PreferenceUtils.getDefaultCategory());
   
   useEffect(() => {
     if (activeSession) {
@@ -86,9 +87,9 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
       const interval = setInterval(() => setAnimate(a => !a), 3000);
       return () => clearInterval(interval);
     } else {
-      // Clear notes and category when session ends
+      // Clear notes when session ends, reset category to default preference
       setSessionNotes('');
-      setSessionCategory(null);
+      setSessionCategory(PreferenceUtils.getDefaultCategory());
     }
   }, [activeSession]);
 

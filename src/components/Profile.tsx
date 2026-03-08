@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { User, Settings, Trash2, Download, Eye, EyeOff, LogOut, Mail, Shield, Bell, BellOff, Copy, Share2, Users } from 'lucide-react';
-import { User as UserType } from '../types';
+import { User as UserType, SessionCategory, SESSION_CATEGORIES } from '../types';
 import { NotificationUtils } from '../utils/notifications';
+import { PreferenceUtils } from '../utils/preferences';
 
 interface ProfileProps {
   user: UserType;
@@ -70,6 +71,12 @@ export const Profile: React.FC<ProfileProps> = ({
     user.dailyGoalCents ? (user.dailyGoalCents / 100).toFixed(2) : ''
   );
   const [copiedCode, setCopiedCode] = useState(false);
+  const [defaultCategory, setDefaultCategory] = useState<SessionCategory | null>(() => PreferenceUtils.getDefaultCategory());
+
+  const handleDefaultCategoryChange = (cat: SessionCategory | null) => {
+    setDefaultCategory(cat);
+    PreferenceUtils.setDefaultCategory(cat);
+  };
 
   const calculateHourlyRate = (salaryAmount: number, freq: string): number => {
     switch (freq) {
@@ -336,6 +343,46 @@ export const Profile: React.FC<ProfileProps> = ({
                 }
               </div>
             )}
+          </div>
+
+          {/* Default Break Category */}
+          <div>
+            <label className="block text-sm font-semibold text-slate-300 mb-2">
+              🏷️ Default Break Type
+            </label>
+            <p className="text-xs text-slate-500 mb-3">
+              Auto-select this category when starting a break — or leave blank to pick each time
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => handleDefaultCategoryChange(null)}
+                className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                  defaultCategory === null
+                    ? 'bg-indigo-500/30 border border-indigo-400/50 text-indigo-300 scale-105'
+                    : 'bg-black/30 border border-slate-600/30 text-slate-400 hover:bg-slate-800/50 hover:text-slate-300'
+                }`}
+              >
+                Ask each time
+              </button>
+              {(Object.keys(SESSION_CATEGORIES) as SessionCategory[]).map(cat => {
+                const { emoji, label } = SESSION_CATEGORIES[cat];
+                const isSelected = defaultCategory === cat;
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => handleDefaultCategoryChange(cat)}
+                    className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                      isSelected
+                        ? 'bg-indigo-500/30 border border-indigo-400/50 text-indigo-300 scale-105'
+                        : 'bg-black/30 border border-slate-600/30 text-slate-400 hover:bg-slate-800/50 hover:text-slate-300'
+                    }`}
+                  >
+                    <span className="mr-1.5">{emoji}</span>
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Referral section */}
