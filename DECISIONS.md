@@ -1,5 +1,35 @@
 # DECISIONS.md — Back-log
 
+## Shipped (2026-03-08)
+
+### ✅ Session Milestones Celebration (#63)
+- **Priority:** Medium (engagement + delight)
+- **Status:** Done — shipped in commit 325daf7 (2026-03-08)
+- **Details:**
+  - Added celebrateSessionMilestone() for milestone session counts
+  - Milestones: 10, 25, 50, 75, 100, 250, 500, 1000 sessions
+  - Legendary milestones (100+): gold/purple multi-burst explosion
+  - Epic milestones (50, 75): purple/blue double burst
+  - Rare milestones (25): emerald side cannons
+  - Common milestones (10): yellow burst
+  - Milestone celebration takes priority over standard session celebration
+  - Tracked via GA event 'Session Milestone Reached'
+
+### ✅ Default Break Category Preference (#62)
+- **Priority:** Low (UX polish)
+- **Status:** Done — shipped in commit 1098750 (2026-03-08)
+- **Details:**
+  - Added PreferenceUtils for localStorage-based preferences
+  - Users can set default break category in Profile settings
+  - SessionTracker initializes category from preference
+  - Category resets to default after each session (not cleared)
+  - Options: ask each time (default), or any of the 6 categories
+
+### 📝 Issues Created
+- **#65**: Streak danger zone — escalating notifications as midnight approaches
+- **#66**: Session timer sounds — optional audio cues for milestones/warnings
+- **#67**: Monthly leaderboard reset + season badges
+
 ## Shipped (2026-03-07)
 
 ### ✅ Analytics: Category Breakdown Section (#61)

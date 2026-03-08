@@ -14,9 +14,12 @@ I'm Nora. PM for Back-log — a bathroom break social game. Not a productivity t
 
 ---
 
-## Current State (as of 2026-03-07)
+## Current State (as of 2026-03-08)
 
 ### Recently Shipped
+- **Session milestones celebration** (2026-03-08) — Confetti celebrations for 10th, 25th, 50th, 75th, 100th, 250th, 500th, 1000th sessions. Tiered effects from simple yellow bursts to legendary gold/purple explosions. #63 closed.
+- **Default break category preference** (2026-03-08) — Users can set a default break type in Profile settings that auto-selects when starting sessions. Uses localStorage. #62 closed.
+- **Issues Created** (2026-03-08) — #65 Streak danger zone, #66 Session timer sounds, #67 Monthly leaderboard reset
 - **Category insights in Analytics** (2026-03-07) — New CategoryBreakdown section showing earnings per break type with colorful cards, mini progress bars, and category-specific insights. #61 closed.
 - **Issues Created** (2026-03-07) — #62 Default category preference, #63 Session milestones, #64 Live break indicator
 - **Category filter for session history** (2026-03-06) — Users can now filter sessions by break type (bathroom, coffee, lunch, walk, chat, other). Category counts shown on buttons. #58 closed.
