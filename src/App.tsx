@@ -493,8 +493,18 @@ function App() {
         GA.event('Streak Freeze Earned', { streak: streakResult.currentStreak });
         confettiUtils().then(({ celebrateStreakFreeze }) => celebrateStreakFreeze());
       } else {
-        // Session quality celebration (skip if freeze fires — that's the main event)
-        confettiUtils().then(({ celebrateSessionEnd }) => celebrateSessionEnd(earnings, duration, isPersonalRecord));
+        // Check for session milestone first (takes priority)
+        const completedSessionCount = updatedSessions.filter(s => !s.isActive).length;
+        confettiUtils().then(({ isSessionMilestone, celebrateSessionMilestone, celebrateSessionEnd }) => {
+          if (isSessionMilestone(completedSessionCount)) {
+            // Milestone celebration! 🎉
+            celebrateSessionMilestone(completedSessionCount);
+            GA.event('Session Milestone Reached', { sessionCount: completedSessionCount });
+          } else {
+            // Standard session quality celebration
+            celebrateSessionEnd(earnings, duration, isPersonalRecord);
+          }
+        });
       }
       if (streakResult.freezeConsumed) {
         GA.event('Streak Freeze Used', { streak: streakResult.currentStreak });

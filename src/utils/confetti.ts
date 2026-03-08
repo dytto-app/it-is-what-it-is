@@ -195,6 +195,142 @@ export function celebrateMultipleAchievements(count: number) {
   }
 }
 
+// Session milestone celebration — for hitting session count achievements (10, 25, 50, 100, etc.)
+export function celebrateSessionMilestone(sessionCount: number) {
+  // Legendary milestones: 100, 250, 500, 1000
+  const legendaryMilestones = [100, 250, 500, 1000];
+  // Epic milestones: 50, 75
+  const epicMilestones = [50, 75];
+  // Rare milestones: 25
+  const rareMilestones = [25];
+  // Common: 10
+
+  let colors: string[];
+  let particleCount: number;
+  let spread: number;
+
+  if (legendaryMilestones.includes(sessionCount)) {
+    // Legendary — gold and purple explosion
+    colors = ['#fbbf24', '#f59e0b', '#a855f7', '#c084fc', '#fde68a'];
+    particleCount = 120;
+    spread = 100;
+    
+    // Multi-burst for legendary
+    void confetti({
+      particleCount,
+      spread,
+      origin: { y: 0.6 },
+      colors,
+      startVelocity: 45,
+      gravity: 0.8,
+      decay: 0.92,
+      disableForReducedMotion: true,
+    });
+    setTimeout(() => {
+      void confetti({
+        particleCount: 60,
+        angle: 60,
+        spread: 70,
+        origin: { x: 0, y: 0.65 },
+        colors,
+        startVelocity: 35,
+        disableForReducedMotion: true,
+      });
+      void confetti({
+        particleCount: 60,
+        angle: 120,
+        spread: 70,
+        origin: { x: 1, y: 0.65 },
+        colors,
+        startVelocity: 35,
+        disableForReducedMotion: true,
+      });
+    }, 200);
+    setTimeout(() => {
+      void confetti({
+        particleCount: 80,
+        spread: 120,
+        origin: { y: 0.7 },
+        colors,
+        startVelocity: 40,
+        disableForReducedMotion: true,
+      });
+    }, 400);
+    return;
+  }
+
+  if (epicMilestones.includes(sessionCount)) {
+    // Epic — purple and blue
+    colors = ['#3b82f6', '#60a5fa', '#a855f7', '#c084fc'];
+    particleCount = 80;
+    spread = 85;
+    
+    void confetti({
+      particleCount,
+      spread,
+      origin: { y: 0.6 },
+      colors,
+      startVelocity: 38,
+      gravity: 0.85,
+      decay: 0.93,
+      disableForReducedMotion: true,
+    });
+    setTimeout(() => {
+      void confetti({
+        particleCount: 45,
+        spread: 70,
+        origin: { y: 0.65 },
+        colors,
+        startVelocity: 32,
+        disableForReducedMotion: true,
+      });
+    }, 220);
+    return;
+  }
+
+  if (rareMilestones.includes(sessionCount)) {
+    // Rare — emerald side cannons
+    colors = ['#10b981', '#34d399', '#6ee7b7'];
+    void confetti({
+      particleCount: 45,
+      angle: 60,
+      spread: 55,
+      origin: { x: 0, y: 0.6 },
+      colors,
+      startVelocity: 30,
+      disableForReducedMotion: true,
+    });
+    void confetti({
+      particleCount: 45,
+      angle: 120,
+      spread: 55,
+      origin: { x: 1, y: 0.6 },
+      colors,
+      startVelocity: 30,
+      disableForReducedMotion: true,
+    });
+    return;
+  }
+
+  // Common milestone (10) — simple yellow burst
+  colors = ['#facc15', '#fde047', '#fef08a'];
+  void confetti({
+    particleCount: 50,
+    spread: 70,
+    origin: { y: 0.65 },
+    colors,
+    startVelocity: 28,
+    decay: 0.93,
+    disableForReducedMotion: true,
+  });
+}
+
+// Check if session count is a milestone worth celebrating
+export function isSessionMilestone(count: number): boolean {
+  const milestones = [10, 25, 50, 75, 100, 250, 500, 1000];
+  return milestones.includes(count);
+}
+
 // Session completion celebration — scaled by quality
 // earnings: dollars (float), durationSec: seconds, isPersonalRecord: new high earnings
 export function celebrateSessionEnd(earnings: number, durationSec: number, isPersonalRecord: boolean) {
