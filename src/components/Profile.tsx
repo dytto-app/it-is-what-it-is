@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { User, Settings, Trash2, Download, Eye, EyeOff, LogOut, Mail, Shield, Bell, BellOff, Copy, Share2, Users } from 'lucide-react';
+import { User, Settings, Trash2, Download, Eye, EyeOff, LogOut, Mail, Shield, Bell, BellOff, Copy, Share2, Users, Volume2, VolumeX } from 'lucide-react';
 import { User as UserType, SessionCategory, SESSION_CATEGORIES } from '../types';
 import { NotificationUtils } from '../utils/notifications';
 import { PreferenceUtils } from '../utils/preferences';
+import { SoundUtils } from '../utils/sounds';
 
 interface ProfileProps {
   user: UserType;
@@ -24,6 +25,7 @@ export const Profile: React.FC<ProfileProps> = ({
   const [notifPermission, setNotifPermission] = useState<NotificationPermission | 'unsupported'>(() => NotificationUtils.getPermission());
   const [notifEnabled, setNotifEnabled] = useState(() => NotificationUtils.isEnabled());
   const [reminderTime, setReminderTime] = useState(() => NotificationUtils.getReminderTime());
+  const [soundEnabled, setSoundEnabled] = useState(() => SoundUtils.isEnabled());
 
   // Sync permission state if user changes it in browser settings
   useEffect(() => {
@@ -62,6 +64,18 @@ export const Profile: React.FC<ProfileProps> = ({
   const handleReminderTimeChange = (time: string) => {
     setReminderTime(time);
     NotificationUtils.setReminderTime(time);
+  };
+
+  const handleSoundToggle = () => {
+    const newEnabled = !soundEnabled;
+    SoundUtils.setEnabled(newEnabled);
+    setSoundEnabled(newEnabled);
+    
+    // Play a preview sound when enabling
+    if (newEnabled) {
+      SoundUtils.initialize();
+      setTimeout(() => SoundUtils.sessionMilestone(), 100);
+    }
   };
   const [salary, setSalary] = useState(user.salary.toString());
   const [salaryPeriod, setSalaryPeriod] = useState(user.salaryPeriod);
@@ -529,6 +543,45 @@ export const Profile: React.FC<ProfileProps> = ({
                     aria-label="Reminder time"
                   />
                 </div>
+              </div>
+            )}
+          </div>
+
+          {/* Sound settings */}
+          <div className="bg-black/30 backdrop-blur-lg rounded-2xl p-4 border border-slate-600/30 shadow-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-sm font-semibold text-slate-300">Session Sounds</span>
+                <p className="text-xs text-slate-500 mt-1">
+                  Audio cues for milestones and warnings
+                </p>
+              </div>
+              <button
+                onClick={handleSoundToggle}
+                className={`relative w-14 h-7 rounded-full transition-all duration-300 shadow-lg ${
+                  soundEnabled
+                    ? 'bg-gradient-to-r from-emerald-500 to-green-500 shadow-emerald-500/30'
+                    : 'bg-gradient-to-r from-slate-600 to-slate-700 shadow-slate-500/30'
+                }`}
+                aria-label="Toggle session sounds"
+              >
+                <div className={`absolute top-0.5 w-6 h-6 bg-white rounded-full transition-all duration-300 shadow-lg flex items-center justify-center ${
+                  soundEnabled ? 'left-7' : 'left-0.5'
+                }`}>
+                  {soundEnabled
+                    ? <Volume2 className="w-3 h-3 text-emerald-500" />
+                    : <VolumeX className="w-3 h-3 text-slate-400" />
+                  }
+                </div>
+              </button>
+            </div>
+            {soundEnabled && (
+              <div className="mt-3 text-xs text-slate-500">
+                <span className="text-emerald-400">●</span> Milestone chimes at 5, 10, 15, 20 min
+                <br />
+                <span className="text-amber-400">●</span> Warning sound at 25 min
+                <br />
+                <span className="text-indigo-400">●</span> Completion sound when done
               </div>
             )}
           </div>

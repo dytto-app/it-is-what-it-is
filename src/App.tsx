@@ -6,6 +6,7 @@ import { DatabaseUtils } from './utils/database';
 import { CalculationUtils } from './utils/calculations';
 import { AchievementUtils } from './utils/achievements';
 import { Haptics } from './utils/haptics';
+import { SoundUtils } from './utils/sounds';
 import { NotificationUtils } from './utils/notifications';
 import { SessionTracker } from './components/SessionTracker';
 import { Navigation } from './components/Navigation';
@@ -434,6 +435,7 @@ function App() {
       await DatabaseUtils.createSession(newSession);
       setActiveSession(newSession);
       Haptics.sessionStart();
+      SoundUtils.sessionStart();
       GA.event('Session Started', { sessionId: newSession.id });
     } catch (error) {
       console.error('Failed to start session:', error);
@@ -480,6 +482,7 @@ function App() {
       setSessions(updatedSessions);
       setActiveSession(null);
       Haptics.sessionEnd();
+      SoundUtils.sessionEnd();
       
       // Show share modal with completed session
       setCompletedSession(finishedSession);

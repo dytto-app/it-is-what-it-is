@@ -1,12 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Play, Square, DollarSign, Clock, Sparkles, Flame, PenLine } from 'lucide-react';
 import { Session, User, SessionCategory, SESSION_CATEGORIES } from '../types';
 import { CalculationUtils } from '../utils/calculations';
 import { PreferenceUtils } from '../utils/preferences';
+import { SoundUtils } from '../utils/sounds';
 import { StreakDangerZone } from './StreakDangerZone';
 import confetti from 'canvas-confetti';
 
 const MAX_SESSION_DURATION = 30 * 60; // 30 minutes in seconds
+
+// Sound milestone times (in seconds)
+const SOUND_MILESTONE_SECONDS = [5 * 60, 10 * 60, 15 * 60, 20 * 60]; // 5, 10, 15, 20 minutes
+const SOUND_WARNING_SECOND = 25 * 60; // 25 minutes
 
 interface SessionTrackerProps {
   user: User;
@@ -85,9 +90,14 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
   const [sessionNotes, setSessionNotes] = useState('');
   const [sessionCategory, setSessionCategory] = useState<SessionCategory | null>(() => PreferenceUtils.getDefaultCategory());
   
+  // Track which sound milestones have been played (in seconds)
+  const playedMilestones = useRef<Set<number>>(new Set());
+
   useEffect(() => {
     if (activeSession) {
       setAnimate(true);
+      // Reset played milestones when session starts
+      playedMilestones.current.clear();
       const interval = setInterval(() => setAnimate(a => !a), 3000);
       return () => clearInterval(interval);
     } else {
@@ -96,6 +106,26 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
       setSessionCategory(PreferenceUtils.getDefaultCategory());
     }
   }, [activeSession]);
+
+  // Play sound at session milestones
+  useEffect(() => {
+    if (!activeSession) return;
+
+    // Check milestones (5, 10, 15, 20 min)
+    for (const milestone of SOUND_MILESTONE_SECONDS) {
+      if (currentDuration >= milestone && !playedMilestones.current.has(milestone)) {
+        playedMilestones.current.add(milestone);
+        SoundUtils.sessionMilestone();
+        break; // Only play one sound per tick
+      }
+    }
+
+    // Check warning (25 min)
+    if (currentDuration >= SOUND_WARNING_SECOND && !playedMilestones.current.has(SOUND_WARNING_SECOND)) {
+      playedMilestones.current.add(SOUND_WARNING_SECOND);
+      SoundUtils.sessionWarning();
+    }
+  }, [currentDuration, activeSession]);
 
   // Celebrate when daily goal is first reached
   const goalCents = user.dailyGoalCents ?? null;
