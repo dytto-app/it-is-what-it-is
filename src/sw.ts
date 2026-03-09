@@ -69,6 +69,9 @@ self.addEventListener('notificationclick', (event: NotificationEvent) => {
 
 let streakReminderTimeout: ReturnType<typeof setTimeout> | null = null;
 
+// Danger zone notification timeouts (keyed by tag)
+const dangerZoneTimeouts: Map<string, ReturnType<typeof setTimeout>> = new Map();
+
 self.addEventListener('message', (event: ExtendableMessageEvent) => {
   const data = event.data as {
     type: string;
@@ -105,6 +108,40 @@ self.addEventListener('message', (event: ExtendableMessageEvent) => {
     if (streakReminderTimeout !== null) {
       clearTimeout(streakReminderTimeout);
       streakReminderTimeout = null;
+    }
+  }
+
+  // ─── Danger zone escalating notifications ────────────────────────────────
+
+  if (data.type === 'SCHEDULE_DANGER_ZONE') {
+    const { delayMs = 0, title = 'Back-log', body = '', tag = 'danger-zone' } = data;
+
+    // Clear existing timeout for this tag if any
+    const existing = dangerZoneTimeouts.get(tag);
+    if (existing) {
+      clearTimeout(existing);
+    }
+
+    const timeout = setTimeout(() => {
+      self.registration.showNotification(title, {
+        body,
+        icon: '/pwa-192x192.png',
+        badge: '/pwa-192x192.png',
+        tag,
+        requireInteraction: tag.includes('23'), // Require interaction for critical ones
+        data: { url: '/' },
+      });
+      dangerZoneTimeouts.delete(tag);
+    }, delayMs);
+
+    dangerZoneTimeouts.set(tag, timeout);
+  }
+
+  if (data.type === 'CANCEL_DANGER_ZONE') {
+    // Clear all danger zone timeouts
+    for (const [tag, timeout] of dangerZoneTimeouts) {
+      clearTimeout(timeout);
+      dangerZoneTimeouts.delete(tag);
     }
   }
 });

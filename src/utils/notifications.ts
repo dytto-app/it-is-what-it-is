@@ -11,6 +11,7 @@ const NOTIFICATION_PREF_KEY = 'notificationsEnabled';
 const STREAK_REMINDER_ALARM_KEY = 'streakReminderScheduledFor';
 const STREAK_REMINDER_TIME_KEY = 'streakReminderTime';
 const DEFAULT_REMINDER_TIME = '19:00'; // 7pm
+const DANGER_ZONE_SCHEDULED_KEY = 'dangerZoneScheduledFor';
 
 export const NotificationUtils = {
   /** Is the Notification API supported? */
@@ -125,6 +126,88 @@ export const NotificationUtils = {
 
     navigator.serviceWorker.ready.then(sw => {
       sw.active?.postMessage({ type: 'CANCEL_STREAK_REMINDER' });
+    });
+  },
+
+  /**
+   * Schedule escalating "danger zone" notifications as midnight approaches.
+   * Called when app loads and user has streak but no session today.
+   *
+   * Times (local):
+   * - 9 PM: "3 hours to protect your streak"
+   * - 10 PM: "⚠️ 2 hours left!"
+   * - 11 PM: "🔥 1 hour left!"
+   * - 11:30 PM: "💀 30 minutes left!"
+   */
+  scheduleDangerZoneNotifications(streakDays: number): void {
+    if (!this.isEnabled() || Notification.permission !== 'granted') return;
+    if (!('serviceWorker' in navigator)) return;
+
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const scheduledKey = `${DANGER_ZONE_SCHEDULED_KEY}_${today.toISOString().split('T')[0]}`;
+
+    // Don't reschedule if already done today
+    if (localStorage.getItem(scheduledKey)) return;
+    localStorage.setItem(scheduledKey, 'true');
+
+    // Define notification times and messages
+    const notifications = [
+      {
+        hour: 21, minute: 0,
+        title: `⏰ ${streakDays}-day streak needs you`,
+        body: "3 hours to protect your streak — take a quick break!",
+        tag: 'danger-zone-21',
+      },
+      {
+        hour: 22, minute: 0,
+        title: `⚠️ 2 hours left!`,
+        body: `Your ${streakDays}-day streak expires at midnight`,
+        tag: 'danger-zone-22',
+      },
+      {
+        hour: 23, minute: 0,
+        title: `🔥 DANGER ZONE: 1 hour left!`,
+        body: `${streakDays}-day streak needs one session NOW`,
+        tag: 'danger-zone-23',
+      },
+      {
+        hour: 23, minute: 30,
+        title: `💀 30 MINUTES LEFT!`,
+        body: `Your ${streakDays}-day streak DIES at midnight!`,
+        tag: 'danger-zone-2330',
+      },
+    ];
+
+    navigator.serviceWorker.ready.then(sw => {
+      for (const notif of notifications) {
+        const target = new Date(today.getFullYear(), today.getMonth(), today.getDate(), notif.hour, notif.minute, 0);
+        const delayMs = target.getTime() - now.getTime();
+
+        // Skip if time has already passed
+        if (delayMs <= 0) continue;
+
+        sw.active?.postMessage({
+          type: 'SCHEDULE_DANGER_ZONE',
+          delayMs,
+          title: notif.title,
+          body: notif.body,
+          tag: notif.tag,
+        });
+      }
+    });
+  },
+
+  /** Cancel danger zone notifications (call when session completed) */
+  cancelDangerZoneNotifications(): void {
+    const today = new Date().toISOString().split('T')[0];
+    const scheduledKey = `${DANGER_ZONE_SCHEDULED_KEY}_${today}`;
+    localStorage.removeItem(scheduledKey);
+
+    if (!('serviceWorker' in navigator)) return;
+
+    navigator.serviceWorker.ready.then(sw => {
+      sw.active?.postMessage({ type: 'CANCEL_DANGER_ZONE' });
     });
   },
 };

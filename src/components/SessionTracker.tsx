@@ -3,6 +3,7 @@ import { Play, Square, DollarSign, Clock, Sparkles, Flame, PenLine } from 'lucid
 import { Session, User, SessionCategory, SESSION_CATEGORIES } from '../types';
 import { CalculationUtils } from '../utils/calculations';
 import { PreferenceUtils } from '../utils/preferences';
+import { StreakDangerZone } from './StreakDangerZone';
 import confetti from 'canvas-confetti';
 
 const MAX_SESSION_DURATION = 30 * 60; // 30 minutes in seconds
@@ -17,6 +18,8 @@ interface SessionTrackerProps {
   cooldownRemaining?: number;
   /** Today's completed session earnings (not including current active session) */
   todayEarnings?: number;
+  /** Whether the user has completed at least one session today */
+  hasSessionToday?: boolean;
 }
 
 /** Circular progress ring for daily goal */
@@ -75,6 +78,7 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
   currentDuration,
   cooldownRemaining = 0,
   todayEarnings = 0,
+  hasSessionToday = false,
 }) => {
   const [animate, setAnimate] = useState(false);
   const [ripples, setRipples] = useState<Array<{ id: number; x: number; y: number }>>([]);
@@ -146,6 +150,15 @@ export const SessionTracker: React.FC<SessionTrackerProps> = ({
       </div>
 
       <div className="relative z-10 w-full max-w-sm mx-auto text-center">
+        {/* Streak Danger Zone — escalating warning as midnight approaches */}
+        {!activeSession && user.currentStreak > 0 && (
+          <StreakDangerZone
+            currentStreak={user.currentStreak}
+            hasSessionToday={hasSessionToday}
+            onStartSession={onSessionStart}
+          />
+        )}
+
         {/* Streak + Freeze indicators */}
         {(user.currentStreak > 0 || (user.streakFreezes || 0) > 0) && (
           <div className="mb-4 flex items-center justify-center gap-2 flex-wrap">

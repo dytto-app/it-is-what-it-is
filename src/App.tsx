@@ -206,6 +206,8 @@ function App() {
           });
           if (!hasTodaySession) {
             NotificationUtils.scheduleStreakReminder(userProfile.currentStreak);
+            // Also schedule escalating danger zone notifications (9pm, 10pm, 11pm, 11:30pm)
+            NotificationUtils.scheduleDangerZoneNotifications(userProfile.currentStreak);
           }
         }
 
@@ -510,8 +512,9 @@ function App() {
         GA.event('Streak Freeze Used', { streak: streakResult.currentStreak });
       }
 
-      // Session completed — cancel today's streak reminder (already done), schedule for tomorrow
+      // Session completed — cancel today's streak reminder and danger zone notifications
       NotificationUtils.cancelStreakReminder();
+      NotificationUtils.cancelDangerZoneNotifications();
       if (streakResult.currentStreak > 0) {
         NotificationUtils.scheduleStreakReminder(streakResult.currentStreak);
       }
@@ -737,9 +740,9 @@ function App() {
     switch (activeTab) {
       case 'tracker': {
         const todayStr = new Date().toDateString();
-        const todayEarnings = sessions
-          .filter(s => !s.isActive && s.endTime && (s.startTime instanceof Date ? s.startTime : new Date(s.startTime)).toDateString() === todayStr)
-          .reduce((sum, s) => sum + s.earnings, 0);
+        const todaySessions = sessions.filter(s => !s.isActive && s.endTime && (s.startTime instanceof Date ? s.startTime : new Date(s.startTime)).toDateString() === todayStr);
+        const todayEarnings = todaySessions.reduce((sum, s) => sum + s.earnings, 0);
+        const hasSessionToday = todaySessions.length > 0;
         return (
           <>
             <SessionTracker
@@ -751,6 +754,7 @@ function App() {
               currentDuration={currentDuration}
               cooldownRemaining={cooldownRemaining}
               todayEarnings={todayEarnings}
+              hasSessionToday={hasSessionToday}
             />
             <Suspense fallback={null}>
               <DailyChallenges
