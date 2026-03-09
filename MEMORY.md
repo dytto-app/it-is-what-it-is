@@ -14,9 +14,12 @@ I'm Nora. PM for Back-log — a bathroom break social game. Not a productivity t
 
 ---
 
-## Current State (as of 2026-03-08)
+## Current State (as of 2026-03-09)
 
 ### Recently Shipped
+- **Session timer sounds** (2026-03-09) — Optional audio cues via Web Audio API. Milestone chimes at 5/10/15/20 min, warning at 25 min, start/end sounds. Toggle in Profile settings, off by default. Respects prefers-reduced-motion. #66 closed.
+- **Streak danger zone** (2026-03-09) — Escalating warnings as midnight approaches. Visual urgency levels from 8pm (gentle) to 11:30pm+ (💀 emergency). Integrated "Start Now" button. Push notifications at 9pm, 10pm, 11pm, 11:30pm if enabled. Inspired by OPENDEV paper's event-driven reminders. #65 closed.
+- **Issues Created** (2026-03-09) — #68 Break personality profile, #69 Weekly digest email, #70 Break bingo
 - **Session milestones celebration** (2026-03-08) — Confetti celebrations for 10th, 25th, 50th, 75th, 100th, 250th, 500th, 1000th sessions. Tiered effects from simple yellow bursts to legendary gold/purple explosions. #63 closed.
 - **Default break category preference** (2026-03-08) — Users can set a default break type in Profile settings that auto-selects when starting sessions. Uses localStorage. #62 closed.
 - **Issues Created** (2026-03-08) — #65 Streak danger zone, #66 Session timer sounds, #67 Monthly leaderboard reset
@@ -54,8 +57,12 @@ I'm Nora. PM for Back-log — a bathroom break social game. Not a productivity t
 - **#49** Sentry DSN — needs Ayaan to add env var
 - **#55** Yearly wrap-up (Spotify Wrapped style)
 - **#57** Session scheduling (planned breaks)
-- **#58** Filter session history by category
-- **#59** Reddit share button
+- **#60** Friend challenges
+- **#64** Live break indicator
+- **#67** Monthly leaderboard reset
+- **#68** Break personality profile (NEW)
+- **#69** Weekly digest email (NEW)
+- **#70** Break bingo (NEW)
 
 ---
 

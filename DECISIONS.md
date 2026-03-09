@@ -1,5 +1,37 @@
 # DECISIONS.md — Back-log
 
+## Shipped (2026-03-09)
+
+### ✅ Streak Danger Zone (#65)
+- **Priority:** High (retention)
+- **Status:** Done — shipped in commit 7b3af1e (2026-03-09)
+- **Details:**
+  - New StreakDangerZone component with escalating urgency levels
+  - Time-based warnings: 8pm (gentle), 9pm, 10pm (high), 11pm (critical), 11:30pm (emergency)
+  - Visual urgency bar for high+ levels
+  - "Start Now" button for immediate session start
+  - Escalating push notifications at 9pm, 10pm, 11pm, 11:30pm
+  - Notifications auto-cancel when session completed
+  - Inspired by OPENDEV paper's "event-driven reminders" concept
+  - Service worker handles scheduled notification delivery
+
+### ✅ Session Timer Sounds (#66)
+- **Priority:** Medium (engagement + UX)
+- **Status:** Done — shipped in commit f3b4ed2 (2026-03-09)
+- **Details:**
+  - New SoundUtils with Web Audio API (no audio files)
+  - Sound toggle in Profile settings (off by default)
+  - Milestone chimes at 5, 10, 15, 20 minutes
+  - Warning sound at 25 minutes (approaching limit)
+  - Session start/end sounds
+  - Respects prefers-reduced-motion for accessibility
+  - Preview sound plays when enabling in settings
+
+### 📝 Issues Created
+- **#68**: Break personality profile — discover your break style
+- **#69**: Weekly digest email — retention touchpoint
+- **#70**: Break bingo — weekly mini-game
+
 ## Shipped (2026-03-08)
 
 ### ✅ Session Milestones Celebration (#63)
