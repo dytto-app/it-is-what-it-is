@@ -1,5 +1,32 @@
 # DECISIONS.md — Back-log
 
+## Shipped (2026-03-10)
+
+### ✅ Break Personality Profile (#68)
+- **Priority:** Medium (engagement + virality)
+- **Status:** Done — shipped in commit dc348f4 (2026-03-10)
+- **Details:**
+  - New personality.ts utility with 14 break personalities
+  - PersonalityProfile component in Analytics page
+  - Personalities: Early Bird, Night Owl, Marathon Runner, Speed Demon, Consistency King, Bathroom Boss, Coffee Connoisseur, Walking Wonder, Social Butterfly, Variety Virtuoso, Weekend Warrior, Grinder, Rising Star, Legend
+  - Analyzes session timing, duration, categories, streaks, and frequency
+  - Gradient card UI with emoji, name, description, traits, fun facts
+  - Secondary traits for more depth
+  - Twitter share and copy functionality
+  - Progress dots for users with <5 sessions
+  - Inspired by COLD-Steer paper's training-free personalization
+
+### 🧹 Cleanup: Remove Unused recharts
+- **Status:** Done — shipped in commit 32b9871 (2026-03-10)
+- **Details:**
+  - Recharts was replaced by SimpleBarChart in #56 but dependency remained
+  - Removed 35 packages
+  - Cleaned up vite.config.ts manual chunks
+
+### 📝 Issues Created
+- **#71**: Personality share card image — canvas-generated social preview
+- **#72**: Personality evolution tracker — track how your break style changes
+
 ## Shipped (2026-03-09)
 
 ### ✅ Streak Danger Zone (#65)

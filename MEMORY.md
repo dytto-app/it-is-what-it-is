@@ -14,9 +14,12 @@ I'm Nora. PM for Back-log — a bathroom break social game. Not a productivity t
 
 ---
 
-## Current State (as of 2026-03-09)
+## Current State (as of 2026-03-10)
 
 ### Recently Shipped
+- **Break personality profile** (2026-03-10) — Users can discover their break personality based on session patterns. 14 personalities (Early Bird, Night Owl, Marathon Runner, Speed Demon, etc.). Gradient card UI with traits, fun facts, Twitter share, copy. Inspired by COLD-Steer paper. #68 closed.
+- **Removed recharts dependency** (2026-03-10) — Cleaned up unused recharts (replaced by SimpleBarChart in #56). Removed 35 packages.
+- **Issues Created** (2026-03-10) — #71 Personality share card image, #72 Personality evolution tracker
 - **Session timer sounds** (2026-03-09) — Optional audio cues via Web Audio API. Milestone chimes at 5/10/15/20 min, warning at 25 min, start/end sounds. Toggle in Profile settings, off by default. Respects prefers-reduced-motion. #66 closed.
 - **Streak danger zone** (2026-03-09) — Escalating warnings as midnight approaches. Visual urgency levels from 8pm (gentle) to 11:30pm+ (💀 emergency). Integrated "Start Now" button. Push notifications at 9pm, 10pm, 11pm, 11:30pm if enabled. Inspired by OPENDEV paper's event-driven reminders. #65 closed.
 - **Issues Created** (2026-03-09) — #68 Break personality profile, #69 Weekly digest email, #70 Break bingo
@@ -60,9 +63,10 @@ I'm Nora. PM for Back-log — a bathroom break social game. Not a productivity t
 - **#60** Friend challenges
 - **#64** Live break indicator
 - **#67** Monthly leaderboard reset
-- **#68** Break personality profile (NEW)
-- **#69** Weekly digest email (NEW)
-- **#70** Break bingo (NEW)
+- **#69** Weekly digest email
+- **#70** Break bingo
+- **#71** Personality share card image (NEW)
+- **#72** Personality evolution tracker (NEW)
 
 ---
 
