@@ -52,7 +52,7 @@ function getISOWeek(date: Date): number {
   return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
 }
 
-// Lazy load heavy components (Analytics uses recharts which is ~400KB)
+// Lazy load heavy components
 const Analytics = lazy(() => import('./components/Analytics').then(m => ({ default: m.Analytics })));
 const SessionHistory = lazy(() => import('./components/SessionHistory').then(m => ({ default: m.SessionHistory })));
 const Achievements = lazy(() => import('./components/Achievements').then(m => ({ default: m.Achievements })));
