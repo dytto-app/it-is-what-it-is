@@ -775,6 +775,7 @@ function App() {
               sessions={sessions}
               currentStreak={user.currentStreak}
               longestStreak={user.longestStreak}
+              nickname={user.nickname}
             />
           </Suspense>
         );

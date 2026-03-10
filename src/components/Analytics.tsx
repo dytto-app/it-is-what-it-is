@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { TrendingUp, Clock, DollarSign, Target, BarChart3, Sparkles, Lightbulb, ChevronLeft, ChevronRight, CalendarDays, Tags } from 'lucide-react';
 import { SimpleBarChart } from './SimpleBarChart';
+import { PersonalityProfile } from './PersonalityProfile';
 import { Session, SessionCategory, SESSION_CATEGORIES } from '../types';
 import { CalculationUtils } from '../utils/calculations';
 
@@ -357,9 +358,10 @@ interface AnalyticsProps {
   sessions: Session[];
   currentStreak?: number;
   longestStreak?: number;
+  nickname?: string;
 }
 
-export const Analytics: React.FC<AnalyticsProps> = ({ sessions, currentStreak = 0, longestStreak = 0 }) => {
+export const Analytics: React.FC<AnalyticsProps> = ({ sessions, currentStreak = 0, longestStreak = 0, nickname }) => {
   const analytics = CalculationUtils.generateAnalytics(sessions);
   const insights = useMemo(
     () => CalculationUtils.generateInsights(sessions, currentStreak, longestStreak),
@@ -407,6 +409,14 @@ export const Analytics: React.FC<AnalyticsProps> = ({ sessions, currentStreak = 
           </div>
         </div>
       </div>
+
+      {/* Break Personality Profile */}
+      <PersonalityProfile
+        sessions={sessions}
+        currentStreak={currentStreak}
+        longestStreak={longestStreak}
+        nickname={nickname}
+      />
 
       {/* Enhanced Summary cards */}
       <div className="grid grid-cols-2 gap-4">
