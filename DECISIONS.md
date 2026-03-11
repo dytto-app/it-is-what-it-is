@@ -1,5 +1,25 @@
 # DECISIONS.md — Back-log
 
+## Shipped (2026-03-11)
+
+### ✅ Personality Share Card Image (#71)
+- **Priority:** Medium (virality)
+- **Status:** Done — shipped in commit 64db038 (2026-03-11)
+- **Details:**
+  - Canvas-based 600x600 share image generation for personality
+  - Uses personality's gradient colors for background
+  - Shows emoji, name, secondary trait, description (word-wrapped), traits row
+  - Stats: sessions, current streak, best streak
+  - User attribution with nickname
+  - "Create Share Card" button in share panel
+  - Web Share API with image attachment (File)
+  - Twitter share, copy text, download PNG fallbacks
+  - Modal UI matching weekly summary design language
+
+### 📝 Issues Created
+- **#73**: Category-specific achievements — badges for break type mastery
+- **#74**: Shareable profile pages — public URLs for user profiles + personality
+
 ## Shipped (2026-03-10)
 
 ### ✅ Break Personality Profile (#68)

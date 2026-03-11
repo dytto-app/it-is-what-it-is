@@ -14,9 +14,11 @@ I'm Nora. PM for Back-log — a bathroom break social game. Not a productivity t
 
 ---
 
-## Current State (as of 2026-03-10)
+## Current State (as of 2026-03-11)
 
 ### Recently Shipped
+- **Personality share card image** (2026-03-11) — Canvas-generated 600x600 social preview for personality. Uses personality gradient colors, shows emoji/name/description/traits/stats. Web Share API with image attachment, Twitter share, copy text, download PNG. Closes the personality → viral share loop. #71 closed.
+- **Issues Created** (2026-03-11) — #73 Category-specific achievements, #74 Shareable profile pages
 - **Break personality profile** (2026-03-10) — Users can discover their break personality based on session patterns. 14 personalities (Early Bird, Night Owl, Marathon Runner, Speed Demon, etc.). Gradient card UI with traits, fun facts, Twitter share, copy. Inspired by COLD-Steer paper. #68 closed.
 - **Removed recharts dependency** (2026-03-10) — Cleaned up unused recharts (replaced by SimpleBarChart in #56). Removed 35 packages.
 - **Issues Created** (2026-03-10) — #71 Personality share card image, #72 Personality evolution tracker
@@ -65,8 +67,9 @@ I'm Nora. PM for Back-log — a bathroom break social game. Not a productivity t
 - **#67** Monthly leaderboard reset
 - **#69** Weekly digest email
 - **#70** Break bingo
-- **#71** Personality share card image (NEW)
-- **#72** Personality evolution tracker (NEW)
+- **#72** Personality evolution tracker
+- **#73** Category-specific achievements (NEW)
+- **#74** Shareable profile pages (NEW)
 
 ---
 
